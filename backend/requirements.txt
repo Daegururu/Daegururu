@@ -7,3 +7,5 @@ python-dotenv
 pydantic-settings
 anthropic
 pandas
+pyjwt
+bcrypt
