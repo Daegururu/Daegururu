@@ -17,7 +17,7 @@ Daegururu/
 
 | 영역 | 스택 |
 |---|---|
-| 프론트엔드 | React 19 (Vite), TypeScript, Tailwind CSS |
+| 프론트엔드 | React 19 (Vite), TypeScript, Tailwind CSS v4, react-router, TanStack Query, axios |
 | 백엔드 | FastAPI, SQLAlchemy 2.0, Alembic, PostgreSQL |
 | AI | Claude API (`anthropic` SDK), pandas |
 
@@ -57,26 +57,36 @@ PostgreSQL이 로컬에 떠 있어야 합니다 (`.env.example` 기본값: `post
 
 ```
 frontend/src/
-├── main.tsx
-├── App.tsx     # 기본 뼈대 페이지
-└── index.css   # Tailwind import
+├── main.tsx        # 진입점, RouterProvider 연결
+├── App.tsx         # 기본 뼈대 페이지
+├── index.css       # Tailwind import
+├── pages/          # 라우트 엔트리 (조립만)
+├── features/       # 기능(도메인)별 코드
+├── components/     # common/ 공통 UI, layout/ 레이아웃
+├── apis/           # axios 인스턴스 등 API 공통 설정
+├── routes/         # 라우터 설정
+└── assets/ constants/ hooks/ stores/ styles/ types/ utils/
 ```
 
 `@/*` → `src/*` 경로 alias가 `vite.config.ts` / `tsconfig.app.json`에 설정되어 있습니다.
+
+폴더 구조 규칙과 코드·Git 컨벤션은 [`frontend/README.md`](frontend/README.md)에 정리되어 있습니다.
 
 ### 로컬 실행
 
 ```bash
 cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-`.env.local`의 `VITE_API_URL`이 백엔드 주소를 가리킵니다 (기본값 `http://localhost:8000`).
+`.env`의 `VITE_API_BASE_URL`이 백엔드 주소를 가리킵니다 (기본값 `http://localhost:8000`).
 
 ## 다음 작업
 
-- [ ] 화면/라우팅 구조 설계 (Figma 기준) 및 라우터 라이브러리 도입
+- [ ] 화면/라우팅 구조 설계 (Figma 기준) 및 `frontend/src/routes`에 라우트 등록
+- [ ] 프론트 API 클라이언트(axios 인스턴스) 및 QueryClientProvider 연결
 - [ ] 도메인 모델 설계 (`backend/app/models/`)
 - [ ] 인증 방식 결정 및 구현
 - [ ] API 라우터 구현 (`backend/app/api/`)
