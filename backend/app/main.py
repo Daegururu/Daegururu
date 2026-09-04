@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.api import certificates
 
 # 모델을 import해야 Base.metadata에 테이블이 등록된다 (Alembic autogenerate 대비).
 from app import models  # noqa: F401
@@ -28,3 +29,9 @@ def health_check():
 # app.include_router(diagnosis.router, prefix="/api/v1/diagnosis", tags=["diagnosis"])
 # app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
 # app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
+
+#pdf 텍스트 추출 라우터
+app.include_router(
+    certificates.router,
+    prefix="/api/v1"
+)

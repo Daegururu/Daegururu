@@ -7,3 +7,7 @@ python-dotenv
 pydantic-settings
 anthropic
 pandas
+PyMuPDF
+pytesseract
+Pillow
+python-multipart
