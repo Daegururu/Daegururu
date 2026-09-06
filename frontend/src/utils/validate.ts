@@ -9,13 +9,17 @@ export function validateBusinessNumber(value: string): string {
   return ''
 }
 
-/** 휴대폰 번호는 하이픈을 뺀 10~11자리이고 0으로 시작합니다. */
+/**
+ * 휴대폰 번호는 하이픈을 뺀 010으로 시작하는 11자리입니다.
+ * 인증번호를 SMS로 보내야 하므로 유선·인터넷 전화번호는 받지 않습니다.
+ * 011·016·017·018·019는 2021년 6월 서비스가 종료되어 제외합니다.
+ */
 export function validatePhoneNumber(value: string): string {
   const digits = toDigits(value)
 
   if (!digits) return '휴대폰 번호를 입력해주세요'
-  if (!digits.startsWith('0')) return '휴대폰 번호 형식이 올바르지 않습니다'
-  if (digits.length < 10 || digits.length > 11) return '휴대폰 번호를 정확히 입력해주세요'
+  if (!digits.startsWith('010')) return '010으로 시작하는 휴대폰 번호를 입력해주세요'
+  if (digits.length !== 11) return '휴대폰 번호 11자리를 모두 입력해주세요'
   return ''
 }
 
