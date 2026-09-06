@@ -43,14 +43,12 @@ export function DiagnosisStartPage() {
 
       <div className="flex flex-col gap-4 rounded-md border border-border-default p-5">
         <p className="text-body-s font-medium text-text-secondary">가게 정보</p>
-        {/* 라벨과 값을 카드 왼쪽에 모아 둡니다. 값은 고정 폭 안에서 우측 정렬합니다. */}
+        {/* 라벨은 왼쪽, 값은 카드 오른쪽 끝에 붙입니다. */}
         <dl className="flex flex-col gap-2.5">
           {summary.map(({ label, value }) => (
-            <div key={label} className="flex items-center">
-              <dt className="w-[110px] shrink-0 text-body-s text-text-tertiary">{label}</dt>
-              <dd className="w-[150px] shrink-0 text-right text-body-s font-medium text-text-primary">
-                {value || '-'}
-              </dd>
+            <div key={label} className="flex items-center justify-between gap-4">
+              <dt className="text-body-s text-text-tertiary">{label}</dt>
+              <dd className="text-body-s font-medium text-text-primary">{value || '-'}</dd>
             </div>
           ))}
         </dl>
