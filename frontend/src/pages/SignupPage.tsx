@@ -1,15 +1,17 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 
-import { Button, Checkbox, FileDropzone, Input } from '@/components/common'
+import { Button, Checkbox, FileDropzone, Input, Modal, TermsModal } from '@/components/common'
+import type { TermsKey } from '@/constants/terms'
 import { LogoBar } from '@/components/layout'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
-import { formatBusinessNumber, formatPhoneNumber } from '@/utils/format'
+import { formatBusinessNumber, formatPhoneNumber, toDigits } from '@/utils/format'
 import {
   validateBusinessNumber,
   validatePassword,
   validatePhoneNumber,
   validateRequired,
+  validateVerificationCode,
 } from '@/utils/validate'
 
 /** PDF에서 자동 인식되는 값. API 연동 전까지는 고정 값을 사용합니다. */
@@ -18,11 +20,9 @@ const RECOGNIZED_INFO = {
   ownerName: '김영수',
 }
 
-type AgreementKey = 'terms' | 'privacy' | 'marketing'
+type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'verificationCode' | 'password'
 
-type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'password'
-
-const AGREEMENTS: { key: AgreementKey; label: string }[] = [
+const AGREEMENTS: { key: TermsKey; label: string }[] = [
   { key: 'terms', label: '서비스 이용약관 (필수)' },
   { key: 'privacy', label: '개인정보 수집·이용 동의 (필수)' },
   { key: 'marketing', label: '마케팅 정보 수신 (선택)' },
@@ -36,7 +36,11 @@ export function SignupPage() {
   const [ownerName, setOwnerName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [agreements, setAgreements] = useState<Record<AgreementKey, boolean>>({
+  const [verificationCode, setVerificationCode] = useState('')
+  const [isCodeSent, setCodeSent] = useState(false)
+  const [openedTerms, setOpenedTerms] = useState<TermsKey | null>(null)
+  const [isFailureModalOpen, setFailureModalOpen] = useState(false)
+  const [agreements, setAgreements] = useState<Record<TermsKey, boolean>>({
     terms: false,
     privacy: false,
     marketing: false,
@@ -46,14 +50,20 @@ export function SignupPage() {
     businessNumber: '',
     ownerName: '',
     phone: '',
+    verificationCode: '',
     password: '',
   })
 
+  // 사업자 정보는 PDF에서 읽어온 값만 사용합니다. 업로드 전에는 입력할 수 없습니다.
   const isUploaded = file !== null
   const isAllAgreed = AGREEMENTS.every(({ key }) => agreements[key])
   const isRequiredAgreed = agreements.terms && agreements.privacy
   const canSubmit =
-    isUploaded && Boolean(phone.trim()) && Boolean(password.trim()) && isRequiredAgreed
+    isUploaded &&
+    Boolean(phone.trim()) &&
+    Boolean(verificationCode.trim()) &&
+    Boolean(password.trim()) &&
+    isRequiredAgreed
 
   /** 입력을 고치는 동안에는 해당 필드의 에러를 지웁니다. */
   const clearError = (field: FieldKey) => setErrors((prev) => ({ ...prev, [field]: '' }))
@@ -69,7 +79,14 @@ export function SignupPage() {
 
   const handleFileSelect = (selected: File) => {
     setFile(selected)
-    // TODO: OCR API 연동. 현재는 인식 결과를 고정 값으로 채웁니다.
+
+    // TODO: OCR API 연동. 응답이 사업자 정보를 담지 못하면 인식 실패 모달을 띄웁니다.
+    // 현재는 파일명에 'fail'이 들어간 경우를 실패 케이스로 흉내 냅니다.
+    if (selected.name.toLowerCase().includes('fail')) {
+      setFailureModalOpen(true)
+      return
+    }
+
     setBusinessNumber(RECOGNIZED_INFO.businessNumber)
     setOwnerName(RECOGNIZED_INFO.ownerName)
   }
@@ -78,6 +95,28 @@ export function SignupPage() {
     setFile(null)
     setBusinessNumber('')
     setOwnerName('')
+  }
+
+  /** 인식 실패 모달에서 [다시 업로드]를 누르면 업로드 전 상태로 되돌립니다. */
+  const handleRetryUpload = () => {
+    setFailureModalOpen(false)
+    handleFileClear()
+  }
+
+  /** 약관 모달에서 [확인]을 누르면 해당 약관에 동의 처리합니다. */
+  const handleTermsConfirm = (key: TermsKey) => {
+    setAgreements((prev) => ({ ...prev, [key]: true }))
+    setOpenedTerms(null)
+  }
+
+  /** TODO: 인증번호 발송 API 연동 */
+  const handleSendCode = () => {
+    const phoneError = validatePhoneNumber(phone)
+    if (phoneError) {
+      setErrors((prev) => ({ ...prev, phone: phoneError }))
+      return
+    }
+    setCodeSent(true)
   }
 
   const toggleAll = (checked: boolean) => {
@@ -92,6 +131,7 @@ export function SignupPage() {
       businessNumber: validateBusinessNumber(businessNumber),
       ownerName: validateRequired(ownerName, '대표자명'),
       phone: validatePhoneNumber(phone),
+      verificationCode: validateVerificationCode(verificationCode),
       password: validatePassword(password),
     }
     setErrors(nextErrors)
@@ -169,10 +209,32 @@ export function SignupPage() {
               autoComplete="tel"
               maxLength={13}
             />
-            <Button variant="secondary" className="shrink-0">
+            <Button variant="secondary" className="shrink-0" onClick={handleSendCode}>
               인증번호 받기
             </Button>
           </div>
+
+          {isCodeSent && (
+            <div className="flex items-end gap-3">
+              <Input
+                label="인증번호"
+                placeholder="6자리 숫자 입력"
+                helperText="문자로 받은 인증번호를 입력하세요 · 유효시간 3:00"
+                value={verificationCode}
+                onChange={(event) => {
+                  setVerificationCode(toDigits(event.target.value).slice(0, 6))
+                  clearError('verificationCode')
+                }}
+                errorMessage={errors.verificationCode}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+              />
+              <Button variant="secondary" className="shrink-0">
+                확인
+              </Button>
+            </div>
+          )}
 
           <Input
             label="비밀번호"
@@ -208,7 +270,11 @@ export function SignupPage() {
                 >
                   {label}
                 </Checkbox>
-                <button type="button" className="text-caption text-text-tertiary hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setOpenedTerms(key)}
+                  className="text-caption text-text-tertiary hover:underline"
+                >
                   보기
                 </button>
               </div>
@@ -225,6 +291,31 @@ export function SignupPage() {
           </div>
         </form>
       </main>
+
+      <Modal
+        open={isFailureModalOpen}
+        onClose={handleRetryUpload}
+        ariaLabel="문서를 인식하지 못했습니다"
+      >
+        <span
+          aria-hidden
+          className="flex size-14 items-center justify-center rounded-full bg-status-warn text-[28px] font-bold text-text-inverse"
+        >
+          !
+        </span>
+        <p className="text-heading-m font-bold text-text-primary">문서를 인식하지 못했습니다</p>
+        <p className="max-w-[274px] text-center text-body-m text-text-secondary">
+          업로드하신 소상공인 확인서에서 사업자 정보를 읽어오지 못했어요. 파일이 선명한지 확인하고
+          다시 업로드해주세요.
+        </p>
+        <Button onClick={handleRetryUpload}>다시 업로드</Button>
+      </Modal>
+
+      <TermsModal
+        termsKey={openedTerms}
+        onConfirm={handleTermsConfirm}
+        onClose={() => setOpenedTerms(null)}
+      />
     </div>
   )
 }

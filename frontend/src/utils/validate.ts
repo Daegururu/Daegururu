@@ -29,6 +29,15 @@ export function validatePassword(value: string): string {
   return ''
 }
 
+/** 인증번호는 6자리 숫자입니다. */
+export function validateVerificationCode(value: string): string {
+  const digits = toDigits(value)
+
+  if (!digits) return '인증번호를 입력해주세요'
+  if (digits.length !== 6) return '인증번호 6자리를 입력해주세요'
+  return ''
+}
+
 /** 이름은 공백을 제외하고 한 글자 이상이어야 합니다. */
 export function validateRequired(value: string, label: string): string {
   if (!value.trim()) return `${label}을(를) 입력해주세요`

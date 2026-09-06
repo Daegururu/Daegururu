@@ -39,3 +39,6 @@ export type { TabProps } from './Tab'
 
 export { TableHeader, TableRow } from './Table'
 export type { TableCells, TableHeaderProps, TableRowProps } from './Table'
+
+export { TermsModal } from './TermsModal'
+export type { TermsModalProps } from './TermsModal'
