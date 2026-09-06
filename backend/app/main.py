@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api import certificates
 
+from sqlalchemy import text
+from app.core.database import engine
+
 # 모델을 import해야 Base.metadata에 테이블이 등록된다 (Alembic autogenerate 대비).
 from app import models  # noqa: F401
 
@@ -22,7 +25,13 @@ app.add_middleware(
 def health_check():
     return {"status": "ok", "env": settings.ENV}
 
+@app.get("/health/db")
+def db_health_check():
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
 
+    return {"database": "connected"}
+    
 # 라우터는 기능 구현되는 대로 여기에 등록:
 # from app.api import auth, diagnosis, products, chat
 # app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
