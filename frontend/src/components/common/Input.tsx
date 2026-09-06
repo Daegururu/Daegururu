@@ -1,8 +1,8 @@
-import { useId, type InputHTMLAttributes } from 'react'
+import { useId, type ComponentPropsWithRef } from 'react'
 
 import { cn } from '@/utils/cn'
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> {
+export interface InputProps extends Omit<ComponentPropsWithRef<'input'>, 'id'> {
   label?: string
   /** 필드 아래 안내 문구. errorMessage가 있으면 그쪽이 우선합니다. */
   helperText?: string
@@ -22,7 +22,8 @@ export function Input({
 }: InputProps) {
   const id = useId()
   const hasError = Boolean(errorMessage)
-  const description = errorMessage ?? helperText
+  // 빈 문자열도 '에러 없음'으로 보고 헬퍼 텍스트를 노출합니다.
+  const description = errorMessage || helperText
   const descriptionId = description ? `${id}-description` : undefined
   // 호출한 쪽이 넘긴 설명 id와 내부에서 만든 id를 함께 연결합니다.
   const describedBy = [ariaDescribedBy, descriptionId].filter(Boolean).join(' ') || undefined
