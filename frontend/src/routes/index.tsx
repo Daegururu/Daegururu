@@ -11,18 +11,18 @@ import { StoreInfoPage } from '@/pages/onboarding/StoreInfoPage'
 export const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/login', element: <LoginPage /> },
-  { path: '/signup', element: <SignupPage /> },
   {
-    // 온보딩 단계 사이에서 입력값을 유지하기 위해 provider로 감쌉니다.
-    path: '/onboarding',
+    // 가입 단계에서 읽은 사업자등록증 정보를 온보딩까지 이어가기 위해
+    // 회원가입과 온보딩을 같은 provider로 묶습니다.
     element: (
       <OnboardingProvider>
         <Outlet />
       </OnboardingProvider>
     ),
     children: [
-      { path: 'store', element: <StoreInfoPage /> },
-      { path: 'confirm', element: <DiagnosisStartPage /> },
+      { path: '/signup', element: <SignupPage /> },
+      { path: '/onboarding/store', element: <StoreInfoPage /> },
+      { path: '/onboarding/confirm', element: <DiagnosisStartPage /> },
     ],
   },
 ])
