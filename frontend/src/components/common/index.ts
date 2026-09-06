@@ -4,11 +4,23 @@ export type { ButtonProps, ButtonSize, ButtonVariant } from './Button'
 export { ChatBubble } from './ChatBubble'
 export type { ChatBubbleProps, ChatBubbleRole } from './ChatBubble'
 
+export { Checkbox } from './Checkbox'
+export type { CheckboxProps } from './Checkbox'
+
+export { FileDropzone } from './FileDropzone'
+export type { FileDropzoneProps } from './FileDropzone'
+
 export { Input } from './Input'
 export type { InputProps } from './Input'
 
+export { LogoMark } from './LogoMark'
+export type { LogoMarkProps } from './LogoMark'
+
 export { MetricTile } from './MetricTile'
 export type { MetricTileProps, MetricTileTone } from './MetricTile'
+
+export { Modal } from './Modal'
+export type { ModalProps } from './Modal'
 
 export { NavItem } from './NavItem'
 export type { NavItemProps } from './NavItem'

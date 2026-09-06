@@ -1,8 +1,8 @@
-import { useId, type InputHTMLAttributes } from 'react'
+import { useId, type ComponentPropsWithRef } from 'react'
 
 import { cn } from '@/utils/cn'
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> {
+export interface InputProps extends Omit<ComponentPropsWithRef<'input'>, 'id'> {
   label?: string
   /** 필드 아래 안내 문구. errorMessage가 있으면 그쪽이 우선합니다. */
   helperText?: string

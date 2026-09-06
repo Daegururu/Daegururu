@@ -39,7 +39,9 @@ export function MetricTile({
       <p className="text-body-s font-medium text-text-secondary">{label}</p>
       <p className="text-number-l font-bold text-text-primary">{value}</p>
       {/* delta가 0일 때도 표시해야 하므로 truthy 검사 대신 null 검사를 씁니다. */}
-      {delta != null && <p className={cn('text-caption font-medium', DELTA_CLASS[tone])}>{delta}</p>}
+      {delta != null && (
+        <p className={cn('text-caption font-medium', DELTA_CLASS[tone])}>{delta}</p>
+      )}
     </div>
   )
 }
