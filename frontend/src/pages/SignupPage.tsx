@@ -20,6 +20,10 @@ import {
 
 type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'verificationCode' | 'password'
 
+const UPLOAD_HELPER_TEXT =
+  'PDF 형식만 가능 · 국세청 소상공인확인서 발급 페이지에서 발급받을 수 있습니다'
+const UPLOAD_PENDING_TEXT = '확인서를 읽고 있습니다. 스캔본은 조금 더 걸릴 수 있어요'
+
 const AGREEMENTS: { key: TermsKey; label: string }[] = [
   { key: 'terms', label: '서비스 이용약관 (필수)' },
   { key: 'privacy', label: '개인정보 수집·이용 동의 (필수)' },
@@ -80,10 +84,13 @@ export function SignupPage() {
   const isRequiredAgreed = agreements.terms && agreements.privacy
   const canSubmit =
     isUploaded &&
+    !upload.isPending &&
     Boolean(phone.trim()) &&
     Boolean(verificationCode.trim()) &&
     Boolean(password.trim()) &&
     isRequiredAgreed
+
+  const uploadHelperText = upload.isPending ? UPLOAD_PENDING_TEXT : UPLOAD_HELPER_TEXT
 
   /** 입력을 고치는 동안에는 해당 필드의 에러를 지웁니다. */
   const clearError = (field: FieldKey) => setErrors((prev) => ({ ...prev, [field]: '' }))
@@ -171,15 +178,23 @@ export function SignupPage() {
             </p>
           </div>
 
-          <FileDropzone
-            label="소상공인 확인서 (PDF)"
-            file={file}
-            onFileSelect={(selected) => upload.mutate(selected)}
-            onFileClear={handleFileClear}
-            title="소상공인 확인서를 업로드하세요"
-            description="업로드하면 사업자등록번호·대표자명이 자동으로 입력됩니다"
-            helperText="PDF 형식만 가능 · 국세청 소상공인확인서 발급 페이지에서 발급받을 수 있습니다"
-          />
+          <div className="flex flex-col gap-2">
+            <FileDropzone
+              label="소상공인 확인서 (PDF)"
+              file={file}
+              onFileSelect={(selected) => upload.mutate(selected)}
+              onFileClear={handleFileClear}
+              title="소상공인 확인서를 업로드하세요"
+              description="업로드하면 사업자등록번호·대표자명이 자동으로 입력됩니다"
+              // 실패 문구를 따로 띄우므로 안내 문구는 비웁니다.
+              helperText={upload.isError ? undefined : uploadHelperText}
+            />
+            {upload.isError && (
+              <p role="alert" className="text-caption text-status-danger">
+                {upload.error.message}
+              </p>
+            )}
+          </div>
 
           <Input
             label="사업자등록번호"
