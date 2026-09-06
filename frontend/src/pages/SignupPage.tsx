@@ -140,8 +140,7 @@ export function SignupPage() {
 
     // TODO: 회원가입 API 연동. 번호는 하이픈을 떼고 숫자만 전송합니다.
     // { businessNumber: toDigits(businessNumber), phone: toDigits(phone), ownerName, password }
-    // TODO: 온보딩 화면(#7) 구현 후 '/onboarding/store'로 변경합니다.
-    navigate('/')
+    navigate('/onboarding/store')
   }
 
   return (

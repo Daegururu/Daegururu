@@ -1,4 +1,5 @@
 import { toDigits } from '@/utils/format'
+import { appendParticle } from '@/utils/korean'
 
 /** 사업자등록번호는 하이픈을 뺀 10자리입니다. */
 export function validateBusinessNumber(value: string): string {
@@ -42,8 +43,8 @@ export function validateVerificationCode(value: string): string {
   return ''
 }
 
-/** 이름은 공백을 제외하고 한 글자 이상이어야 합니다. */
+/** 공백을 제외하고 한 글자 이상이어야 합니다. */
 export function validateRequired(value: string, label: string): string {
-  if (!value.trim()) return `${label}을(를) 입력해주세요`
+  if (!value.trim()) return `${appendParticle(label, '을/를')} 입력해주세요`
   return ''
 }
