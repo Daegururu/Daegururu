@@ -26,4 +26,4 @@ export { Tab } from './Tab'
 export type { TabProps } from './Tab'
 
 export { TableHeader, TableRow } from './Table'
-export type { TableHeaderProps, TableRowProps } from './Table'
+export type { TableCells, TableHeaderProps, TableRowProps } from './Table'

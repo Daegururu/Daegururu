@@ -10,11 +10,22 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   errorMessage?: string
 }
 
-export function Input({ label, helperText, errorMessage, className, ...props }: InputProps) {
+export function Input({
+  label,
+  helperText,
+  errorMessage,
+  className,
+  // 아래 두 속성은 {...props}에 섞이면 내부 계산 값을 덮어쓰므로 미리 분리합니다.
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
+  ...props
+}: InputProps) {
   const id = useId()
   const hasError = Boolean(errorMessage)
   const description = errorMessage ?? helperText
   const descriptionId = description ? `${id}-description` : undefined
+  // 호출한 쪽이 넘긴 설명 id와 내부에서 만든 id를 함께 연결합니다.
+  const describedBy = [ariaDescribedBy, descriptionId].filter(Boolean).join(' ') || undefined
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -26,8 +37,8 @@ export function Input({ label, helperText, errorMessage, className, ...props }: 
 
       <input
         id={id}
-        aria-invalid={hasError || undefined}
-        aria-describedby={descriptionId}
+        aria-invalid={hasError || ariaInvalid || undefined}
+        aria-describedby={describedBy}
         className={cn(
           'h-11 w-full rounded-md border bg-bg-surface px-4',
           'text-body-m text-text-primary placeholder:text-text-tertiary',
