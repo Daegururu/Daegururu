@@ -1,17 +1,17 @@
 @import 'tailwindcss';
+@import './styles/tokens.css';
 
-:root {
-  color-scheme: light dark;
-}
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-bg-canvas);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+  }
 
-body {
-  margin: 0;
-  background: #fafafa;
-  color: #18181b;
-}
-
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
 }
