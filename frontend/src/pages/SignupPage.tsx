@@ -78,15 +78,15 @@ export function SignupPage() {
   })
 
   const handleFileSelect = (selected: File) => {
-    setFile(selected)
-
     // TODO: OCR API 연동. 응답이 사업자 정보를 담지 못하면 인식 실패 모달을 띄웁니다.
     // 현재는 파일명에 'fail'이 들어간 경우를 실패 케이스로 흉내 냅니다.
+    // 인식에 실패한 파일은 등록하지 않아 업로드 전 상태가 유지됩니다.
     if (selected.name.toLowerCase().includes('fail')) {
       setFailureModalOpen(true)
       return
     }
 
+    setFile(selected)
     setBusinessNumber(RECOGNIZED_INFO.businessNumber)
     setOwnerName(RECOGNIZED_INFO.ownerName)
   }
