@@ -39,6 +39,8 @@ export function FixedCostTabPanel() {
                 outerRadius={84}
                 startAngle={90}
                 endAngle={-270}
+                // Figma 도넛은 조각 사이가 3도쯤 떨어져 있습니다.
+                paddingAngle={3}
                 stroke="none"
                 isAnimationActive={false}
               >
@@ -70,7 +72,7 @@ export function FixedCostTabPanel() {
         <div className="min-w-0 flex-1" role="table">
           <div
             role="row"
-            className="flex items-center gap-4 rounded-md bg-bg-subtle px-5 py-2.5 text-body-s font-medium text-text-secondary"
+            className="flex items-center gap-10 rounded-md bg-bg-subtle px-5 py-2.5 text-body-s font-medium text-text-secondary"
           >
             <span role="columnheader" className="min-w-0 flex-1">
               항목
@@ -90,7 +92,7 @@ export function FixedCostTabPanel() {
             <div
               key={label}
               role="row"
-              className="flex items-center gap-4 border-b border-border-default px-5 py-3 text-body-s text-text-primary last:border-b-0"
+              className="flex items-center gap-10 border-b border-border-default px-5 py-3 text-body-s text-text-primary last:border-b-0"
             >
               <span role="cell" className="min-w-0 flex-1">
                 {label}

@@ -14,7 +14,7 @@ const COLUMNS: TableCells = ['정산 예정일', '구분', '내용', '금액', '
 export function SettlementTabPanel() {
   return (
     <ReportCard title="카드사별 정산 내역" meta={MOCK_SETTLEMENT_META} note={MOCK_SETTLEMENT_NOTE}>
-      <div role="table" className="overflow-hidden rounded-md border border-border-default">
+      <div role="table">
         <TableHeader labels={COLUMNS} />
         {MOCK_SETTLEMENTS.map(({ date, kind, content, amount, status }) => (
           <TableRow
