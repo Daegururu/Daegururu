@@ -61,7 +61,7 @@ export const MOCK_FIXED_COST_ROWS: FixedCostRow[] = [
 ]
 
 export const MOCK_FIXED_COST_NOTE =
-  '인건비가 고정비의 55.8%를 차지합니다. 전월 대비 +18.0%이고, 증가분 118만원은 8월 주휴수당 정산분이 일시에 반영된 것입니다.'
+  '인건비가 고정비의 55.8%를 차지합니다. 전월 대비 +18.0%이고, 증가분 67만원은 8월 주휴수당 정산분이 일시에 반영된 것입니다.'
 
 /** 현금흐름 탭. 단위는 만원입니다. */
 export const MOCK_MONTHLY_CASH_FLOW: MonthlyAmount[] = [
@@ -128,7 +128,7 @@ export const MOCK_CAUSE: CauseAnalysis = {
   ],
   evidences: [
     '고정비 비중 42.8% — 동일 업종 평균 34.1% 대비 8.7%p 높음',
-    '인건비 7,880,000원 — 전월 대비 +18.0% (주휴수당 일시 반영)',
+    '인건비 4,400,000원 — 전월 대비 +18.0% (주휴수당 일시 반영)',
     '순현금흐름 2개월 연속 마이너스 — 8월 -1,240,000원',
   ],
 }
@@ -171,7 +171,7 @@ export const MOCK_PRESCRIPTION_DETAILS: Record<string, PrescriptionDetail> = {
       {
         title: '주간 근무표에서 주 15시간 경계 확인',
         description:
-          '현재 3명이 주 16~17시간으로 주휴수당 발생 구간에 걸쳐 있습니다. 근무표에서 해당 인원을 먼저 표시하세요.',
+          '현재 3명이 주 16~17시간으로 주휴수당 발생 구간에 걸쳐 있습니다. 4주 평균 기준이므로 특정 주만 줄여서는 효과가 없습니다. 근무표에서 해당 인원을 먼저 표시하세요.',
       },
       {
         title: '2명의 근무를 주 14시간으로 재배치',
@@ -196,7 +196,7 @@ export const MOCK_PRESCRIPTION_DETAILS: Record<string, PrescriptionDetail> = {
       { label: '난이도', value: '보통' },
     ],
     notices: [
-      '근로기준법상 주휴수당은 주 15시간 이상 근무할 때 발생합니다.',
+      '근로기준법상 주휴수당은 4주 평균 1주 소정근로시간이 15시간 이상이고 소정근로일에 개근한 경우 발생합니다.',
       '근무시간 단축은 근로자 동의가 필요하고, 일방적으로 줄이면 불이익 변경에 해당할 수 있습니다. 합의서 없이 진행하지 마세요.',
     ],
   },
