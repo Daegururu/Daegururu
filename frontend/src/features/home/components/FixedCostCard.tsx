@@ -72,7 +72,8 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
         </ul>
       </div>
 
-      <p className="text-body-s text-text-secondary">{note}</p>
+      {/* 도넛과 너무 붙어 보여 아래로 내려 둡니다. */}
+      <p className="mt-3 text-body-s text-text-secondary">{note}</p>
     </section>
   )
 }

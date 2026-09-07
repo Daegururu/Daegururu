@@ -23,21 +23,28 @@ export function HomePage() {
 
   return (
     <AppLayout title="홈" user={MOCK_USER}>
-      <RiskHeroCard diagnosis={MOCK_DIAGNOSIS} onViewReport={goToPlaceholder} />
+      {/* 진단 결과 영역과 그에 따른 추천 영역을 섹션 제목으로 나눕니다. */}
+      <section className="flex flex-col gap-6">
+        <h2 className="text-heading-s font-bold text-text-primary">우리 가게 진단</h2>
 
-      <MetricSummaryGrid metrics={MOCK_METRICS} />
+        <RiskHeroCard diagnosis={MOCK_DIAGNOSIS} onViewReport={goToPlaceholder} />
 
-      {/* 현금흐름 : 고정비 = 700 : 412 (Figma 기준 비율) */}
-      <div className="grid grid-cols-[700fr_412fr] gap-6">
-        <CashFlowCard
-          points={MOCK_CASH_FLOW}
-          average={MOCK_CASH_FLOW_AVERAGE}
-          note={MOCK_CASH_FLOW_NOTE}
-        />
-        <FixedCostCard items={MOCK_FIXED_COSTS} note={MOCK_FIXED_COST_NOTE} />
-      </div>
+        <MetricSummaryGrid metrics={MOCK_METRICS} />
 
+        {/* 현금흐름 : 고정비 = 700 : 412 (Figma 기준 비율) */}
+        <div className="grid grid-cols-[700fr_412fr] gap-6">
+          <CashFlowCard
+            points={MOCK_CASH_FLOW}
+            average={MOCK_CASH_FLOW_AVERAGE}
+            note={MOCK_CASH_FLOW_NOTE}
+          />
+          <FixedCostCard items={MOCK_FIXED_COSTS} note={MOCK_FIXED_COST_NOTE} />
+        </div>
+      </section>
+
+      {/* 두 섹션 사이는 카드 간격(24px)보다 넓은 48px로 띄웁니다. */}
       <SupportProgramSection
+        className="mt-6"
         programs={MOCK_SUPPORT_PROGRAMS}
         onViewAll={goToPlaceholder}
         onViewDetail={goToPlaceholder}
