@@ -13,6 +13,7 @@
 | 라우팅     | react-router          | URL ↔ 화면 연결                      |
 | 서버 상태  | @tanstack/react-query | API 데이터 캐싱, 로딩·에러 처리      |
 | HTTP       | axios                 | 요청, 인터셉터로 토큰·에러 일괄 처리 |
+| 차트       | recharts              | 대시보드 라인·도넛 차트              |
 | 린트       | oxlint                | 코드 검사                            |
 | 포맷       | prettier              | 코드 포맷 자동 정렬                  |
 

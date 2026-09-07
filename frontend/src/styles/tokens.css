@@ -31,6 +31,10 @@
   --color-amber-500: #f5a623;
   --color-amber-700: #b87400;
 
+  --color-blue-100: #dbe5ff;
+  --color-blue-300: #7c9cf5;
+  --color-blue-500: #2b5ce6;
+
   --color-red-50: #fdecec;
   --color-red-500: #e03b3b;
   --color-red-700: #a82121;
@@ -67,6 +71,14 @@
   --color-status-warn-bg: var(--color-amber-50);
   --color-status-danger: var(--color-red-500);
   --color-status-danger-bg: var(--color-red-50);
+
+  /* 차트 */
+  --color-chart-line: var(--color-blue-500);
+  --color-chart-average: var(--color-gray-600);
+  --color-chart-series-1: var(--color-teal-500);
+  --color-chart-series-2: var(--color-blue-300);
+  --color-chart-series-3: var(--color-blue-100);
+  --color-chart-grid: var(--color-gray-100);
 
   /* ---------- Radius ---------- */
   --radius-sm: 4px;
