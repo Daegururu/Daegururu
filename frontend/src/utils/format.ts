@@ -22,3 +22,14 @@ export function formatPhoneNumber(value: string): string {
   if (digits.length === 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
   return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
 }
+
+/** 금액을 1,840,000원 형태로 만듭니다. */
+export function formatWon(amount: number): string {
+  return `${amount.toLocaleString('ko-KR')}원`
+}
+
+/** 증감률을 +18.0% / 0.0% / -1.2% 형태로 만듭니다. 단위는 %p처럼 바꿔 쓸 수 있습니다. */
+export function formatSignedRate(value: number, unit = '%'): string {
+  const sign = value > 0 ? '+' : ''
+  return `${sign}${value.toFixed(1)}${unit}`
+}
