@@ -26,16 +26,17 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
 
       <AverageToggle label="업종 평균 비교" value={showAverage} onChange={setShowAverage} />
 
-      <div className="flex items-center gap-8">
-        <div className="size-[200px] shrink-0">
+      {/* 도넛과 범례가 카드 안에서 세로 가운데에 오도록 남는 높이를 이 줄이 흡수합니다. */}
+      <div className="flex flex-1 items-center gap-10">
+        <div className="size-44 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={items}
                 dataKey="ratio"
                 nameKey="label"
-                innerRadius={62}
-                outerRadius={100}
+                innerRadius={54}
+                outerRadius={88}
                 startAngle={90}
                 endAngle={-270}
                 paddingAngle={0}
@@ -50,9 +51,10 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
           </ResponsiveContainer>
         </div>
 
-        <ul className="flex flex-col gap-3.5">
+        {/* 범례는 남는 폭을 모두 차지하고, 비중은 오른쪽 끝에 맞춰 세로로 정렬합니다. */}
+        <ul className="flex w-[168px] shrink-0 flex-col gap-4">
           {items.map(({ label, ratio, averageRatio }, index) => (
-            <li key={label} className="flex flex-col gap-1">
+            <li key={label} className="flex flex-col gap-0.5">
               <div className="flex items-center gap-2.5">
                 <span
                   aria-hidden
@@ -60,11 +62,13 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
                   style={{ backgroundColor: SERIES_COLORS[index % SERIES_COLORS.length] }}
                 />
                 <span className="text-body-s text-text-primary">{label}</span>
-                <span className="text-body-s font-medium text-text-primary">{ratio}%</span>
+                <span className="ml-auto text-body-s font-medium text-text-primary tabular-nums">
+                  {ratio}%
+                </span>
               </div>
               {showAverage && (
-                <span className="pl-5 text-caption text-text-tertiary">
-                  (업종평균 {averageRatio}%)
+                <span className="self-end text-caption text-text-tertiary tabular-nums">
+                  업종평균 {averageRatio}%
                 </span>
               )}
             </li>
@@ -72,8 +76,7 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
         </ul>
       </div>
 
-      {/* 도넛과 너무 붙어 보여 아래로 내려 둡니다. */}
-      <p className="mt-3 text-body-s text-text-secondary">{note}</p>
+      <p className="text-body-s text-text-secondary">{note}</p>
     </section>
   )
 }
