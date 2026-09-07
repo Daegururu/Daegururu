@@ -68,7 +68,11 @@ export function AppLayout({ title, user, children }: AppLayoutProps) {
           </div>
         </header>
 
-        <main className="flex flex-1 flex-col gap-6 overflow-y-auto p-8">{children}</main>
+        {/* 스크롤은 main이 맡고, 내용 배치는 안쪽 div가 맡습니다. main에서 바로 flex로
+            묶으면 내용이 길어질 때 카드들이 넘치지 않고 눌려서 잘립니다. */}
+        <main className="flex-1 overflow-y-auto p-8">
+          <div className="flex flex-col gap-6">{children}</div>
+        </main>
       </div>
     </div>
   )

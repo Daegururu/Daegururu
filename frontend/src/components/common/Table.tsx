@@ -8,7 +8,8 @@ const CELL_CLASS = [
   'w-[130px] shrink-0',
   'w-[130px] shrink-0',
   'min-w-0 flex-1',
-  'w-[160px] shrink-0 text-right',
+  // 금액은 우측 정렬이라 오른쪽 여백을 주면 숫자만 왼쪽으로 밀립니다.
+  'w-[160px] shrink-0 pr-10 text-right',
   'w-[120px] shrink-0',
 ] as const
 

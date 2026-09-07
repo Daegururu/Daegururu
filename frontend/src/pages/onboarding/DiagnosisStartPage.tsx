@@ -55,7 +55,7 @@ export function DiagnosisStartPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-body-s font-medium text-gray-700">이번 진단에서 확인하는 것</p>
+        <p className="text-body-s font-medium text-text-secondary">이번 진단에서 확인하는 것</p>
         <ul className="flex flex-wrap gap-2">
           {DIAGNOSIS_SCOPES.map((scope) => (
             <li
