@@ -28,7 +28,7 @@ export function DiagnosisStartPage() {
 
   const handleStart = () => {
     // TODO: 진단 실행 API 연동
-    navigate('/')
+    navigate('/home')
   }
 
   return (

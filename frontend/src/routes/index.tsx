@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from 'react-router'
 
 import { AuthLayout } from '@/components/layout'
 import { OnboardingProvider } from '@/features/onboarding/OnboardingProvider'
+import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { SplashPage } from '@/pages/SplashPage'
@@ -33,4 +34,5 @@ export const router = createBrowserRouter([
       { path: '/onboarding/confirm', element: <DiagnosisStartPage /> },
     ],
   },
+  { path: '/home', element: <HomePage /> },
 ])
