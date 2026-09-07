@@ -1,17 +1,42 @@
 import type { CauseAnalysis } from '@/features/diagnosis/types'
+import { cn } from '@/utils/cn'
+import type { RiskLevel } from '@/utils/risk'
+
+/** 강조 막대와 제목은 위험 등급 색을 따릅니다. */
+const LEVEL_BG_CLASS = {
+  safe: 'bg-status-safe',
+  warn: 'bg-status-warn',
+  danger: 'bg-status-danger',
+} as const
+
+const LEVEL_TEXT_CLASS = {
+  safe: 'text-status-safe',
+  warn: 'text-status-warn',
+  danger: 'text-status-danger',
+} as const
+
+/** 제목은 등급 라벨(안전·주의·위험)을 그대로 반영합니다. */
+const LEVEL_TITLE = {
+  safe: '지금은 안정적이에요',
+  warn: '왜 주의해야 하나요?',
+  danger: '왜 위험한가요?',
+} as const
 
 export interface CauseCardProps {
   cause: CauseAnalysis
+  level: RiskLevel
 }
 
-/** "왜 위험한가요?" 원인 분석 카드입니다. 왼쪽에 강조 막대가 붙습니다. */
-export function CauseCard({ cause }: CauseCardProps) {
+/** 원인 분석 카드입니다. 왼쪽에 등급 색 강조 막대가 붙습니다. */
+export function CauseCard({ cause, level }: CauseCardProps) {
   return (
     <section className="flex overflow-hidden rounded-lg border border-border-default bg-bg-surface shadow-sm">
-      <span aria-hidden className="w-1 shrink-0 bg-status-warn" />
+      <span aria-hidden className={cn('w-1 shrink-0', LEVEL_BG_CLASS[level])} />
 
       <div className="flex flex-1 flex-col gap-4 p-6">
-        <h3 className="text-heading-s font-bold text-status-warn">왜 위험한가요?</h3>
+        <h3 className={cn('text-heading-s font-bold', LEVEL_TEXT_CLASS[level])}>
+          {LEVEL_TITLE[level]}
+        </h3>
 
         <div className="flex flex-col">
           {cause.descriptions.map((text) => (
