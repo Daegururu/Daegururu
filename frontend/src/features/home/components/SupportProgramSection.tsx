@@ -4,8 +4,10 @@ import { cn } from '@/utils/cn'
 
 export interface SupportProgramSectionProps {
   programs: SupportProgram[]
-  onViewAll: () => void
-  onViewDetail: (id: string) => void
+  /** 07 금융상품 추천으로 이동. 화면이 없는 동안에는 넘기지 않아 버튼이 비활성됩니다. */
+  onViewAll?: () => void
+  /** 08 상품 상세로 이동. 화면이 없는 동안에는 넘기지 않아 버튼이 비활성됩니다. */
+  onViewDetail?: (id: string) => void
   className?: string
 }
 
@@ -24,7 +26,7 @@ export function SupportProgramSection({
           {/* 위 진단 결과와 이어지는 영역이라는 걸 알려주는 문구입니다. */}
           <p className="text-body-s text-text-secondary">진단 결과를 반영해 고른 지원사업이에요</p>
         </div>
-        <Button variant="ghost" size="sm" onClick={onViewAll}>
+        <Button variant="ghost" size="sm" disabled={!onViewAll} onClick={onViewAll}>
           전체 보기
         </Button>
       </div>
@@ -47,7 +49,8 @@ export function SupportProgramSection({
               variant="secondary"
               size="sm"
               className="self-start"
-              onClick={() => onViewDetail(id)}
+              disabled={!onViewDetail}
+              onClick={onViewDetail ? () => onViewDetail(id) : undefined}
             >
               자세히 보기
             </Button>

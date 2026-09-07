@@ -2,15 +2,20 @@ import type { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 import { LogoMark, NavItem } from '@/components/common'
+import { PATHS, isImplemented } from '@/routes/paths'
 
-/** 사이드바 메뉴. 아직 만들지 않은 화면은 path를 비워 둡니다. */
+/**
+ * 사이드바 메뉴입니다. 화면이 아직 없는 경로는 isImplemented가 false라
+ * 자동으로 비활성 표시됩니다. 화면을 붙이면 routes/paths.ts의
+ * IMPLEMENTED_PATHS에 추가하기만 하면 됩니다.
+ */
 const MENUS = [
-  { label: '홈', path: '/home' },
-  { label: '우리 가게 진단', path: '' },
-  { label: 'AI 도우미', path: '' },
-  { label: '매출·정산', path: '' },
-  { label: '금융 지원', path: '' },
-  { label: '마이페이지', path: '' },
+  { label: '홈', path: PATHS.home },
+  { label: '우리 가게 진단', path: PATHS.diagnosis },
+  { label: 'AI 도우미', path: PATHS.assistant },
+  { label: '매출·정산', path: PATHS.sales },
+  { label: '금융 지원', path: PATHS.finance },
+  { label: '마이페이지', path: PATHS.mypage },
 ] as const
 
 export interface AppLayoutProps {
@@ -37,16 +42,20 @@ export function AppLayout({ title, user, children }: AppLayoutProps) {
         </div>
 
         <nav className="flex flex-col gap-1">
-          {MENUS.map(({ label, path }) => (
-            <NavItem
-              key={label}
-              active={path !== '' && pathname === path}
-              // TODO: 나머지 화면이 만들어지면 path를 채웁니다.
-              onClick={path ? () => navigate(path) : undefined}
-            >
-              {label}
-            </NavItem>
-          ))}
+          {MENUS.map(({ label, path }) => {
+            const ready = isImplemented(path)
+
+            return (
+              <NavItem
+                key={label}
+                active={pathname === path}
+                disabled={!ready}
+                onClick={ready ? () => navigate(path) : undefined}
+              >
+                {label}
+              </NavItem>
+            )
+          })}
         </nav>
       </aside>
 

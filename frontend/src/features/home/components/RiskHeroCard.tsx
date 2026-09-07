@@ -3,7 +3,8 @@ import type { DiagnosisSummary } from '@/features/home/types'
 
 export interface RiskHeroCardProps {
   diagnosis: DiagnosisSummary
-  onViewReport: () => void
+  /** 04 진단 리포트로 이동. 화면이 없는 동안에는 넘기지 않아 버튼이 비활성됩니다. */
+  onViewReport?: () => void
 }
 
 /** 폐업 위험 점수와 원인 요약을 보여주는 히어로 카드입니다. */
@@ -30,7 +31,7 @@ export function RiskHeroCard({ diagnosis, onViewReport }: RiskHeroCardProps) {
           ))}
         </div>
 
-        <Button size="sm" className="self-start" onClick={onViewReport}>
+        <Button size="sm" className="self-start" disabled={!onViewReport} onClick={onViewReport}>
           진단 리포트 보기
         </Button>
       </div>

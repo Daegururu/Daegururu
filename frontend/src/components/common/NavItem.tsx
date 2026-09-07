@@ -8,6 +8,8 @@ export interface NavItemProps {
   active?: boolean
   /** 아이콘. 없으면 18px 사각형 플레이스홀더가 표시됩니다. */
   icon?: ReactNode
+  /** 아직 만들지 않은 화면처럼 누를 수 없는 메뉴일 때 true */
+  disabled?: boolean
   href?: string
   onClick?: () => void
   className?: string
@@ -17,6 +19,7 @@ export function NavItem({
   children,
   active = false,
   icon,
+  disabled = false,
   href,
   onClick,
   className,
@@ -29,6 +32,7 @@ export function NavItem({
           className={cn(
             'size-[18px] shrink-0 rounded-sm',
             active ? 'bg-brand-primary' : 'bg-text-tertiary',
+            disabled && 'bg-border-default',
           )}
         />
       )}
@@ -38,13 +42,13 @@ export function NavItem({
 
   const classes = cn(
     'flex h-11 w-full items-center gap-3 rounded-md px-4 text-left text-body-m transition-colors',
-    active
-      ? 'bg-brand-subtle font-medium text-text-brand'
-      : 'text-text-secondary hover:bg-bg-subtle',
+    active && 'bg-brand-subtle font-medium text-text-brand',
+    !active && !disabled && 'text-text-secondary hover:bg-bg-subtle',
+    disabled && 'cursor-not-allowed text-text-tertiary',
     className,
   )
 
-  if (href) {
+  if (href && !disabled) {
     return (
       <a href={href} aria-current={active ? 'page' : undefined} className={classes}>
         {content}
@@ -56,6 +60,7 @@ export function NavItem({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-current={active ? 'page' : undefined}
       className={classes}
     >

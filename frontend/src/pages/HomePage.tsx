@@ -19,15 +19,15 @@ import {
 /** 03 홈 대시보드. 업종 평균을 켠 모습이 03-1 입니다. */
 export function HomePage() {
   // TODO: 진단 결과·거래내역·추천 상품 API 연동. 지금은 전부 목데이터입니다.
-  const goToPlaceholder = () => {}
-
+  // 이동 대상 화면(04 진단 리포트, 07 금융 지원, 08 상품 상세)이 아직 없어
+  // 이동 함수를 넘기지 않습니다. 각 화면 이슈에서 연결합니다.
   return (
     <AppLayout title="홈" user={MOCK_USER}>
       {/* 진단 결과 영역과 그에 따른 추천 영역을 섹션 제목으로 나눕니다. */}
       <section className="flex flex-col gap-6">
         <h2 className="text-heading-s font-bold text-text-primary">우리 가게 진단</h2>
 
-        <RiskHeroCard diagnosis={MOCK_DIAGNOSIS} onViewReport={goToPlaceholder} />
+        <RiskHeroCard diagnosis={MOCK_DIAGNOSIS} />
 
         <MetricSummaryGrid metrics={MOCK_METRICS} />
 
@@ -43,12 +43,7 @@ export function HomePage() {
       </section>
 
       {/* 두 섹션 사이는 카드 간격(24px)보다 넓은 48px로 띄웁니다. */}
-      <SupportProgramSection
-        className="mt-6"
-        programs={MOCK_SUPPORT_PROGRAMS}
-        onViewAll={goToPlaceholder}
-        onViewDetail={goToPlaceholder}
-      />
+      <SupportProgramSection className="mt-6" programs={MOCK_SUPPORT_PROGRAMS} />
     </AppLayout>
   )
 }
