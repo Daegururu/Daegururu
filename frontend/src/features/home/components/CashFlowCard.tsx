@@ -12,6 +12,28 @@ import {
 import { AverageToggle } from '@/features/home/components/AverageToggle'
 import type { CashFlowPoint } from '@/features/home/types'
 
+/** 참고선 라벨 폭(스와치 14px + 간격 6px + 글자). Figma 기준 113px */
+const LABEL_WIDTH = 113
+
+interface AverageLabelProps {
+  /** recharts가 참고선의 위치와 크기를 넘겨줍니다. */
+  viewBox?: { x?: number; y?: number; width?: number }
+}
+
+/** 참고선 오른쪽 위에 붙는 "— 동일 상권·업종 평균" 라벨입니다. */
+function AverageLabel({ viewBox }: AverageLabelProps) {
+  const { x = 0, y = 0, width = 0 } = viewBox ?? {}
+
+  return (
+    <g transform={`translate(${x + width - LABEL_WIDTH}, ${y - 22})`}>
+      <rect y={5} width={14} height={2} rx={1} fill="var(--color-chart-average)" />
+      <text x={20} y={11} fontSize={12} fill="var(--color-chart-average)">
+        동일 상권·업종 평균
+      </text>
+    </g>
+  )
+}
+
 export interface CashFlowCardProps {
   points: CashFlowPoint[]
   /** 동일 상권·업종 평균 순현금흐름(원) */
@@ -53,13 +75,9 @@ export function CashFlowCard({ points, average, note }: CashFlowCardProps) {
               <ReferenceLine
                 y={average}
                 stroke="var(--color-chart-average)"
-                strokeDasharray="4 4"
-                label={{
-                  value: '동일 상권·업종 평균',
-                  position: 'insideTopRight',
-                  fill: 'var(--color-text-secondary)',
-                  fontSize: 12,
-                }}
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                label={<AverageLabel />}
               />
             )}
             <Line

@@ -74,7 +74,7 @@
 
   /* 차트 */
   --color-chart-line: var(--color-blue-500);
-  --color-chart-average: var(--color-gray-600);
+  --color-chart-average: var(--color-teal-600);
   --color-chart-series-1: var(--color-teal-500);
   --color-chart-series-2: var(--color-blue-300);
   --color-chart-series-3: var(--color-blue-100);
