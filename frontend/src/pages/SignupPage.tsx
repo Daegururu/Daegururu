@@ -1,9 +1,13 @@
 import { useState, type FormEvent } from 'react'
+import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
+import { uploadCertificate } from '@/apis/certificates'
 import { Button, Checkbox, FileDropzone, Input, Modal, TermsModal } from '@/components/common'
 import type { TermsKey } from '@/constants/terms'
 import { LogoBar } from '@/components/layout'
+import { certificateToStoreInfo } from '@/features/onboarding/certificateMapping'
+import { EMPTY_STORE_INFO, useOnboarding } from '@/features/onboarding/onboardingContext'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
 import { formatBusinessNumber, formatPhoneNumber, toDigits } from '@/utils/format'
 import {
@@ -14,13 +18,11 @@ import {
   validateVerificationCode,
 } from '@/utils/validate'
 
-/** PDF에서 자동 인식되는 값. API 연동 전까지는 고정 값을 사용합니다. */
-const RECOGNIZED_INFO = {
-  businessNumber: '514-23-88190',
-  ownerName: '김영수',
-}
-
 type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'verificationCode' | 'password'
+
+const UPLOAD_HELPER_TEXT =
+  'PDF 형식만 가능 · 국세청 소상공인확인서 발급 페이지에서 발급받을 수 있습니다'
+const UPLOAD_PENDING_TEXT = '확인서를 읽고 있습니다. 스캔본은 조금 더 걸릴 수 있어요'
 
 const AGREEMENTS: { key: TermsKey; label: string }[] = [
   { key: 'terms', label: '서비스 이용약관 (필수)' },
@@ -31,6 +33,7 @@ const AGREEMENTS: { key: TermsKey; label: string }[] = [
 /** 01c 회원가입 · 가게 등록하기 / 01c-2 정보 확인 (같은 화면의 업로드 전후 상태) */
 export function SignupPage() {
   const navigate = useNavigate()
+  const { setStoreInfo, setCertificate } = useOnboarding()
   const [file, setFile] = useState<File | null>(null)
   const [businessNumber, setBusinessNumber] = useState('')
   const [ownerName, setOwnerName] = useState('')
@@ -54,16 +57,40 @@ export function SignupPage() {
     password: '',
   })
 
+  const upload = useMutation({
+    mutationFn: uploadCertificate,
+    onSuccess: (certificate, selected) => {
+      // 사업자 정보를 하나도 읽지 못했으면 인식 실패로 봅니다.
+      // 인식에 실패한 파일은 등록하지 않아 업로드 전 상태가 유지됩니다.
+      if (!certificate.business_number && !certificate.representative_name) {
+        setFailureModalOpen(true)
+        return
+      }
+
+      setFile(selected)
+      // 서버가 하이픈 없이 보내도 formatBusinessNumber가 000-00-00000 형태로 맞춰줍니다.
+      setBusinessNumber(formatBusinessNumber(certificate.business_number ?? ''))
+      setOwnerName(certificate.representative_name ?? '')
+
+      // 이 화면에서 쓰지 않는 상호명·업종·주소는 온보딩 가게 정보로 넘겨 다시 입력하지 않게 합니다.
+      setCertificate(certificate)
+      setStoreInfo(certificateToStoreInfo(certificate))
+    },
+  })
+
   // 사업자 정보는 PDF에서 읽어온 값만 사용합니다. 업로드 전에는 입력할 수 없습니다.
   const isUploaded = file !== null
   const isAllAgreed = AGREEMENTS.every(({ key }) => agreements[key])
   const isRequiredAgreed = agreements.terms && agreements.privacy
   const canSubmit =
     isUploaded &&
+    !upload.isPending &&
     Boolean(phone.trim()) &&
     Boolean(verificationCode.trim()) &&
     Boolean(password.trim()) &&
     isRequiredAgreed
+
+  const uploadHelperText = upload.isPending ? UPLOAD_PENDING_TEXT : UPLOAD_HELPER_TEXT
 
   /** 입력을 고치는 동안에는 해당 필드의 에러를 지웁니다. */
   const clearError = (field: FieldKey) => setErrors((prev) => ({ ...prev, [field]: '' }))
@@ -77,24 +104,14 @@ export function SignupPage() {
     clearError('phone')
   })
 
-  const handleFileSelect = (selected: File) => {
-    // TODO: OCR API 연동. 응답이 사업자 정보를 담지 못하면 인식 실패 모달을 띄웁니다.
-    // 현재는 파일명에 'fail'이 들어간 경우를 실패 케이스로 흉내 냅니다.
-    // 인식에 실패한 파일은 등록하지 않아 업로드 전 상태가 유지됩니다.
-    if (selected.name.toLowerCase().includes('fail')) {
-      setFailureModalOpen(true)
-      return
-    }
-
-    setFile(selected)
-    setBusinessNumber(RECOGNIZED_INFO.businessNumber)
-    setOwnerName(RECOGNIZED_INFO.ownerName)
-  }
-
   const handleFileClear = () => {
     setFile(null)
     setBusinessNumber('')
     setOwnerName('')
+    // 온보딩으로 넘길 값도 함께 비웁니다.
+    setCertificate(null)
+    setStoreInfo(EMPTY_STORE_INFO)
+    upload.reset()
   }
 
   /** 인식 실패 모달에서 [다시 업로드]를 누르면 업로드 전 상태로 되돌립니다. */
@@ -161,15 +178,25 @@ export function SignupPage() {
             </p>
           </div>
 
-          <FileDropzone
-            label="소상공인 확인서 (PDF)"
-            file={file}
-            onFileSelect={handleFileSelect}
-            onFileClear={handleFileClear}
-            title="소상공인 확인서를 업로드하세요"
-            description="업로드하면 사업자등록번호·대표자명이 자동으로 입력됩니다"
-            helperText="PDF 형식만 가능 · 국세청 소상공인확인서 발급 페이지에서 발급받을 수 있습니다"
-          />
+          <div className="flex flex-col gap-2">
+            <FileDropzone
+              label="소상공인 확인서 (PDF)"
+              file={file}
+              onFileSelect={(selected) => upload.mutate(selected)}
+              onFileClear={handleFileClear}
+              // 읽는 중에 다음 파일을 받으면 늦게 온 응답이 최신 값을 덮어씁니다.
+              disabled={upload.isPending}
+              title="소상공인 확인서를 업로드하세요"
+              description="업로드하면 사업자등록번호·대표자명이 자동으로 입력됩니다"
+              // 실패 문구를 따로 띄우므로 안내 문구는 비웁니다.
+              helperText={upload.isError ? undefined : uploadHelperText}
+            />
+            {upload.isError && (
+              <p role="alert" className="text-caption text-status-danger">
+                {upload.error.message}
+              </p>
+            )}
+          </div>
 
           <Input
             label="사업자등록번호"
