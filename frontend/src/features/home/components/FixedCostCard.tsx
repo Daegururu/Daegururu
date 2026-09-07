@@ -39,7 +39,8 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
                 outerRadius={88}
                 startAngle={90}
                 endAngle={-270}
-                paddingAngle={0}
+                // 조각 사이를 카드 배경색으로 갈라 경계를 만듭니다.
+                paddingAngle={2}
                 stroke="none"
                 isAnimationActive={false}
               >

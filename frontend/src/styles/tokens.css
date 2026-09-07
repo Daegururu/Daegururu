@@ -72,10 +72,10 @@
   --color-status-danger: var(--color-red-500);
   --color-status-danger-bg: var(--color-red-50);
 
-  /* 차트 */
+  /* 차트. Figma Chart/Line·Chart/Donut이 브랜드색과 별개로 blue 계열을 쓰므로 그대로 맞춥니다. */
   --color-chart-line: var(--color-blue-500);
   --color-chart-average: var(--color-teal-600);
-  --color-chart-series-1: var(--color-teal-500);
+  --color-chart-series-1: var(--color-blue-500);
   --color-chart-series-2: var(--color-blue-300);
   --color-chart-series-3: var(--color-blue-100);
   --color-chart-grid: var(--color-gray-100);
