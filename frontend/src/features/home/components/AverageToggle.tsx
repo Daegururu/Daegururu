@@ -12,6 +12,7 @@ export interface AverageToggleProps {
 export function AverageToggle({ label, value, onChange }: AverageToggleProps) {
   // 같은 화면에 라디오 그룹이 2개라 name이 겹치지 않도록 id를 만들어 씁니다.
   const name = useId()
+  const labelId = useId()
 
   const options = [
     { text: '표시', checked: value },
@@ -20,8 +21,11 @@ export function AverageToggle({ label, value, onChange }: AverageToggleProps) {
 
   return (
     <div className="flex items-center gap-6">
-      <span className="text-caption text-text-secondary">{label}</span>
-      <div className="flex items-center gap-4">
+      <span id={labelId} className="text-caption text-text-secondary">
+        {label}
+      </span>
+      {/* 읽어주는 순서상 그룹 이름이 먼저 오도록 설명 span을 aria-labelledby로 묶습니다. */}
+      <div role="radiogroup" aria-labelledby={labelId} className="flex items-center gap-4">
         {options.map(({ text, checked }) => (
           <label key={text} className="flex cursor-pointer items-center gap-1.5">
             <input
