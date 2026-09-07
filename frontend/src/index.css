@@ -1,6 +1,23 @@
 @import 'tailwindcss';
 @import './styles/tokens.css';
 
+@theme {
+  /* 브랜드 패널이 줄어드는 동안 오른쪽에서 따라 들어오는 폼 모션.
+     패널 전환(700ms)과 겹치도록 살짝 늦게 시작합니다. */
+  --animate-form-in: form-in 500ms 200ms ease-out both;
+
+  @keyframes form-in {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
 @layer base {
   body {
     margin: 0;
