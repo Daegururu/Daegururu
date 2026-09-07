@@ -24,8 +24,15 @@ export class ApiError extends Error {
   }
 }
 
+// 값이 없으면 baseURL이 undefined로 들어가 프론트 오리진으로 요청이 나갑니다.
+// 조용히 404를 받는 대신 앱을 켤 때 바로 알 수 있도록 여기서 막습니다.
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+if (!baseUrl) {
+  throw new Error('VITE_API_BASE_URL이 설정되지 않았습니다. .env를 확인해주세요')
+}
+
 export const client = axios.create({
-  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api/v1`,
+  baseURL: `${baseUrl}/api/v1`,
   timeout: TIMEOUT_MS,
 })
 
