@@ -10,7 +10,8 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   secondary:
     'border border-border-default bg-bg-surface text-text-primary hover:bg-bg-subtle active:bg-bg-subtle',
   ghost: 'text-text-brand hover:bg-brand-subtle active:bg-brand-subtle',
-  danger: 'bg-status-danger text-text-inverse hover:bg-red-700 active:bg-red-700',
+  danger:
+    'bg-status-danger text-text-inverse hover:bg-status-danger-hover active:bg-status-danger-hover',
 }
 
 const SIZE_CLASS: Record<ButtonSize, string> = {

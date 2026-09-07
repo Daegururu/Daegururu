@@ -18,6 +18,12 @@
   --color-gray-700: #3c4250;
   --color-gray-900: #1a1d26;
 
+  /*
+   * teal은 Figma `Color / Primitives`(26색)에 없지만 brand 계열 변수의 실제 값입니다.
+   * Foundations 문서 표는 brand를 blue/500·600·700·50으로 적고 있으나 갱신이 안 된 것이고,
+   * 변수 값이 정답입니다(Button variant=primary → brand/primary #0d9488).
+   * brand 색을 blue로 되돌리지 마세요. 차트는 반대로 brand와 무관하게 blue를 씁니다.
+   */
   --color-teal-50: #ecfdfa;
   --color-teal-500: #0d9488;
   --color-teal-600: #0f766e;
@@ -71,6 +77,8 @@
   --color-status-warn-bg: var(--color-amber-50);
   --color-status-danger: var(--color-red-500);
   --color-status-danger-bg: var(--color-red-50);
+  /* Figma Semantic 22개에는 없습니다. danger 버튼 hover·pressed에만 쓰려고 red/700으로 둔 값입니다. */
+  --color-status-danger-hover: var(--color-red-700);
 
   /* 차트. Figma Chart/Line·Chart/Donut이 브랜드색과 별개로 blue 계열을 쓰므로 그대로 맞춥니다. */
   --color-chart-line: var(--color-blue-500);

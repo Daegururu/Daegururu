@@ -87,7 +87,7 @@ export function LoginPage() {
       >
         <span
           aria-hidden
-          className="flex size-14 items-center justify-center rounded-full bg-[#34c469] text-[26px] font-bold text-text-inverse"
+          className="flex size-14 items-center justify-center rounded-full bg-status-safe text-[26px] font-bold text-text-inverse"
         >
           ✓
         </span>

@@ -22,10 +22,11 @@ export function SalesTabPanel() {
             {/* y축 눈금은 Figma에 없어 숨기고, 막대 높이 계산에만 씁니다. */}
             <YAxis hide />
             <Bar dataKey="amount" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+              {/* 최근 3개월만 연한 파랑으로 구분합니다. 차트는 브랜드색과 무관하게 blue 계열입니다. */}
               {MOCK_MONTHLY_SALES.map(({ month, highlighted }) => (
                 <Cell
                   key={month}
-                  fill={highlighted ? 'var(--color-chart-series-2)' : 'var(--color-brand-primary)'}
+                  fill={highlighted ? 'var(--color-chart-series-2)' : 'var(--color-chart-series-1)'}
                 />
               ))}
             </Bar>

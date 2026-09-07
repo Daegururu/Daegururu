@@ -46,7 +46,7 @@ export function RiskGauge({ score, label, size = 200, className }: RiskGaugeProp
           r={RADIUS}
           fill="none"
           strokeWidth={STROKE_WIDTH}
-          className="stroke-current text-gray-200"
+          className="stroke-current text-border-default"
         />
         <circle
           cx={VIEW_BOX / 2}
