@@ -2,9 +2,11 @@ import { createBrowserRouter, Outlet } from 'react-router'
 
 import { AuthLayout } from '@/components/layout'
 import { OnboardingProvider } from '@/features/onboarding/OnboardingProvider'
+import { DiagnosisReportPage } from '@/pages/DiagnosisReportPage'
 import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
+import { PrescriptionPage } from '@/pages/PrescriptionPage'
 import { SplashPage } from '@/pages/SplashPage'
 import { DiagnosisStartPage } from '@/pages/onboarding/DiagnosisStartPage'
 import { StoreInfoPage } from '@/pages/onboarding/StoreInfoPage'
@@ -37,4 +39,6 @@ export const router = createBrowserRouter([
     ],
   },
   { path: PATHS.home, element: <HomePage /> },
+  { path: PATHS.diagnosis, element: <DiagnosisReportPage /> },
+  { path: PATHS.prescription, element: <PrescriptionPage /> },
 ])

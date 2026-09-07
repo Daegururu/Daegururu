@@ -9,8 +9,10 @@ export const PATHS = {
   onboardingStore: '/onboarding/store',
   onboardingConfirm: '/onboarding/confirm',
   home: '/home',
-  /** 04 진단 리포트 (미구현) */
+  /** 04 진단 리포트 */
   diagnosis: '/diagnosis',
+  /** 04e 처방 실행. prescriptionPath(id)로 실제 경로를 만듭니다. */
+  prescription: '/diagnosis/prescriptions/:id',
   /** 05 AI 도우미 (미구현) */
   assistant: '/assistant',
   /** 06 매출·정산 (미구현) */
@@ -36,7 +38,13 @@ export const IMPLEMENTED_PATHS: ReadonlySet<string> = new Set([
   PATHS.onboardingStore,
   PATHS.onboardingConfirm,
   PATHS.home,
+  PATHS.diagnosis,
 ])
+
+/** 처방 실행 화면의 실제 경로를 만듭니다. */
+export function prescriptionPath(id: string): string {
+  return PATHS.prescription.replace(':id', id)
+}
 
 /** 해당 경로의 화면이 이미 만들어졌는지 확인합니다. */
 export function isImplemented(path: string): boolean {
