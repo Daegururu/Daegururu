@@ -184,6 +184,8 @@ export function SignupPage() {
               file={file}
               onFileSelect={(selected) => upload.mutate(selected)}
               onFileClear={handleFileClear}
+              // 읽는 중에 다음 파일을 받으면 늦게 온 응답이 최신 값을 덮어씁니다.
+              disabled={upload.isPending}
               title="소상공인 확인서를 업로드하세요"
               description="업로드하면 사업자등록번호·대표자명이 자동으로 입력됩니다"
               // 실패 문구를 따로 띄우므로 안내 문구는 비웁니다.

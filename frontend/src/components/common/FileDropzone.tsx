@@ -38,6 +38,8 @@ export interface FileDropzoneProps {
   helperText?: string
   title?: string
   description?: string
+  /** 앞선 파일을 처리하는 동안 다음 파일을 받지 않으려면 켭니다. */
+  disabled?: boolean
   className?: string
 }
 
@@ -51,6 +53,7 @@ export function FileDropzone({
   helperText,
   title = '파일을 업로드하세요',
   description,
+  disabled = false,
   className,
 }: FileDropzoneProps) {
   const id = useId()
@@ -59,6 +62,8 @@ export function FileDropzone({
 
   /** 파일 선택과 드롭 모두 이 검사를 거칩니다. */
   const acceptFile = (candidate: File) => {
+    if (disabled) return
+
     if (!isAcceptedFile(candidate, accept)) {
       setRejected(true)
       return
@@ -96,6 +101,7 @@ export function FileDropzone({
         type="file"
         accept={accept}
         onChange={handleChange}
+        disabled={disabled}
         className="sr-only"
       />
 
@@ -129,7 +135,11 @@ export function FileDropzone({
             <button
               type="button"
               onClick={() => (onFileClear ? onFileClear() : inputRef.current?.click())}
-              className="shrink-0 text-body-s font-medium text-text-brand underline-offset-2 hover:underline"
+              disabled={disabled}
+              className={cn(
+                'shrink-0 text-body-s font-medium text-text-brand underline-offset-2 hover:underline',
+                'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline',
+              )}
             >
               다시 업로드
             </button>
@@ -146,9 +156,11 @@ export function FileDropzone({
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
+              disabled={disabled}
               className={cn(
                 'rounded-md border border-border-default bg-bg-surface px-4 py-2',
                 'text-body-s font-medium text-text-primary transition-colors hover:bg-bg-subtle',
+                'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-bg-surface',
               )}
             >
               파일 선택
