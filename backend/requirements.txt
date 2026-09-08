@@ -5,6 +5,8 @@ alembic
 psycopg[binary]
 python-dotenv
 pydantic-settings
+pyjwt
+python-dateutil
 anthropic
 pandas
 PyMuPDF
