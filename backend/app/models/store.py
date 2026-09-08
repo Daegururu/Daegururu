@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
-
 class Store(Base):
     __tablename__ = "stores"
 
@@ -24,13 +23,8 @@ class Store(Base):
         nullable=False
     )
 
-    industry_code: Mapped[str] = mapped_column(
-        String(50),
-        nullable=False
-    )
-
-    region_code: Mapped[str] = mapped_column(
-        String(50),
+    industry_name: Mapped[str] = mapped_column(
+        String(100),
         nullable=False
     )
 

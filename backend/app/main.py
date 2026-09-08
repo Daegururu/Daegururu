@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api import certificates, auth
+from app.api import certificates, auth, stores
 
 from sqlalchemy import text
 from app.core.database import engine
@@ -48,5 +48,11 @@ app.include_router(
 #회원가입
 app.include_router(
     auth.router,
+    prefix="/api/v1"
+)
+
+#가게 등록
+app.include_router(
+    stores.router,
     prefix="/api/v1"
 )
