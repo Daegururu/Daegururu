@@ -23,13 +23,23 @@ def signup(
 ):
     try:
         user = signup_user(db, request)
-        return user
+
+        access_token = create_access_token(user.user_id)
+
+        return {
+            "user_id": user.user_id,
+            "business_reg_no": user.business_reg_no,
+            "representative_name": user.representative_name,
+            "access_token": access_token,
+            "token_type": "bearer",
+        }
 
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         )
+
 
 #로그인
 @router.post(

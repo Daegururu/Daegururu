@@ -11,6 +11,8 @@ class UserSignupResponse(BaseModel):
     user_id: int
     business_reg_no: str
     representative_name: str
+    access_token: str
+    token_type: str = "bearer"
 
     model_config = {
         "from_attributes": True

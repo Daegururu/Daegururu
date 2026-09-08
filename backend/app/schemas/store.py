@@ -20,3 +20,10 @@ class StoreResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+class StoreDetailResponse(BaseModel):
+    business_name: str
+    industry_name: str
+    business_address: str
+    open_date: date
+    business_period: str
