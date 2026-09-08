@@ -11,3 +11,4 @@ PyMuPDF
 pytesseract
 Pillow
 python-multipart
+pwdlib[argon2]
