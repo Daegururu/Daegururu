@@ -5,11 +5,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     ANTHROPIC_API_KEY: str = ""
     ENV: str = "development"
-    
-    JWT_SECRET_KEY: str
+    SECRET_KEY: str = "dev-secret-change-me-please-32-bytes-min"
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRE_MINUTES: int = 60
-
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

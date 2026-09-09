@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.api import certificates, auth, stores
+from app.core.envelope import ApiError, error
+from app.api import certificates, dashboard
 
 from sqlalchemy import text
 from app.core.database import engine
@@ -19,6 +21,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(ApiError)
+def handle_api_error(request, exc: ApiError):
+    return JSONResponse(status_code=exc.status_code, content=error(exc.code, exc.message))
 
 
 @app.get("/health")
@@ -45,14 +52,4 @@ app.include_router(
     prefix="/api/v1"
 )
 
-#회원가입
-app.include_router(
-    auth.router,
-    prefix="/api/v1"
-)
-
-#가게 등록
-app.include_router(
-    stores.router,
-    prefix="/api/v1"
-)
+app.include_router(dashboard.router, prefix="/api/v1")
