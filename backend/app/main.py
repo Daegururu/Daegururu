@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api import certificates
+from app.api import certificates, auth, stores
 
 from sqlalchemy import text
 from app.core.database import engine
@@ -42,5 +42,17 @@ def db_health_check():
 #pdf 텍스트 추출 라우터
 app.include_router(
     certificates.router,
+    prefix="/api/v1"
+)
+
+#회원가입
+app.include_router(
+    auth.router,
+    prefix="/api/v1"
+)
+
+#가게 등록
+app.include_router(
+    stores.router,
     prefix="/api/v1"
 )
