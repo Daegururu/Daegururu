@@ -39,6 +39,19 @@ backend/app/
 
 라우터를 추가하면 `main.py`의 주석 처리된 `include_router` 예시를 참고해 등록하세요.
 
+### 환경변수
+
+`backend/.env` 파일에 다음 키가 필요합니다 (git에 커밋되지 않으니 각자 로컬에 생성):
+
+| 키 | 설명 | 예시 |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL 연결 문자열 (psycopg3 드라이버 사용) | `postgresql+psycopg://daegureure:daegureurepassward@localhost:5432/daegureure` |
+| `ANTHROPIC_API_KEY` | Claude API 키 | `sk-ant-...` |
+| `ENV` | 실행 환경 | `development` |
+| `JWT_SECRET_KEY` | JWT 서명 키 (32바이트 이상 권장) | `dev-secret-change-me-please-32-bytes-min` |
+| `JWT_ALGORITHM` | JWT 서명 알고리즘 | `HS256` |
+| `JWT_EXPIRE_MINUTES` | 액세스 토큰 만료 시간(분) | `60` |
+
 ### 로컬 실행
 
 ```bash
@@ -46,12 +59,29 @@ cd backend
 py -m venv venv
 venv\Scripts\activate          # Windows
 pip install -r requirements.txt
-copy .env.example .env         # DATABASE_URL, ANTHROPIC_API_KEY 채우기
+# 위 표를 참고해 .env 파일을 직접 생성
 uvicorn app.main:app --reload
 ```
 
-PostgreSQL이 로컬에 떠 있어야 합니다 (`.env.example` 기본값: `postgresql://postgres:devpass@localhost:5432/daegureure`).
-빠르게 확인만 하려면 `DATABASE_URL=sqlite:///./dev.db`로 바꿔도 동작합니다.
+PostgreSQL이 로컬에 떠 있어야 합니다. DB/계정 생성 예시:
+
+```sql
+CREATE ROLE daegureure LOGIN PASSWORD 'daegureurepassward';
+CREATE DATABASE daegureure OWNER daegureure;
+```
+
+테이블은 Alembic으로 관리합니다. DB를 새로 만들었다면 마이그레이션을 적용하세요:
+
+```bash
+alembic upgrade head
+```
+
+모델을 추가/수정했다면 마이그레이션을 생성 후 커밋하세요:
+
+```bash
+alembic revision --autogenerate -m "설명"
+alembic upgrade head
+```
 
 ## 프론트엔드 (`frontend/`)
 
