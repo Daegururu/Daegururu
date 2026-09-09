@@ -11,7 +11,7 @@ class DiagnosisReport(Base):
     __tablename__ = "diagnosis_reports"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), index=True)
     diagnosis_date: Mapped[date] = mapped_column(Date)
     composite_score: Mapped[int]
     risk_level: Mapped[str] = mapped_column(String(10))  # 안전 | 주의 | 위험

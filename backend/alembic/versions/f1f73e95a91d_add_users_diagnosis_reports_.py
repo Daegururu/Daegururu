@@ -1,7 +1,7 @@
-"""add users, diagnosis_reports, transactions, industry_benchmarks, financial_products
+"""add diagnosis_reports, transactions, industry_benchmarks, financial_products
 
 Revision ID: f1f73e95a91d
-Revises: 
+Revises: e9348d81ed75
 Create Date: 2026-09-08 16:25:23.990622
 
 """
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = 'f1f73e95a91d'
-down_revision: Union[str, Sequence[str], None] = None
+down_revision: Union[str, Sequence[str], None] = 'e9348d81ed75'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -44,17 +44,6 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_industry_benchmarks_industry'), 'industry_benchmarks', ['industry'], unique=False)
     op.create_index(op.f('ix_industry_benchmarks_region'), 'industry_benchmarks', ['region'], unique=False)
-    op.create_table('users',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=50), nullable=False),
-    sa.Column('business_name', sa.String(length=100), nullable=False),
-    sa.Column('region', sa.String(length=100), nullable=False),
-    sa.Column('industry', sa.String(length=50), nullable=False),
-    sa.Column('business_start_date', sa.Date(), nullable=False),
-    sa.Column('annual_revenue', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('diagnosis_reports',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -64,7 +53,7 @@ def upgrade() -> None:
     sa.Column('summary', sa.String(length=500), nullable=False),
     sa.Column('sub_scores', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_diagnosis_reports_user_id'), 'diagnosis_reports', ['user_id'], unique=False)
@@ -76,7 +65,7 @@ def upgrade() -> None:
     sa.Column('amount', sa.BigInteger(), nullable=False),
     sa.Column('transaction_date', sa.Date(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_transactions_transaction_date'), 'transactions', ['transaction_date'], unique=False)
@@ -92,7 +81,6 @@ def downgrade() -> None:
     op.drop_table('transactions')
     op.drop_index(op.f('ix_diagnosis_reports_user_id'), table_name='diagnosis_reports')
     op.drop_table('diagnosis_reports')
-    op.drop_table('users')
     op.drop_index(op.f('ix_industry_benchmarks_region'), table_name='industry_benchmarks')
     op.drop_index(op.f('ix_industry_benchmarks_industry'), table_name='industry_benchmarks')
     op.drop_table('industry_benchmarks')

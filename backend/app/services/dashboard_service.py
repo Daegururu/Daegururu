@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from sqlalchemy import func, extract
 from sqlalchemy.orm import Session
 
-from app.models import DiagnosisReport, Transaction, IndustryBenchmark, FinancialProduct, User
+from app.models import DiagnosisReport, Transaction, IndustryBenchmark, FinancialProduct, Store, User
 
 FIXED_COST_CATEGORIES = ["인건비", "임대료", "기타"]
 FIXED_COST_LABELS = {"인건비": "인건비", "임대료": "임대료", "기타": "기타 고정비"}
@@ -51,24 +51,38 @@ def _fixed_cost_this_month(db: Session, user_id: int, today: date) -> dict[str, 
     return {cat: totals.get(cat, 0) for cat in FIXED_COST_CATEGORIES}
 
 
-def _industry_benchmark(db: Session, user: User) -> IndustryBenchmark | None:
+def _region_from_address(address: str) -> str:
+    """'대구광역시 중구 동성로 12' 같은 주소에서 앞 2개 토큰(시/도 + 구/군)만 뽑아 업종 평균 매칭에 쓴다."""
+    parts = address.split()
+    return " ".join(parts[:2]) if len(parts) >= 2 else address
+
+
+def _industry_benchmark(db: Session, store: Store | None) -> IndustryBenchmark | None:
+    if store is None:
+        return None
     return (
         db.query(IndustryBenchmark)
-        .filter(IndustryBenchmark.industry == user.industry, IndustryBenchmark.region == user.region)
+        .filter(
+            IndustryBenchmark.industry == store.industry_name,
+            IndustryBenchmark.region == _region_from_address(store.business_address),
+        )
         .first()
     )
 
 
-def _match_products(db: Session, user: User, top_n: int = 3) -> list[FinancialProduct]:
-    business_years = (date.today() - user.business_start_date).days / 365
+def _match_products(db: Session, user: User, store: Store | None, sales_series: list[int], top_n: int = 3) -> list[FinancialProduct]:
+    business_years = (date.today() - store.open_date).days / 365 if store is not None else 0
+    region = _region_from_address(store.business_address) if store is not None else None
+    annual_revenue = sum(sales_series)  # 최근 12개월 매출 합계로 연매출 추정
+
     candidates = db.query(FinancialProduct).all()
 
     matched = []
     for product in candidates:
         rules = product.eligibility_rules or {}
-        if "max_annual_revenue" in rules and user.annual_revenue > rules["max_annual_revenue"]:
+        if "max_annual_revenue" in rules and annual_revenue > rules["max_annual_revenue"]:
             continue
-        if "regions" in rules and user.region not in rules["regions"]:
+        if "regions" in rules and region not in rules["regions"]:
             continue
         if "min_business_years" in rules and business_years < rules["min_business_years"]:
             continue
@@ -92,7 +106,7 @@ def get_dashboard_summary(db: Session, user: User) -> dict:
 
     report = (
         db.query(DiagnosisReport)
-        .filter(DiagnosisReport.user_id == user.id)
+        .filter(DiagnosisReport.user_id == user.user_id)
         .order_by(DiagnosisReport.diagnosis_date.desc())
         .first()
     )
@@ -107,18 +121,20 @@ def get_dashboard_summary(db: Session, user: User) -> dict:
             "recommendedProducts": [],
         }
 
-    sales_series = _monthly_sales_series(db, user.id, months)
+    store = user.store
+
+    sales_series = _monthly_sales_series(db, user.user_id, months)
     this_month_sales = sales_series[-1]
     prev_month_sales = sales_series[-2] if len(sales_series) > 1 else 0
     sales_diff_pct, sales_diff_dir = _diff(this_month_sales, prev_month_sales)
 
-    fixed_cost = _fixed_cost_this_month(db, user.id, today)
+    fixed_cost = _fixed_cost_this_month(db, user.user_id, today)
     this_month_fixed_cost_total = sum(fixed_cost.values())
     fixed_cost_ratio = round(this_month_fixed_cost_total / this_month_sales * 100, 1) if this_month_sales else 0.0
 
     net_cashflow = this_month_sales - this_month_fixed_cost_total
 
-    benchmark = _industry_benchmark(db, user)
+    benchmark = _industry_benchmark(db, store)
 
     fixed_cost_items = []
     for cat in FIXED_COST_CATEGORIES:
@@ -134,7 +150,7 @@ def get_dashboard_summary(db: Session, user: User) -> dict:
             {"category": FIXED_COST_LABELS[cat], "pct": pct, "industryAvgPct": industry_avg_pct}
         )
 
-    recommended = _match_products(db, user)
+    recommended = _match_products(db, user, store, sales_series)
 
     return {
         "hasReport": True,

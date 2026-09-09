@@ -10,7 +10,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), index=True)
     type: Mapped[str] = mapped_column(String(10))  # 매출 | 고정비
     category: Mapped[str | None] = mapped_column(String(20), nullable=True)  # 고정비일 때만: 인건비/임대료/기타
     amount: Mapped[int] = mapped_column(BigInteger)
