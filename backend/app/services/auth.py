@@ -25,6 +25,7 @@ def signup_user(db: Session, request: UserSignupRequest) -> User:
     user = User(
         business_reg_no=request.business_reg_no,
         representative_name=request.representative_name,
+        phone_number=request.phone_number,
         password_hash=hashed_password,
     )
 

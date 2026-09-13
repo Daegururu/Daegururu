@@ -25,6 +25,11 @@ class User(Base):
         nullable=False
     )
 
+    phone_number: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False
+    )
+
     password_hash: Mapped[str] = mapped_column(
         String(255),
         nullable=False
