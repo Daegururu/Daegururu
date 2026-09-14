@@ -43,6 +43,12 @@ export function Modal({
   className,
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
+  // onClose는 부모가 렌더마다 새로 만들 수 있어 ref로 들고 갑니다.
+  // 의존성에 넣으면 입력할 때마다 effect가 다시 돌아 포커스가 첫 요소로 튑니다.
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     if (!open) return
@@ -59,7 +65,7 @@ export function Modal({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose()
+        onCloseRef.current()
         return
       }
 
@@ -95,7 +101,7 @@ export function Modal({
       document.body.style.overflow = previousOverflow
       previouslyFocused?.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
