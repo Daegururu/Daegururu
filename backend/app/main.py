@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.envelope import ApiError, error
-from app.api import certificates, dashboard, auth, stores, mypage
+from app.api import certificates, dashboard, diagnosis, auth, stores, mypage
 
 from sqlalchemy import text
 from app.core.database import engine
@@ -40,9 +40,8 @@ def db_health_check():
     return {"database": "connected"}
     
 # 라우터는 기능 구현되는 대로 여기에 등록:
-# from app.api import diagnosis, products, chat
-# app.include_router(diagnosis.router, prefix="/api/v1/diagnosis", tags=["diagnosis"])
-# app.incㅁude_router(products.router, prefix="/api/v1/products", tags=["products"])
+# from app.api import products, chat
+# app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
 # app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 
 #pdf 텍스트 추출 라우터
@@ -52,6 +51,7 @@ app.include_router(
 )
 
 app.include_router(dashboard.router, prefix="/api/v1")
+app.include_router(diagnosis.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(stores.router, prefix="/api/v1")
 app.include_router(mypage.router, prefix="/api/v1")

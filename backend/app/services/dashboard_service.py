@@ -1,54 +1,17 @@
 from datetime import date
 
-from dateutil.relativedelta import relativedelta
-from sqlalchemy import func, extract
 from sqlalchemy.orm import Session
 
-from app.models import DiagnosisReport, Transaction, IndustryBenchmark, FinancialProduct, Store, User
-
-FIXED_COST_CATEGORIES = ["인건비", "임대료", "기타"]
-FIXED_COST_LABELS = {"인건비": "인건비", "임대료": "임대료", "기타": "기타 고정비"}
-
-
-def _month_key(d: date) -> str:
-    return f"{d.year:04d}-{d.month:02d}"
-
-
-def _last_12_months(today: date) -> list[date]:
-    first_of_this_month = today.replace(day=1)
-    return [first_of_this_month - relativedelta(months=offset) for offset in range(11, -1, -1)]
-
-
-def _monthly_sales_series(db: Session, user_id: int, months: list[date]) -> list[int]:
-    start = months[0]
-    rows = (
-        db.query(
-            extract("year", Transaction.transaction_date).label("y"),
-            extract("month", Transaction.transaction_date).label("m"),
-            func.sum(Transaction.amount).label("total"),
-        )
-        .filter(Transaction.user_id == user_id, Transaction.type == "매출", Transaction.transaction_date >= start)
-        .group_by("y", "m")
-        .all()
-    )
-    totals = {(int(r.y), int(r.m)): int(r.total) for r in rows}
-    return [totals.get((m.year, m.month), 0) for m in months]
-
-
-def _fixed_cost_this_month(db: Session, user_id: int, today: date) -> dict[str, int]:
-    month_start = today.replace(day=1)
-    rows = (
-        db.query(Transaction.category, func.sum(Transaction.amount))
-        .filter(
-            Transaction.user_id == user_id,
-            Transaction.type == "고정비",
-            Transaction.transaction_date >= month_start,
-        )
-        .group_by(Transaction.category)
-        .all()
-    )
-    totals = {category: int(total) for category, total in rows}
-    return {cat: totals.get(cat, 0) for cat in FIXED_COST_CATEGORIES}
+from app.models import DiagnosisReport, IndustryBenchmark, FinancialProduct, Store, User
+from app.services.aggregations import (
+    FIXED_COST_CATEGORIES,
+    FIXED_COST_LABELS,
+    diff,
+    fixed_cost_this_month as _fixed_cost_this_month,
+    last_12_months,
+    month_key,
+    monthly_sales_series as _monthly_sales_series,
+)
 
 
 def _region_from_address(address: str) -> str:
@@ -92,17 +55,9 @@ def _match_products(db: Session, user: User, store: Store | None, sales_series: 
     return matched[:top_n]
 
 
-def _diff(current: float, previous: float) -> tuple[float | None, str | None]:
-    if previous == 0:
-        return None, None
-    pct = round((current - previous) / previous * 100, 1)
-    direction = "up" if pct > 0 else ("down" if pct < 0 else None)
-    return pct, direction
-
-
 def get_dashboard_summary(db: Session, user: User) -> dict:
     today = date.today()
-    months = _last_12_months(today)
+    months = last_12_months(today)
 
     report = (
         db.query(DiagnosisReport)
@@ -126,7 +81,7 @@ def get_dashboard_summary(db: Session, user: User) -> dict:
     sales_series = _monthly_sales_series(db, user.user_id, months)
     this_month_sales = sales_series[-1]
     prev_month_sales = sales_series[-2] if len(sales_series) > 1 else 0
-    sales_diff_pct, sales_diff_dir = _diff(this_month_sales, prev_month_sales)
+    sales_diff_pct, sales_diff_dir = diff(this_month_sales, prev_month_sales)
 
     fixed_cost = _fixed_cost_this_month(db, user.user_id, today)
     this_month_fixed_cost_total = sum(fixed_cost.values())
@@ -171,7 +126,7 @@ def get_dashboard_summary(db: Session, user: User) -> dict:
         },
         "cashflowChart": {
             "unit": "원",
-            "months": [_month_key(m) for m in months],
+            "months": [month_key(m) for m in months],
             "values": sales_series,
             "industryAvgReference": (
                 {"available": True, "value": benchmark.avg_monthly_sales, "source": benchmark.source}
