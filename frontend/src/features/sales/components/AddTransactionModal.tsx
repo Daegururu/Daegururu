@@ -141,13 +141,16 @@ export function AddTransactionModal({ open, onClose, onSubmit }: AddTransactionM
           errorMessage={errors.content}
         />
 
-        <Select
-          label="결제수단"
-          fullWidth
-          value={form.method}
-          options={PAYMENT_METHOD_OPTIONS}
-          onChange={(method) => update('method', method)}
-        />
+        {/* 지출은 결제수단 대신 '고정비'로 저장되므로 고를 필요가 없습니다. */}
+        {form.category !== 'expense' && (
+          <Select
+            label="결제수단"
+            fullWidth
+            value={form.method}
+            options={PAYMENT_METHOD_OPTIONS}
+            onChange={(method) => update('method', method)}
+          />
+        )}
 
         {/* 진단 반영 안내. 체크박스 라벨은 두 줄이라 Checkbox의 children 대신 직접 구성합니다. */}
         <div className="flex items-start gap-2.5 rounded-md bg-brand-subtle px-4 py-3.5">

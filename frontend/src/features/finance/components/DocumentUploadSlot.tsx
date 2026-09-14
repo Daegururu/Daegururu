@@ -11,20 +11,13 @@ export interface DocumentUploadSlotProps {
   hint: string
   file: File | null
   onFileSelect: (file: File) => void
-  onFileClear: () => void
 }
 
 /**
  * 09 서류 업로드 슬롯. 클릭하거나 파일을 끌어다 놓습니다.
  * FileDropzone과 달리 PDF·JPG 둘 다 받고 10MB 제한이 있어 따로 둡니다.
  */
-export function DocumentUploadSlot({
-  label,
-  hint,
-  file,
-  onFileSelect,
-  onFileClear,
-}: DocumentUploadSlotProps) {
+export function DocumentUploadSlot({ label, hint, file, onFileSelect }: DocumentUploadSlotProps) {
   const id = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
@@ -104,7 +97,7 @@ export function DocumentUploadSlot({
               type="button"
               onClick={(event) => {
                 event.stopPropagation()
-                onFileClear()
+                inputRef.current?.click()
               }}
               className="text-body-s font-medium text-text-brand underline-offset-2 hover:underline"
             >
