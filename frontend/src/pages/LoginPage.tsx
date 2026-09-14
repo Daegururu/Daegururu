@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 
 import { Button, Input, Modal } from '@/components/common'
+import { findMockAccount, type MockAccount } from '@/features/auth/mockData'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
 import { formatBusinessNumber } from '@/utils/format'
 import { validateBusinessNumber, validateRequired } from '@/utils/validate'
@@ -13,7 +14,8 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [businessNumberError, setBusinessNumberError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  const [isCompleteModalOpen, setCompleteModalOpen] = useState(false)
+  // 로그인에 성공한 계정. 완료 모달 문구에 씁니다.
+  const [loggedInAccount, setLoggedInAccount] = useState<MockAccount | null>(null)
 
   const businessNumberField = useFormattedInput(formatBusinessNumber, (value) => {
     setBusinessNumber(value)
@@ -32,7 +34,16 @@ export function LoginPage() {
     if (nextBusinessNumberError || nextPasswordError) return
 
     // TODO: 로그인 API 연동. 사업자등록번호는 하이픈을 떼고 숫자만 전송합니다.
-    setCompleteModalOpen(true)
+    // 그때까지는 데모 계정(features/auth/mockData.ts)과 대조합니다.
+    const account = findMockAccount(businessNumber, password)
+
+    if (!account) {
+      // 어느 쪽이 틀렸는지 알려주지 않기 위해 비밀번호 아래에만 표시합니다.
+      setPasswordError('사업자등록번호 또는 비밀번호가 일치하지 않습니다')
+      return
+    }
+
+    setLoggedInAccount(account)
   }
 
   return (
@@ -81,8 +92,8 @@ export function LoginPage() {
       </form>
 
       <Modal
-        open={isCompleteModalOpen}
-        onClose={() => setCompleteModalOpen(false)}
+        open={loggedInAccount !== null}
+        onClose={() => setLoggedInAccount(null)}
         ariaLabel="로그인 완료"
       >
         <span
@@ -93,11 +104,11 @@ export function LoginPage() {
         </span>
         <p className="text-heading-m font-bold text-text-primary">로그인 완료</p>
         <p className="text-center text-body-m text-text-secondary">
-          영수네 국밥 사장님, 환영합니다!
+          {loggedInAccount?.storeName} 사장님, 환영합니다!
           <br />
           대시보드로 이동해 오늘의 가게 상태를 확인해보세요.
         </p>
-        <Button onClick={() => navigate('/')}>홈으로 이동</Button>
+        <Button onClick={() => navigate('/home')}>홈으로 이동</Button>
       </Modal>
     </>
   )
