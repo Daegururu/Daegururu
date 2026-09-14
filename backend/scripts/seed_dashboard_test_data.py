@@ -16,7 +16,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core.database import SessionLocal
 from app.core.security import create_access_token
-from app.models import User, Store, DiagnosisReport, Transaction, IndustryBenchmark, FinancialProduct
+from app.models import (
+    User,
+    Store,
+    DiagnosisReport,
+    DiagnosisCause,
+    Prescription,
+    Transaction,
+    Settlement,
+    IndustryBenchmark,
+    FinancialProduct,
+)
 from app.services.auth import signup_user
 from app.schemas.user import UserSignupRequest
 
@@ -28,6 +38,13 @@ SEED_BENCHMARK = ("한식음식점업", "대구광역시 중구")
 def _clear_previous_seed(db):
     old_user_ids = [u.user_id for u in db.query(User).filter(User.business_reg_no.in_(SEED_BUSINESS_REG_NOS)).all()]
     if old_user_ids:
+        old_report_ids = [
+            r.id for r in db.query(DiagnosisReport).filter(DiagnosisReport.user_id.in_(old_user_ids)).all()
+        ]
+        if old_report_ids:
+            db.query(DiagnosisCause).filter(DiagnosisCause.report_id.in_(old_report_ids)).delete(synchronize_session=False)
+            db.query(Prescription).filter(Prescription.report_id.in_(old_report_ids)).delete(synchronize_session=False)
+        db.query(Settlement).filter(Settlement.user_id.in_(old_user_ids)).delete(synchronize_session=False)
         db.query(Transaction).filter(Transaction.user_id.in_(old_user_ids)).delete(synchronize_session=False)
         db.query(DiagnosisReport).filter(DiagnosisReport.user_id.in_(old_user_ids)).delete(synchronize_session=False)
         db.query(Store).filter(Store.user_id.in_(old_user_ids)).delete(synchronize_session=False)
@@ -93,6 +110,44 @@ def main():
         sub_scores={"sales": 60, "costStructure": 40, "cashflow": 55, "settlement": 80, "relativePosition": 65},
     )
     db.add(report)
+    db.flush()
+
+    db.add(
+        DiagnosisCause(
+            report_id=report.id,
+            area="costStructure",
+            summary="최근 매출 감소보다 고정비 비중 증가가 자금 부족에 더 큰 영향을 주고 있습니다.",
+            evidence=[
+                "고정비 비중 42.8% — 동일 업종 평균 34.1% 대비 8.7%p 높음",
+                "인건비 7,880,000원 — 전월 대비 +18.0% (주휴수당 일시 반영)",
+                "순현금흐름 2개월 연속 마이너스 — 8월 -1,240,000원",
+            ],
+            display_order=0,
+        )
+    )
+
+    db.add_all(
+        [
+            Prescription(
+                report_id=report.id,
+                rank=1,
+                title="인건비 구조 점검",
+                description="주휴수당 발생 구간을 피하도록 주간 근무 스케줄을 재배치하면 월 약 62만원 절감이 예상됩니다.",
+            ),
+            Prescription(
+                report_id=report.id,
+                rank=2,
+                title="소상공인 정책자금 신청",
+                description="현재 조건으로 iM뱅크 특별운영자금 5,000만원 한도, 연 2.8% 금리 신청이 가능합니다.",
+            ),
+            Prescription(
+                report_id=report.id,
+                rank=3,
+                title="배달 수수료 재협상",
+                description="배달 매출 비중 31%, 평균 수수료율 14.2%. 정액제 전환 시 월 약 38만원 절감이 가능합니다.",
+            ),
+        ]
+    )
 
     today = date.today()
 
@@ -151,6 +206,28 @@ def main():
     for m in range(1, 12):
         month_date = _months_ago(today, m).replace(day=15)
         db.add(Transaction(user_id=user.user_id, type="매출", amount=15_000_000 + m * 300_000, transaction_date=month_date))
+
+    for days_ago, lag_days, fee_rate in [(2, 2, 2.1), (5, 2, 2.3), (9, 3, 2.4), (14, 1, 1.9)]:
+        requested = today - timedelta(days=days_ago)
+        db.add(
+            Settlement(
+                user_id=user.user_id,
+                amount=1_200_000,
+                fee_rate_pct=fee_rate,
+                requested_date=requested,
+                settled_date=requested + timedelta(days=lag_days),
+            )
+        )
+    # 아직 입금 안 된 정산 예정 건
+    db.add(
+        Settlement(
+            user_id=user.user_id,
+            amount=3_180_000,
+            fee_rate_pct=2.3,
+            requested_date=today - timedelta(days=1),
+            settled_date=None,
+        )
+    )
 
     db.add(
         IndustryBenchmark(
