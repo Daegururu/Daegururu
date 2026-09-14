@@ -10,6 +10,9 @@ export type { CheckboxProps } from './Checkbox'
 export { FileDropzone } from './FileDropzone'
 export type { FileDropzoneProps } from './FileDropzone'
 
+export { FormModal } from './FormModal'
+export type { FormModalProps } from './FormModal'
+
 export { Input } from './Input'
 export type { InputProps } from './Input'
 
@@ -28,6 +31,9 @@ export type { NavItemProps } from './NavItem'
 export { RiskGauge } from './RiskGauge'
 export type { RiskGaugeProps } from './RiskGauge'
 
+export { Select } from './Select'
+export type { SelectOption, SelectProps } from './Select'
+
 export { StatusChip } from './StatusChip'
 export type { StatusChipProps, StatusChipTone } from './StatusChip'
 
@@ -42,3 +48,8 @@ export type { TableCells, TableHeaderProps, TableRowProps } from './Table'
 
 export { TermsModal } from './TermsModal'
 export type { TermsModalProps } from './TermsModal'
+
+export { ToastProvider } from './Toast'
+
+export { Toggle } from './Toggle'
+export type { ToggleProps } from './Toggle'

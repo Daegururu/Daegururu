@@ -13,15 +13,19 @@ export const PATHS = {
   diagnosis: '/diagnosis',
   /** 04e 처방 실행. prescriptionPath(id)로 실제 경로를 만듭니다. */
   prescription: '/diagnosis/prescriptions/:id',
-  /** 05 AI 도우미 (미구현) */
+  /** 05 AI 도우미 */
   assistant: '/assistant',
-  /** 06 매출·정산 (미구현) */
+  /** 06 매출·정산. 거래 추가·내보내기 모달과 필터 드롭다운은 이 화면 안의 상태입니다. */
   sales: '/sales',
-  /** 07 금융상품 추천 (미구현) */
+  /** 07 금융상품 추천 */
   finance: '/finance',
-  /** 08 상품 상세 (미구현) */
+  /** 08 상품 상세. financeDetailPath(id)로 실제 경로를 만듭니다. */
   financeDetail: '/finance/:id',
-  /** 10 마이페이지 (미구현) */
+  /** 09 신청 플로우. financeApplyPath(id)로 실제 경로를 만듭니다. */
+  financeApply: '/finance/:id/apply',
+  /** 09b 신청 완료. financeApplyDonePath(id)로 실제 경로를 만듭니다. */
+  financeApplyDone: '/finance/:id/apply/done',
+  /** 10 마이페이지. 알림 설정 탭과 비밀번호 변경 모달은 이 화면 안의 상태입니다. */
   mypage: '/mypage',
 } as const
 
@@ -39,11 +43,34 @@ export const IMPLEMENTED_PATHS: ReadonlySet<string> = new Set([
   PATHS.onboardingConfirm,
   PATHS.home,
   PATHS.diagnosis,
+  PATHS.prescription,
+  PATHS.assistant,
+  PATHS.sales,
+  PATHS.finance,
+  PATHS.financeDetail,
+  PATHS.financeApply,
+  PATHS.financeApplyDone,
+  PATHS.mypage,
 ])
 
 /** 처방 실행 화면의 실제 경로를 만듭니다. */
 export function prescriptionPath(id: string): string {
   return PATHS.prescription.replace(':id', id)
+}
+
+/** 상품 상세 화면의 실제 경로를 만듭니다. */
+export function financeDetailPath(id: string): string {
+  return PATHS.financeDetail.replace(':id', id)
+}
+
+/** 신청 플로우 화면의 실제 경로를 만듭니다. */
+export function financeApplyPath(id: string): string {
+  return PATHS.financeApply.replace(':id', id)
+}
+
+/** 신청 완료 화면의 실제 경로를 만듭니다. */
+export function financeApplyDonePath(id: string): string {
+  return PATHS.financeApplyDone.replace(':id', id)
 }
 
 /** 해당 경로의 화면이 이미 만들어졌는지 확인합니다. */
