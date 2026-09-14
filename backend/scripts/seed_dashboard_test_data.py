@@ -58,6 +58,7 @@ def main():
         UserSignupRequest(
             business_reg_no=SEED_BUSINESS_REG_NOS[0],
             representative_name="김신규",
+            phone_number="010-0000-0001",
             password="seedpass1234!",
         ),
     )
@@ -68,6 +69,7 @@ def main():
         UserSignupRequest(
             business_reg_no=SEED_BUSINESS_REG_NOS[1],
             representative_name="김영수",
+            phone_number="010-0000-0002",
             password="seedpass1234!",
         ),
     )
@@ -93,9 +95,43 @@ def main():
     db.add(report)
 
     today = date.today()
-    for m in range(12):
-        month_date = today.replace(day=15) if m == 0 else _months_ago(today, m).replace(day=15)
-        db.add(Transaction(user_id=user.user_id, type="매출", amount=15_000_000 + m * 300_000, transaction_date=month_date))
+
+    # 이번 달·저번 달은 매출·정산(06) 화면의 필터·페이지네이션 검증을 위해 결제수단/정산상태/수수료까지 채운
+    # 상세 거래로 넣는다. 그 이전 달은 대시보드 매출 추이 차트에만 쓰이므로 월별 합계 한 건으로 충분하다.
+    def _sales_row(days_ago: int, method: str, amount: int, settlement: str, fee_amount: int, content: str):
+        return Transaction(
+            user_id=user.user_id,
+            type="매출",
+            amount=amount,
+            transaction_date=today - timedelta(days=days_ago),
+            payment_method=method,
+            content=content,
+            settlement_status=settlement,
+            fee_amount=fee_amount,
+        )
+
+    db.add_all(
+        [
+            _sales_row(0, "카드", 612_000, "completed", 17_000, "저녁 매출 정산분"),
+            _sales_row(0, "배달", 384_000, "completed", 54_500, "배달앱 정산 (수수료 14.2%)"),
+            _sales_row(1, "카드", 412_000, "completed", 11_500, "점심 매출 정산분"),
+            _sales_row(1, "현금", 198_000, "none", 0, "현금 매출"),
+            _sales_row(2, "카드", 704_000, "scheduled", 19_600, "저녁 매출 정산분"),
+            _sales_row(2, "배달", 341_000, "scheduled", 48_400, "배달앱 정산 (수수료 14.2%)"),
+            _sales_row(3, "카드", 856_000, "scheduled", 23_800, "주말 매출 정산분"),
+            _sales_row(3, "배달", 402_000, "unsettled", 57_100, "배달앱 정산 (수수료 14.2%)"),
+            Transaction(
+                user_id=user.user_id,
+                type="기타",
+                amount=300_000,
+                transaction_date=today - timedelta(days=4),
+                payment_method="기타",
+                content="단체 예약금 입금",
+                settlement_status="none",
+                fee_amount=0,
+            ),
+        ]
+    )
 
     for category, amount in [("인건비", 7_880_000), ("임대료", 7_050_000), ("기타", 5_800_000)]:
         db.add(
@@ -105,8 +141,16 @@ def main():
                 category=category,
                 amount=amount,
                 transaction_date=today.replace(day=5),
+                payment_method="고정비",
+                content=f"이번 달 {category}",
+                settlement_status="withdrawn",
+                fee_amount=0,
             )
         )
+
+    for m in range(1, 12):
+        month_date = _months_ago(today, m).replace(day=15)
+        db.add(Transaction(user_id=user.user_id, type="매출", amount=15_000_000 + m * 300_000, transaction_date=month_date))
 
     db.add(
         IndustryBenchmark(
