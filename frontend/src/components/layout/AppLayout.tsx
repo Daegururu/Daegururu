@@ -36,7 +36,7 @@ export function AppLayout({ title, user, children }: AppLayoutProps) {
     // 스크롤에 따라 다시 배치되지 않아 빠르게 스크롤해도 흔들리지 않습니다.
     <div className="flex h-screen overflow-hidden bg-bg-canvas">
       <aside className="flex w-60 shrink-0 flex-col gap-2 overflow-y-auto border-r border-border-default bg-bg-surface px-3 py-5">
-        <div className="flex items-center gap-2.5 px-3 pb-5">
+        <div className="flex cursor-default items-center gap-2.5 px-3 pb-5">
           <LogoMark size={32} />
           <span className="text-heading-m font-bold text-text-primary">대구르르</span>
         </div>
@@ -60,7 +60,8 @@ export function AppLayout({ title, user, children }: AppLayoutProps) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border-default bg-bg-surface px-8">
+        {/* 제목·사용자 표기 모두 누르는 요소가 아니라 기본 커서로 고정합니다. */}
+        <header className="flex h-16 shrink-0 cursor-default items-center justify-between border-b border-border-default bg-bg-surface px-8">
           <h1 className="text-heading-m font-bold text-text-primary">{title}</h1>
           <div className="flex items-center gap-3">
             <span className="text-body-m text-text-secondary">{user}</span>

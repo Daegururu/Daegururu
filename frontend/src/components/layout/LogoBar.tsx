@@ -10,7 +10,7 @@ export function LogoBar({ className }: LogoBarProps) {
   return (
     <header
       className={cn(
-        'flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-bg-surface px-8',
+        'flex h-16 shrink-0 cursor-default items-center gap-2 border-b border-border-default bg-bg-surface px-8',
         className,
       )}
     >
