@@ -17,6 +17,7 @@ import { SignupPage } from '@/pages/SignupPage'
 import { SplashPage } from '@/pages/SplashPage'
 import { DiagnosisStartPage } from '@/pages/onboarding/DiagnosisStartPage'
 import { StoreInfoPage } from '@/pages/onboarding/StoreInfoPage'
+import { RequireAuth } from '@/routes/RequireAuth'
 import { PATHS } from '@/routes/paths'
 
 // 화면을 추가할 때 이 배열에 { path, element }를 넣고,
@@ -41,18 +42,30 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: PATHS.signup, element: <SignupPage /> },
-      { path: PATHS.onboardingStore, element: <StoreInfoPage /> },
-      { path: PATHS.onboardingConfirm, element: <DiagnosisStartPage /> },
+      {
+        // 가게 정보 저장은 회원가입 직후 받은 토큰이 필요합니다.
+        element: <RequireAuth />,
+        children: [
+          { path: PATHS.onboardingStore, element: <StoreInfoPage /> },
+          { path: PATHS.onboardingConfirm, element: <DiagnosisStartPage /> },
+        ],
+      },
     ],
   },
-  { path: PATHS.home, element: <HomePage /> },
-  { path: PATHS.diagnosis, element: <DiagnosisReportPage /> },
-  { path: PATHS.prescription, element: <PrescriptionPage /> },
-  { path: PATHS.assistant, element: <AssistantPage /> },
-  { path: PATHS.sales, element: <SalesPage /> },
-  { path: PATHS.finance, element: <FinancePage /> },
-  { path: PATHS.financeDetail, element: <FinanceDetailPage /> },
-  { path: PATHS.financeApply, element: <FinanceApplyPage /> },
-  { path: PATHS.financeApplyDone, element: <FinanceApplyDonePage /> },
-  { path: PATHS.mypage, element: <MyPage /> },
+  {
+    // 로그인 이후 화면. 토큰이 없거나 만료되면 로그인으로 보냅니다.
+    element: <RequireAuth />,
+    children: [
+      { path: PATHS.home, element: <HomePage /> },
+      { path: PATHS.diagnosis, element: <DiagnosisReportPage /> },
+      { path: PATHS.prescription, element: <PrescriptionPage /> },
+      { path: PATHS.assistant, element: <AssistantPage /> },
+      { path: PATHS.sales, element: <SalesPage /> },
+      { path: PATHS.finance, element: <FinancePage /> },
+      { path: PATHS.financeDetail, element: <FinanceDetailPage /> },
+      { path: PATHS.financeApply, element: <FinanceApplyPage /> },
+      { path: PATHS.financeApplyDone, element: <FinanceApplyDonePage /> },
+      { path: PATHS.mypage, element: <MyPage /> },
+    ],
+  },
 ])
