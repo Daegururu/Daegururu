@@ -22,7 +22,7 @@ def read_dashboard_summary(
     try:
         result = get_dashboard_summary(db, user)
     except Exception:
-        logger.exception("failed to build dashboard summary for user_id=%s", user.id)
+        logger.exception("failed to build dashboard summary for user_id=%s", user.user_id)
         raise ApiError(status_code=500, code="DASH5000", message="대시보드 데이터를 불러오지 못했습니다.")
 
     if result["hasReport"]:

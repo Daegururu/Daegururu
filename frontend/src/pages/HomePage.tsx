@@ -17,14 +17,13 @@ import {
   MOCK_SUPPORT_PROGRAMS,
   MOCK_USER,
 } from '@/features/home/mockData'
-import { PATHS } from '@/routes/paths'
+import { PATHS, financeDetailPath } from '@/routes/paths'
 
 /** 03 홈 대시보드. 업종 평균을 켠 모습이 03-1 입니다. */
 export function HomePage() {
   const navigate = useNavigate()
 
   // TODO: 진단 결과·거래내역·추천 상품 API 연동. 지금은 전부 목데이터입니다.
-  // 07 금융 지원과 08 상품 상세는 아직 화면이 없어 이동 함수를 넘기지 않습니다.
   return (
     <AppLayout title="홈" user={MOCK_USER}>
       {/* 진단 결과 영역과 그에 따른 추천 영역을 섹션 제목으로 나눕니다. */}
@@ -47,7 +46,12 @@ export function HomePage() {
       </section>
 
       {/* 두 섹션 사이는 카드 간격(24px)보다 넓은 48px로 띄웁니다. */}
-      <SupportProgramSection className="mt-6" programs={MOCK_SUPPORT_PROGRAMS} />
+      <SupportProgramSection
+        className="mt-6"
+        programs={MOCK_SUPPORT_PROGRAMS}
+        onViewAll={() => navigate(PATHS.finance)}
+        onViewDetail={(id) => navigate(financeDetailPath(id))}
+      />
     </AppLayout>
   )
 }

@@ -23,7 +23,7 @@ def _latest_report(db: Session, user_id: int) -> DiagnosisReport | None:
 
 
 def get_diagnosis_report(db: Session, user: User) -> dict:
-    report = _latest_report(db, user.id)
+    report = _latest_report(db, user.user_id)
     if report is None:
         return {
             "hasReport": False,
@@ -63,21 +63,21 @@ def get_diagnosis_report(db: Session, user: User) -> dict:
 
 
 def get_sales_tab(db: Session, user: User) -> dict:
-    if _latest_report(db, user.id) is None:
+    if _latest_report(db, user.user_id) is None:
         return {"hasData": False, "unit": None, "months": [], "values": []}
 
     today = date.today()
     months = last_12_months(today)
-    values = monthly_sales_series(db, user.id, months)
+    values = monthly_sales_series(db, user.user_id, months)
     return {"hasData": True, "unit": "원", "months": [month_key(m) for m in months], "values": values}
 
 
 def get_fixed_cost_tab(db: Session, user: User) -> dict:
-    if _latest_report(db, user.id) is None:
+    if _latest_report(db, user.user_id) is None:
         return {"hasData": False, "items": []}
 
     today = date.today()
-    fixed_cost = fixed_cost_this_month(db, user.id, today)
+    fixed_cost = fixed_cost_this_month(db, user.user_id, today)
     total = sum(fixed_cost.values())
 
     items = []
@@ -89,22 +89,22 @@ def get_fixed_cost_tab(db: Session, user: User) -> dict:
 
 
 def get_cashflow_tab(db: Session, user: User) -> dict:
-    if _latest_report(db, user.id) is None:
+    if _latest_report(db, user.user_id) is None:
         return {"hasData": False, "unit": None, "months": [], "values": []}
 
     today = date.today()
     months = last_12_months(today)
-    sales = monthly_sales_series(db, user.id, months)
-    fixed_cost = monthly_fixed_cost_series(db, user.id, months)
+    sales = monthly_sales_series(db, user.user_id, months)
+    fixed_cost = monthly_fixed_cost_series(db, user.user_id, months)
     net = [s - c for s, c in zip(sales, fixed_cost)]
     return {"hasData": True, "unit": "원", "months": [month_key(m) for m in months], "values": net}
 
 
 def get_settlement_tab(db: Session, user: User) -> dict:
-    if _latest_report(db, user.id) is None:
+    if _latest_report(db, user.user_id) is None:
         return {"hasData": False, "avgFeeRatePct": None, "avgSettlementLagDays": None}
 
-    settlements = db.query(Settlement).filter(Settlement.user_id == user.id).all()
+    settlements = db.query(Settlement).filter(Settlement.user_id == user.user_id).all()
     if not settlements:
         return {"hasData": True, "avgFeeRatePct": 0.0, "avgSettlementLagDays": 0.0}
 

@@ -40,8 +40,8 @@ export function PrescriptionPage() {
         <p className="text-body-s text-text-secondary">{detail.meta}</p>
       </div>
 
-      {/* TODO: 실행 계획 저장 API와 AI 도우미 화면이 생기면 연결합니다. */}
-      <PrescriptionDetailView detail={detail} />
+      {/* TODO: 실행 계획 저장 API가 붙으면 onSave를 연결합니다. */}
+      <PrescriptionDetailView detail={detail} onAskAi={() => navigate(PATHS.assistant)} />
     </AppLayout>
   )
 }

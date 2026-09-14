@@ -29,7 +29,7 @@ def upgrade() -> None:
     sa.Column('requested_date', sa.Date(), nullable=False),
     sa.Column('settled_date', sa.Date(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_settlements_user_id'), 'settlements', ['user_id'], unique=False)

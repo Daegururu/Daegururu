@@ -22,7 +22,7 @@ def read_diagnosis_report(
     try:
         result = diagnosis_service.get_diagnosis_report(db, user)
     except Exception:
-        logger.exception("failed to build diagnosis report for user_id=%s", user.id)
+        logger.exception("failed to build diagnosis report for user_id=%s", user.user_id)
         raise ApiError(status_code=500, code="DIAG5000", message="진단 리포트를 불러오지 못했습니다.")
 
     if result["hasReport"]:
@@ -38,7 +38,7 @@ def read_diagnosis_sales(
     try:
         result = diagnosis_service.get_sales_tab(db, user)
     except Exception:
-        logger.exception("failed to build sales tab for user_id=%s", user.id)
+        logger.exception("failed to build sales tab for user_id=%s", user.user_id)
         raise ApiError(status_code=500, code="DIAGSALES5000", message="매출 추이 데이터를 불러오지 못했습니다.")
 
     return success("DIAGSALES2000", "매출 추이 데이터를 조회하였습니다.", result)
@@ -52,7 +52,7 @@ def read_diagnosis_fixed_cost(
     try:
         result = diagnosis_service.get_fixed_cost_tab(db, user)
     except Exception:
-        logger.exception("failed to build fixed-cost tab for user_id=%s", user.id)
+        logger.exception("failed to build fixed-cost tab for user_id=%s", user.user_id)
         raise ApiError(status_code=500, code="DIAGCOST5000", message="고정비 데이터를 불러오지 못했습니다.")
 
     return success("DIAGCOST2000", "고정비 데이터를 조회하였습니다.", result)
@@ -66,7 +66,7 @@ def read_diagnosis_cashflow(
     try:
         result = diagnosis_service.get_cashflow_tab(db, user)
     except Exception:
-        logger.exception("failed to build cashflow tab for user_id=%s", user.id)
+        logger.exception("failed to build cashflow tab for user_id=%s", user.user_id)
         raise ApiError(status_code=500, code="DIAGCASH5000", message="현금흐름 데이터를 불러오지 못했습니다.")
 
     return success("DIAGCASH2000", "현금흐름 데이터를 조회하였습니다.", result)
@@ -80,7 +80,7 @@ def read_diagnosis_settlement(
     try:
         result = diagnosis_service.get_settlement_tab(db, user)
     except Exception:
-        logger.exception("failed to build settlement tab for user_id=%s", user.id)
+        logger.exception("failed to build settlement tab for user_id=%s", user.user_id)
         raise ApiError(status_code=500, code="DIAGSETL5000", message="정산 데이터를 불러오지 못했습니다.")
 
     return success("DIAGSETL2000", "정산 데이터를 조회하였습니다.", result)

@@ -48,8 +48,9 @@ backend/app/
 | `DATABASE_URL` | PostgreSQL 연결 문자열 (psycopg3 드라이버 사용) | `postgresql+psycopg://daegureure:daegureurepassward@localhost:5432/daegureure` |
 | `ANTHROPIC_API_KEY` | Claude API 키 | `sk-ant-...` |
 | `ENV` | 실행 환경 | `development` |
-| `SECRET_KEY` | JWT 서명 키 (32바이트 이상 권장) | `dev-secret-change-me-please-32-bytes-min` |
+| `JWT_SECRET_KEY` | JWT 서명 키 (32바이트 이상 권장) | `dev-secret-change-me-please-32-bytes-min` |
 | `JWT_ALGORITHM` | JWT 서명 알고리즘 | `HS256` |
+| `JWT_EXPIRE_MINUTES` | 액세스 토큰 만료 시간(분) | `60` |
 
 ### 로컬 실행
 

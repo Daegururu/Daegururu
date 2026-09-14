@@ -23,11 +23,13 @@ export interface AppLayoutProps {
   title: string
   /** 상단바 오른쪽 사용자 표기. 예: "김영수 사장님 · 대구 중구 동성로" */
   user: string
+  /** 사이드바 맨 아래 작은 영역. 마이페이지의 [계정 삭제]처럼 눈에 띄지 않아야 하는 것을 둡니다. */
+  sidebarFooter?: ReactNode
   children: ReactNode
 }
 
 /** 좌측 고정 사이드바 + 상단바를 가진 로그인 이후 공통 레이아웃입니다. */
-export function AppLayout({ title, user, children }: AppLayoutProps) {
+export function AppLayout({ title, user, sidebarFooter, children }: AppLayoutProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -36,7 +38,7 @@ export function AppLayout({ title, user, children }: AppLayoutProps) {
     // 스크롤에 따라 다시 배치되지 않아 빠르게 스크롤해도 흔들리지 않습니다.
     <div className="flex h-screen overflow-hidden bg-bg-canvas">
       <aside className="flex w-60 shrink-0 flex-col gap-2 overflow-y-auto border-r border-border-default bg-bg-surface px-3 py-5">
-        <div className="flex items-center gap-2.5 px-3 pb-5">
+        <div className="flex cursor-default items-center gap-2.5 px-3 pb-5">
           <LogoMark size={32} />
           <span className="text-heading-m font-bold text-text-primary">대구르르</span>
         </div>
@@ -57,10 +59,13 @@ export function AppLayout({ title, user, children }: AppLayoutProps) {
             )
           })}
         </nav>
+
+        {sidebarFooter && <div className="mt-auto px-3 pt-4">{sidebarFooter}</div>}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border-default bg-bg-surface px-8">
+        {/* 제목·사용자 표기 모두 누르는 요소가 아니라 기본 커서로 고정합니다. */}
+        <header className="flex h-16 shrink-0 cursor-default items-center justify-between border-b border-border-default bg-bg-surface px-8">
           <h1 className="text-heading-m font-bold text-text-primary">{title}</h1>
           <div className="flex items-center gap-3">
             <span className="text-body-m text-text-secondary">{user}</span>

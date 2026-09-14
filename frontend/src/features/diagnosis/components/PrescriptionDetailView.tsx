@@ -1,6 +1,4 @@
-import { useState } from 'react'
-
-import { Button, Checkbox } from '@/components/common'
+import { Button } from '@/components/common'
 import type { PrescriptionDetail } from '@/features/diagnosis/types'
 import { cn } from '@/utils/cn'
 
@@ -20,14 +18,6 @@ export interface PrescriptionDetailViewProps {
 
 /** 04e 처방 실행 화면 본문입니다. 왼쪽은 실행 내용, 오른쪽은 요약과 유의사항입니다. */
 export function PrescriptionDetailView({ detail, onSave, onAskAi }: PrescriptionDetailViewProps) {
-  // 체크 상태는 화면 안에서만 씁니다. 저장 API가 붙으면 서버 상태로 옮깁니다.
-  const [checked, setChecked] = useState<string[]>([])
-
-  const toggle = (title: string) =>
-    setChecked((prev) =>
-      prev.includes(title) ? prev.filter((item) => item !== title) : [...prev, title],
-    )
-
   return (
     <div className="grid grid-cols-[1fr_364px] items-start gap-6">
       <div className="flex flex-col gap-6">
@@ -54,11 +44,10 @@ export function PrescriptionDetailView({ detail, onSave, onAskAi }: Prescription
                 key={title}
                 className="flex gap-3 border-b border-border-default py-4 first:pt-0 last:border-b-0 last:pb-0"
               >
-                <Checkbox
-                  className="mt-0.5 self-start"
-                  checked={checked.includes(title)}
-                  onChange={() => toggle(title)}
-                  aria-label={title}
+                {/* 실행 단계 표식입니다. 체크 동작은 없고 모양만 체크박스를 따릅니다. */}
+                <span
+                  aria-hidden
+                  className="mt-0.5 size-[18px] shrink-0 self-start rounded-sm border border-border-strong bg-bg-surface"
                 />
                 <div className="flex flex-col gap-1">
                   <p className="text-body-m font-medium text-text-primary">{title}</p>

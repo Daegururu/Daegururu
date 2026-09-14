@@ -12,7 +12,7 @@ class Settlement(Base):
     __tablename__ = "settlements"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), index=True)
     amount: Mapped[int] = mapped_column(BigInteger)
     fee_rate_pct: Mapped[float] = mapped_column(Numeric(4, 2))
     requested_date: Mapped[date] = mapped_column(Date)  # 매출 발생일(정산 요청 시점)

@@ -2,11 +2,18 @@ import { createBrowserRouter, Outlet } from 'react-router'
 
 import { AuthLayout } from '@/components/layout'
 import { OnboardingProvider } from '@/features/onboarding/OnboardingProvider'
+import { AssistantPage } from '@/pages/AssistantPage'
 import { DiagnosisReportPage } from '@/pages/DiagnosisReportPage'
+import { FinanceApplyDonePage } from '@/pages/FinanceApplyDonePage'
+import { FinanceApplyPage } from '@/pages/FinanceApplyPage'
+import { FinanceDetailPage } from '@/pages/FinanceDetailPage'
+import { FinancePage } from '@/pages/FinancePage'
 import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
-import { SignupPage } from '@/pages/SignupPage'
+import { MyPage } from '@/pages/MyPage'
 import { PrescriptionPage } from '@/pages/PrescriptionPage'
+import { SalesPage } from '@/pages/SalesPage'
+import { SignupPage } from '@/pages/SignupPage'
 import { SplashPage } from '@/pages/SplashPage'
 import { DiagnosisStartPage } from '@/pages/onboarding/DiagnosisStartPage'
 import { StoreInfoPage } from '@/pages/onboarding/StoreInfoPage'
@@ -41,4 +48,11 @@ export const router = createBrowserRouter([
   { path: PATHS.home, element: <HomePage /> },
   { path: PATHS.diagnosis, element: <DiagnosisReportPage /> },
   { path: PATHS.prescription, element: <PrescriptionPage /> },
+  { path: PATHS.assistant, element: <AssistantPage /> },
+  { path: PATHS.sales, element: <SalesPage /> },
+  { path: PATHS.finance, element: <FinancePage /> },
+  { path: PATHS.financeDetail, element: <FinanceDetailPage /> },
+  { path: PATHS.financeApply, element: <FinanceApplyPage /> },
+  { path: PATHS.financeApplyDone, element: <FinanceApplyDonePage /> },
+  { path: PATHS.mypage, element: <MyPage /> },
 ])
