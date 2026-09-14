@@ -32,3 +32,30 @@ def change_password(
     user.password_hash = password_hash.hash(new_password)
 
     db.commit()
+
+def update_store(
+    db: Session,
+    user_id: int,
+    business_name: str,
+    industry_name: str,
+    business_address: str,
+    open_date,
+):
+    store = (
+        db.query(Store)
+        .filter(Store.user_id == user_id)
+        .first()
+    )
+
+    if store is None:
+        raise ValueError("가게 정보를 찾을 수 없습니다.")
+
+    store.business_name = business_name
+    store.industry_name = industry_name
+    store.business_address = business_address
+    store.open_date = open_date
+
+    db.commit()
+    db.refresh(store)
+
+    return store

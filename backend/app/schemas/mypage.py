@@ -33,3 +33,16 @@ class PasswordChangeRequest(BaseModel):
 
 class PasswordChangeResponse(BaseModel):
     message: str
+
+# 가게 정보 수정 요청
+class StoreUpdateRequest(BaseModel):
+    business_name: str
+    industry_name: str
+    business_address: str
+    open_date: date
+
+
+# 가게 정보 수정 응답
+class StoreUpdateResponse(BaseModel):
+    message: str
+    store: StoreInfoResponse
