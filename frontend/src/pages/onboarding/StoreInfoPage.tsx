@@ -1,9 +1,13 @@
 import { useState, type FormEvent } from 'react'
+import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
+import { ApiError } from '@/apis/client'
+import { postStore } from '@/apis/stores'
 import { Button, Input } from '@/components/common'
 import { OnboardingLayout } from '@/components/layout'
 import { useOnboarding, type StoreInfo } from '@/features/onboarding/onboardingContext'
+import { PATHS } from '@/routes/paths'
 import { validateRequired } from '@/utils/validate'
 
 type FieldKey = keyof StoreInfo
@@ -21,10 +25,35 @@ export function StoreInfoPage() {
   const { storeInfo, setStoreInfo } = useOnboarding()
   const [form, setForm] = useState<StoreInfo>(storeInfo)
   const [errors, setErrors] = useState<Record<FieldKey, string>>(EMPTY_ERRORS)
+  // 검증과 무관한 서버 오류. 폼 아래에 보여줍니다.
+  const [submitError, setSubmitError] = useState('')
+
+  const save = useMutation({
+    mutationFn: postStore,
+    onSuccess: (_store, body) => {
+      setStoreInfo({
+        name: body.business_name,
+        category: body.industry_name,
+        address: body.business_address,
+        openedAt: body.open_date,
+      })
+      navigate(PATHS.onboardingConfirm)
+    },
+    onError: (error) => {
+      // 409는 이미 가게가 등록된 계정입니다. 다시 저장할 수 없으니 다음 단계로 보냅니다.
+      if (error instanceof ApiError && error.status === 409) {
+        setStoreInfo(form)
+        navigate(PATHS.onboardingConfirm)
+        return
+      }
+      setSubmitError(error.message)
+    },
+  })
 
   const handleChange = (field: FieldKey) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     setErrors((prev) => ({ ...prev, [field]: '' }))
+    setSubmitError('')
   }
 
   const handleSubmit = (event: FormEvent) => {
@@ -40,8 +69,12 @@ export function StoreInfoPage() {
 
     if (Object.values(nextErrors).some(Boolean)) return
 
-    setStoreInfo(form)
-    navigate('/onboarding/confirm')
+    save.mutate({
+      business_name: form.name.trim(),
+      industry_name: form.category.trim(),
+      business_address: form.address.trim(),
+      open_date: form.openedAt,
+    })
   }
 
   return (
@@ -89,11 +122,19 @@ export function StoreInfoPage() {
           />
         </div>
 
+        {submitError && (
+          <p role="alert" className="text-caption text-status-danger">
+            {submitError}
+          </p>
+        )}
+
         <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate('/login')}>
+          <Button variant="ghost" onClick={() => navigate(PATHS.login)}>
             이전
           </Button>
-          <Button type="submit">다음 단계</Button>
+          <Button type="submit" disabled={save.isPending}>
+            {save.isPending ? '저장 중...' : '다음 단계'}
+          </Button>
         </div>
       </form>
     </OnboardingLayout>
