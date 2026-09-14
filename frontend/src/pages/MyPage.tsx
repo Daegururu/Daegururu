@@ -15,6 +15,7 @@ import {
   MOCK_USER,
 } from '@/features/mypage/mockData'
 import type { MypageTab, NotificationValues, StoreProfile } from '@/features/mypage/types'
+import { useToast } from '@/hooks/useToast'
 import { PATHS } from '@/routes/paths'
 
 type OpenModal = 'password' | 'delete' | null
@@ -27,6 +28,7 @@ const TABS: { id: MypageTab; label: string }[] = [
 /** 10 마이페이지. 10c(알림 설정)는 탭, 10d(비밀번호 변경)는 모달입니다. */
 export function MyPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [tab, setTab] = useState<MypageTab>('store')
   const [openModal, setOpenModal] = useState<OpenModal>(null)
   // TODO: 가게 정보·알림 설정 API 연동. 저장한 값은 화면에서만 유지됩니다.
@@ -34,6 +36,12 @@ export function MyPage() {
   const [notifications, setNotifications] = useState<NotificationValues>(MOCK_NOTIFICATION_VALUES)
 
   const closeModal = () => setOpenModal(null)
+
+  // TODO: 비밀번호 변경 API 연동. 지금은 검증 통과 시 안내만 띄웁니다.
+  const handlePasswordSave = () => {
+    closeModal()
+    showToast('비밀번호가 변경되었습니다')
+  }
 
   // TODO: 계정 삭제 API 연동. 지금은 확인 후 로그인 화면으로만 보냅니다.
   const handleDeleteAccount = () => navigate(PATHS.login)
@@ -102,7 +110,7 @@ export function MyPage() {
       <PasswordChangeModal
         open={openModal === 'password'}
         onClose={closeModal}
-        onSave={closeModal}
+        onSave={handlePasswordSave}
       />
 
       <FormModal

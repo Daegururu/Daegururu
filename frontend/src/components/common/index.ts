@@ -49,5 +49,7 @@ export type { TableCells, TableHeaderProps, TableRowProps } from './Table'
 export { TermsModal } from './TermsModal'
 export type { TermsModalProps } from './TermsModal'
 
+export { ToastProvider } from './Toast'
+
 export { Toggle } from './Toggle'
 export type { ToggleProps } from './Toggle'
