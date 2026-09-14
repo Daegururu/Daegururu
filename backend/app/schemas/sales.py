@@ -37,10 +37,3 @@ class TransactionCreateRequest(BaseModel):
     content: str = Field(min_length=1, max_length=255)
     method: str = Field(min_length=1, max_length=20)
     reflectInDiagnosis: bool = False
-
-
-class SalesExportRequest(BaseModel):
-    month: str = Field(description="YYYY-MM")
-    includeSales: bool = True
-    includeExpense: bool = True
-    includeScheduled: bool = True

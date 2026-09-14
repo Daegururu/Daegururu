@@ -1,7 +1,5 @@
-import os
 from datetime import date
 
-import pymupdf
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -9,29 +7,6 @@ from sqlalchemy.orm import Session
 from app.core.envelope import ApiError
 from app.models import Transaction, User
 from app.schemas.sales import TransactionCreateRequest
-
-PDF_LEFT_MARGIN = 50
-PDF_TOP_MARGIN = 60
-PDF_BOTTOM_MARGIN = 780
-
-# 한글이 뷰어 시스템 폰트 없이도 보이도록 실제 폰트를 PDF에 임베드한다(서브셋해서 용량은 작게 유지).
-# 이 경로가 없는 환경(예: 리눅스 서버)에서는 PyMuPDF 내장 CJK 폰트로 낮춰 쓴다 — 텍스트 추출은 되지만
-# 뷰어에 한글 폰트가 없으면 화면에 안 보일 수 있다.
-_KOREAN_FONT_PATHS = [r"C:\Windows\Fonts\malgun.ttf", r"C:\Windows\Fonts\NGULIM.TTF"]
-_UNSET = object()
-_korean_font_bytes: bytes | None = _UNSET
-
-
-def _get_korean_font_bytes() -> bytes | None:
-    global _korean_font_bytes
-    if _korean_font_bytes is _UNSET:
-        _korean_font_bytes = None
-        for path in _KOREAN_FONT_PATHS:
-            if os.path.exists(path):
-                with open(path, "rb") as f:
-                    _korean_font_bytes = f.read()
-                break
-    return _korean_font_bytes
 
 PAGE_SIZE = 8
 
@@ -154,112 +129,3 @@ def create_transaction(db: Session, user: User, payload: TransactionCreateReques
     db.commit()
     db.refresh(transaction)
     return _to_response_dict(transaction)
-
-
-class _PdfWriter:
-    """새 페이지가 필요하면 자동으로 추가해주는 얇은 줄 단위 PDF 작성기."""
-
-    def __init__(self, doc: "pymupdf.Document"):
-        self._doc = doc
-        self._font_bytes = _get_korean_font_bytes()
-        self._page = self._new_page()
-        self._y = PDF_TOP_MARGIN
-
-    def _new_page(self):
-        page = self._doc.new_page()
-        if self._font_bytes:
-            page.insert_font(fontname="korfont", fontbuffer=self._font_bytes)
-            self._fontname = "korfont"
-        else:
-            self._fontname = "korea-s"  # 임베드 폰트가 없는 환경(예: 리눅스)의 대체
-        return page
-
-    def line(self, text: str, size: float = 11, gap: float = 20) -> None:
-        if self._y > PDF_BOTTOM_MARGIN:
-            self._page = self._new_page()
-            self._y = PDF_TOP_MARGIN
-        self._page.insert_text((PDF_LEFT_MARGIN, self._y), text, fontname=self._fontname, fontsize=size)
-        self._y += gap
-
-    def gap(self, height: float = 12) -> None:
-        self._y += height
-
-
-def generate_sales_export_pdf(
-    db: Session,
-    user: User,
-    month: str,
-    include_sales: bool,
-    include_expense: bool,
-    include_scheduled: bool,
-) -> bytes:
-    start, end = _parse_month(month)
-    store = user.store
-    business_name = store.business_name if store is not None else "우리 가게"
-
-    doc = pymupdf.open()
-    writer = _PdfWriter(doc)
-
-    writer.line(f"{business_name} 매출·정산 요약본", size=16, gap=26)
-    writer.line(f"기간: {month} 1일 ~ {end - relativedelta(days=1):%m월 %d일}", size=11, gap=24)
-
-    for item in get_sales_summary(db, user, month):
-        writer.line(f"{item['label']}  {item['value']}   ({item['caption']})", size=11, gap=18)
-    writer.gap()
-
-    if include_sales:
-        _write_transaction_section(db, user, writer, start, end, "매출 내역", types=["매출"])
-
-    if include_expense:
-        _write_transaction_section(db, user, writer, start, end, "고정비·지출 내역", types=["고정비", "기타"])
-
-    if include_scheduled:
-        _write_transaction_section(
-            db,
-            user,
-            writer,
-            start,
-            end,
-            "정산 예정 내역",
-            types=["매출"],
-            settlement_statuses=["scheduled", "unsettled"],
-        )
-
-    doc.subset_fonts()
-    return doc.tobytes(garbage=4, deflate=True)
-
-
-def _write_transaction_section(
-    db: Session,
-    user: User,
-    writer: "_PdfWriter",
-    start: date,
-    end: date,
-    title: str,
-    types: list[str],
-    settlement_statuses: list[str] | None = None,
-) -> None:
-    query = db.query(Transaction).filter(
-        Transaction.user_id == user.user_id,
-        Transaction.type.in_(types),
-        Transaction.transaction_date >= start,
-        Transaction.transaction_date < end,
-    )
-    if settlement_statuses:
-        query = query.filter(Transaction.settlement_status.in_(settlement_statuses))
-    rows = query.order_by(Transaction.transaction_date).all()
-
-    writer.line(f"■ {title}", size=13, gap=22)
-    if not rows:
-        writer.line("- 내역 없음", size=10, gap=18)
-    for row in rows:
-        method = row.payment_method or "-"
-        content = row.content or "-"
-        writer.line(
-            f"{row.transaction_date.isoformat()}  {method}  {content}  {row.amount:,}원  [{row.settlement_status}]",
-            size=10,
-            gap=17,
-        )
-    total = sum(row.amount for row in rows)
-    writer.line(f"소계: {total:,}원", size=10, gap=20)
-    writer.gap()

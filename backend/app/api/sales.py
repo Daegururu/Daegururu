@@ -1,20 +1,14 @@
 import logging
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.envelope import ApiError, success
 from app.core.security import get_current_user
 from app.models import User
-from app.schemas.sales import SalesExportRequest, TransactionCreateRequest
-from app.services.sales_service import (
-    PAGE_SIZE,
-    create_transaction,
-    generate_sales_export_pdf,
-    get_sales_summary,
-    list_transactions,
-)
+from app.schemas.sales import TransactionCreateRequest
+from app.services.sales_service import PAGE_SIZE, create_transaction, get_sales_summary, list_transactions
 
 logger = logging.getLogger(__name__)
 
@@ -75,27 +69,3 @@ def add_transaction(
         raise ApiError(status_code=500, code="SALES5002", message="거래를 추가하지 못했습니다.")
 
     return success("SALES2002", "거래를 추가하였습니다.", result)
-
-
-@router.post("/export")
-def export_sales(
-    payload: SalesExportRequest,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    try:
-        pdf_bytes = generate_sales_export_pdf(
-            db, user, payload.month, payload.includeSales, payload.includeExpense, payload.includeScheduled
-        )
-    except ApiError:
-        raise
-    except Exception:
-        logger.exception("failed to export sales pdf for user_id=%s", user.user_id)
-        raise ApiError(status_code=500, code="SALES5003", message="내보내기 파일을 만들지 못했습니다.")
-
-    filename = f"sales_{payload.month}.pdf"
-    return Response(
-        content=pdf_bytes,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
