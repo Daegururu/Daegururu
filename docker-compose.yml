@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ${ECR_REGISTRY:-}/${ECR_REPOSITORY:-daegururu-backend}:${IMAGE_TAG:-latest}
+    image: ${BACKEND_IMAGE:-local/daegururu-backend:latest}
     build: ./backend
     restart: unless-stopped
     env_file: ./backend/.env

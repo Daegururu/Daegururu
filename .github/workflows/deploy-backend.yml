@@ -48,6 +48,7 @@ jobs:
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
             cd ~/daegururu
             git pull
-            ECR_REGISTRY=$ECR_REGISTRY ECR_REPOSITORY=daegururu-backend IMAGE_TAG=latest docker compose pull backend
-            ECR_REGISTRY=$ECR_REGISTRY ECR_REPOSITORY=daegururu-backend IMAGE_TAG=latest docker compose up -d backend
+            export BACKEND_IMAGE=$ECR_REGISTRY/daegururu-backend:latest
+            docker compose pull backend
+            docker compose up -d backend
             docker image prune -f
