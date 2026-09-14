@@ -30,6 +30,7 @@ def signup(
             "user_id": user.user_id,
             "business_reg_no": user.business_reg_no,
             "representative_name": user.representative_name,
+            "phone_number": user.phone_number,
             "access_token": access_token,
             "token_type": "bearer",
         }
