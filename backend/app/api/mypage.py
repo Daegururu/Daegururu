@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
-from app.schemas.mypage import MyPageResponse
-from app.services.mypage import get_mypage
+from app.schemas.mypage import MyPageResponse, PasswordChangeRequest, PasswordChangeResponse
+from app.services.mypage import get_mypage, change_password
 
 
 router = APIRouter(
@@ -49,3 +49,30 @@ def mypage(
             "phone_number": user.phone_number,
         },
     }
+
+@router.patch(
+    "/password",
+    response_model=PasswordChangeResponse,
+)
+def update_password(
+    request: PasswordChangeRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        change_password(
+            db=db,
+            user=current_user,
+            current_password=request.current_password,
+            new_password=request.new_password,
+        )
+
+        return {
+            "message": "비밀번호가 변경되었습니다."
+        }
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )

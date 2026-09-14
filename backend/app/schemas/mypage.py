@@ -25,3 +25,11 @@ class MyPageResponse(BaseModel):
     store: StoreInfoResponse
     business_verification: BusinessVerificationResponse
     account: AccountInfoResponse
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class PasswordChangeResponse(BaseModel):
+    message: str
