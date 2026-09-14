@@ -15,7 +15,8 @@ export function AuthLayout() {
     <div className="flex min-h-screen flex-1 items-stretch overflow-hidden bg-bg-surface">
       <aside
         className={cn(
-          'relative shrink-0 flex-col justify-center overflow-hidden bg-brand-primary transition-[width] duration-700 ease-in-out',
+          // 패널 안에는 누르거나 선택할 것이 없어 기본 커서로 고정합니다.
+          'relative shrink-0 cursor-default flex-col justify-center overflow-hidden bg-brand-primary transition-[width] duration-700 ease-in-out',
           // 스플래시에서는 화면을 꽉 채우고, 로그인에서는 왼쪽 패널로 줄어듭니다.
           // 좁은 화면의 로그인에는 패널이 없으므로 그때만 숨깁니다.
           isSplash ? 'flex w-full' : 'hidden w-full lg:flex lg:w-[560px]',

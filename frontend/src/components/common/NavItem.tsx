@@ -42,6 +42,8 @@ export function NavItem({
 
   const classes = cn(
     'flex h-11 w-full items-center gap-3 rounded-md px-4 text-left text-body-m transition-colors',
+    // 글자 위에서도 입력 커서가 뜨지 않게 기본 커서로 고정합니다.
+    !disabled && 'cursor-default',
     active && 'bg-brand-subtle font-medium text-text-brand',
     !active && !disabled && 'text-text-secondary hover:bg-bg-subtle',
     disabled && 'cursor-not-allowed text-text-tertiary',

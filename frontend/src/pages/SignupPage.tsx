@@ -9,16 +9,15 @@ import { LogoBar } from '@/components/layout'
 import { certificateToStoreInfo } from '@/features/onboarding/certificateMapping'
 import { EMPTY_STORE_INFO, useOnboarding } from '@/features/onboarding/onboardingContext'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
-import { formatBusinessNumber, formatPhoneNumber, toDigits } from '@/utils/format'
+import { formatBusinessNumber, formatPhoneNumber } from '@/utils/format'
 import {
   validateBusinessNumber,
   validatePassword,
   validatePhoneNumber,
   validateRequired,
-  validateVerificationCode,
 } from '@/utils/validate'
 
-type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'verificationCode' | 'password'
+type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'password'
 
 const UPLOAD_HELPER_TEXT =
   'PDF 형식만 가능 · 국세청 소상공인확인서 발급 페이지에서 발급받을 수 있습니다'
@@ -39,8 +38,6 @@ export function SignupPage() {
   const [ownerName, setOwnerName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
-  const [isCodeSent, setCodeSent] = useState(false)
   const [openedTerms, setOpenedTerms] = useState<TermsKey | null>(null)
   const [isFailureModalOpen, setFailureModalOpen] = useState(false)
   const [agreements, setAgreements] = useState<Record<TermsKey, boolean>>({
@@ -53,7 +50,6 @@ export function SignupPage() {
     businessNumber: '',
     ownerName: '',
     phone: '',
-    verificationCode: '',
     password: '',
   })
 
@@ -86,7 +82,6 @@ export function SignupPage() {
     isUploaded &&
     !upload.isPending &&
     Boolean(phone.trim()) &&
-    Boolean(verificationCode.trim()) &&
     Boolean(password.trim()) &&
     isRequiredAgreed
 
@@ -108,6 +103,9 @@ export function SignupPage() {
     setFile(null)
     setBusinessNumber('')
     setOwnerName('')
+    // 업로드 전 상태로 돌아가므로 함께 잠기는 필드도 비웁니다.
+    setPhone('')
+    setPassword('')
     // 온보딩으로 넘길 값도 함께 비웁니다.
     setCertificate(null)
     setStoreInfo(EMPTY_STORE_INFO)
@@ -126,16 +124,6 @@ export function SignupPage() {
     setOpenedTerms(null)
   }
 
-  /** TODO: 인증번호 발송 API 연동 */
-  const handleSendCode = () => {
-    const phoneError = validatePhoneNumber(phone)
-    if (phoneError) {
-      setErrors((prev) => ({ ...prev, phone: phoneError }))
-      return
-    }
-    setCodeSent(true)
-  }
-
   const toggleAll = (checked: boolean) => {
     setAgreements({ terms: checked, privacy: checked, marketing: checked })
   }
@@ -148,7 +136,6 @@ export function SignupPage() {
       businessNumber: validateBusinessNumber(businessNumber),
       ownerName: validateRequired(ownerName, '대표자명'),
       phone: validatePhoneNumber(phone),
-      verificationCode: validateVerificationCode(verificationCode),
       password: validatePassword(password),
     }
     setErrors(nextErrors)
@@ -225,43 +212,17 @@ export function SignupPage() {
             autoComplete="off"
           />
 
-          <div className="flex items-end gap-3">
-            <Input
-              label="휴대폰 번호"
-              placeholder="010-0000-0000"
-              value={phone}
-              {...phoneField}
-              errorMessage={errors.phone}
-              inputMode="numeric"
-              autoComplete="tel"
-              maxLength={13}
-            />
-            <Button variant="secondary" className="shrink-0" onClick={handleSendCode}>
-              인증번호 받기
-            </Button>
-          </div>
-
-          {isCodeSent && (
-            <div className="flex items-end gap-3">
-              <Input
-                label="인증번호"
-                placeholder="6자리 숫자 입력"
-                helperText="문자로 받은 인증번호를 입력하세요 · 유효시간 3:00"
-                value={verificationCode}
-                onChange={(event) => {
-                  setVerificationCode(toDigits(event.target.value).slice(0, 6))
-                  clearError('verificationCode')
-                }}
-                errorMessage={errors.verificationCode}
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-              />
-              <Button variant="secondary" className="shrink-0">
-                확인
-              </Button>
-            </div>
-          )}
+          <Input
+            label="휴대폰 번호"
+            placeholder="010-0000-0000"
+            value={phone}
+            {...phoneField}
+            errorMessage={errors.phone}
+            disabled={!isUploaded}
+            inputMode="numeric"
+            autoComplete="tel"
+            maxLength={13}
+          />
 
           <Input
             label="비밀번호"
@@ -273,6 +234,7 @@ export function SignupPage() {
               clearError('password')
             }}
             errorMessage={errors.password}
+            disabled={!isUploaded}
             autoComplete="new-password"
           />
 
