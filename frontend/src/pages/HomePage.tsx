@@ -55,6 +55,11 @@ export function HomePage() {
 
         {/* 현금흐름 : 고정비 = 700 : 412 (Figma 기준 비율) */}
         <div className="grid grid-cols-[700fr_412fr] gap-6">
+          {/*
+           * TODO(백엔드): cashflowChart.values가 월별 매출 합계라 "현금흐름 추이"와 뜻이 다릅니다.
+           * 월별 순현금흐름(매출 - 고정비)으로 바꿔달라고 요청한 상태이고, 업종 평균 참고선도 같은 기준이어야 합니다.
+           * 응답 구조는 그대로라 값만 바뀌면 프론트 수정 없이 반영됩니다.
+           */}
           <CashFlowCard
             points={toCashFlowPoints(cashflowChart)}
             average={cashflowChart.industryAvgReference.value}
