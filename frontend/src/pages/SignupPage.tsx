@@ -45,6 +45,8 @@ export function SignupPage() {
   const [password, setPassword] = useState('')
   const [openedTerms, setOpenedTerms] = useState<TermsKey | null>(null)
   const [isFailureModalOpen, setFailureModalOpen] = useState(false)
+  // 특정 입력칸과 무관한 서버 오류. 가입 버튼 위에 보여줍니다.
+  const [submitError, setSubmitError] = useState('')
   const [agreements, setAgreements] = useState<Record<TermsKey, boolean>>({
     terms: false,
     privacy: false,
@@ -87,10 +89,12 @@ export function SignupPage() {
       navigate(PATHS.onboardingStore)
     },
     onError: (error) => {
-      // 409(이미 가입된 번호)는 번호 필드에, 그 외는 비밀번호 필드 아래에 보여줍니다.
-      const field: FieldKey =
-        error instanceof ApiError && error.status === 409 ? 'businessNumber' : 'password'
-      setErrors((prev) => ({ ...prev, [field]: error.message }))
+      // 409(이미 가입된 번호)만 번호 필드에 붙이고, 나머지 서버 오류는 버튼 위에 따로 보여줍니다.
+      if (error instanceof ApiError && error.status === 409) {
+        setErrors((prev) => ({ ...prev, businessNumber: error.message }))
+        return
+      }
+      setSubmitError(error.message)
     },
   })
 
@@ -164,10 +168,11 @@ export function SignupPage() {
     if (Object.values(nextErrors).some(Boolean)) return
 
     // 번호는 하이픈을 떼고 숫자만 보냅니다. 로그인도 같은 형식으로 보내야 대조됩니다.
-    // TODO: 휴대폰 번호는 백엔드 #24에서 필드가 추가되면 toDigits(phone)으로 함께 보냅니다.
+    setSubmitError('')
     signup.mutate({
       business_reg_no: toDigits(businessNumber),
       representative_name: ownerName.trim(),
+      phone_number: toDigits(phone),
       password,
     })
   }
@@ -294,6 +299,12 @@ export function SignupPage() {
               </div>
             ))}
           </div>
+
+          {submitError && (
+            <p role="alert" className="text-caption text-status-danger">
+              {submitError}
+            </p>
+          )}
 
           <div className="flex items-center justify-between">
             <Button variant="ghost" onClick={() => navigate(PATHS.login)}>

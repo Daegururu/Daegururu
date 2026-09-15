@@ -7,6 +7,7 @@ import { Button, Input, Modal } from '@/components/common'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
 import { PATHS } from '@/routes/paths'
 import { useAuthStore } from '@/stores/authStore'
+import type { AuthResponse } from '@/types/auth'
 import { formatBusinessNumber, toDigits } from '@/utils/format'
 import { validateBusinessNumber, validateRequired } from '@/utils/validate'
 
@@ -17,16 +18,14 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [businessNumberError, setBusinessNumberError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  // 로그인에 성공한 대표자명. 완료 모달 문구에 씁니다.
-  const [loggedInName, setLoggedInName] = useState<string | null>(null)
+  // 로그인에 성공한 응답. 완료 모달 문구에 쓰고, [홈으로 이동]을 누를 때 스토어에 저장합니다.
+  // 토큰을 먼저 저장하면 RedirectIfAuth가 모달을 보여주기 전에 홈으로 보내 버립니다.
+  const [loggedIn, setLoggedIn] = useState<AuthResponse | null>(null)
   const setAuth = useAuthStore((state) => state.setAuth)
 
   const login = useMutation({
     mutationFn: postLogin,
-    onSuccess: (response) => {
-      setAuth(response)
-      setLoggedInName(response.representative_name)
-    },
+    onSuccess: setLoggedIn,
     onError: (error) => {
       // 번호·비밀번호 중 어느 쪽이 틀렸는지 알려주지 않기 위해 비밀번호 아래에만 표시합니다.
       // 서버 연결 실패 같은 오류도 같은 자리에 보여줍니다.
@@ -38,6 +37,12 @@ export function LoginPage() {
     setBusinessNumber(value)
     setBusinessNumberError('')
   })
+
+  // 버튼·ESC·배경 클릭 어느 쪽으로 닫아도 로그인은 이미 성공했으니 저장하고 홈으로 갑니다.
+  const goHome = () => {
+    if (loggedIn) setAuth(loggedIn)
+    navigate(PATHS.home)
+  }
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -99,11 +104,7 @@ export function LoginPage() {
         </p>
       </form>
 
-      <Modal
-        open={loggedInName !== null}
-        onClose={() => setLoggedInName(null)}
-        ariaLabel="로그인 완료"
-      >
+      <Modal open={loggedIn !== null} onClose={goHome} ariaLabel="로그인 완료">
         <span
           aria-hidden
           className="flex size-14 items-center justify-center rounded-full bg-status-safe text-[26px] font-bold text-text-inverse"
@@ -112,11 +113,11 @@ export function LoginPage() {
         </span>
         <p className="text-heading-m font-bold text-text-primary">로그인 완료</p>
         <p className="text-center text-body-m text-text-secondary">
-          {loggedInName} 사장님, 환영합니다!
+          {loggedIn?.representative_name} 사장님, 환영합니다!
           <br />
           대시보드로 이동해 오늘의 가게 상태를 확인해보세요.
         </p>
-        <Button onClick={() => navigate(PATHS.home)}>홈으로 이동</Button>
+        <Button onClick={goHome}>홈으로 이동</Button>
       </Modal>
     </>
   )

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 
 import { LogoMark, NavItem } from '@/components/common'
 import { PATHS, isImplemented } from '@/routes/paths'
+import { useAuthStore } from '@/stores/authStore'
 
 /**
  * 사이드바 메뉴입니다. 화면이 아직 없는 경로는 isImplemented가 false라
@@ -23,7 +24,7 @@ export interface AppLayoutProps {
   title: string
   /** 상단바 오른쪽 사용자 표기. 예: "김영수 사장님 · 대구 중구 동성로" */
   user: string
-  /** 사이드바 맨 아래 작은 영역. 마이페이지의 [계정 삭제]처럼 눈에 띄지 않아야 하는 것을 둡니다. */
+  /** 사이드바 맨 아래 [로그아웃] 옆에 붙는 작은 요소. 마이페이지의 [계정 삭제]처럼 눈에 띄지 않아야 하는 것을 둡니다. */
   sidebarFooter?: ReactNode
   children: ReactNode
 }
@@ -32,6 +33,13 @@ export interface AppLayoutProps {
 export function AppLayout({ title, user, sidebarFooter, children }: AppLayoutProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+
+  // 토큰을 지우면 RequireAuth가 로그인으로 보내지만, 바로 이동시켜 화면이 잠깐 비지 않게 합니다.
+  const handleLogout = () => {
+    clearAuth()
+    navigate(PATHS.login, { replace: true })
+  }
 
   return (
     // 화면 전체는 스크롤하지 않고 콘텐츠 영역만 스크롤합니다. 사이드바·상단바가
@@ -60,7 +68,17 @@ export function AppLayout({ title, user, sidebarFooter, children }: AppLayoutPro
           })}
         </nav>
 
-        {sidebarFooter && <div className="mt-auto px-3 pt-4">{sidebarFooter}</div>}
+        {/* 로그아웃은 모든 화면에 있고, 화면별 요소(계정 삭제 등)는 그 옆에 붙습니다. */}
+        <div className="mt-auto flex items-center gap-4 px-3 pt-4">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-caption text-text-tertiary underline-offset-2 transition-colors hover:text-text-primary hover:underline"
+          >
+            로그아웃
+          </button>
+          {sidebarFooter}
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
