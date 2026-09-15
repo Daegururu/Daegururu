@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
 import { ApiError } from '@/apis/client'
-import { postStore } from '@/apis/stores'
+import { getMyStore, postStore } from '@/apis/stores'
 import { Button, Input } from '@/components/common'
 import { OnboardingLayout } from '@/components/layout'
 import { useOnboarding, type StoreInfo } from '@/features/onboarding/onboardingContext'
@@ -39,11 +39,22 @@ export function StoreInfoPage() {
       })
       navigate(PATHS.onboardingConfirm)
     },
-    onError: (error) => {
-      // 409는 이미 가게가 등록된 계정입니다. 다시 저장할 수 없으니 다음 단계로 보냅니다.
+    onError: async (error) => {
+      // 409는 이미 가게가 등록된 계정입니다. 방금 입력한 값은 저장되지 않았으니
+      // 서버에 있는 가게 정보를 받아와 다음 단계로 보냅니다.
       if (error instanceof ApiError && error.status === 409) {
-        setStoreInfo(form)
-        navigate(PATHS.onboardingConfirm)
+        try {
+          const store = await getMyStore()
+          setStoreInfo({
+            name: store.business_name,
+            category: store.industry_name,
+            address: store.business_address,
+            openedAt: store.open_date,
+          })
+          navigate(PATHS.onboardingConfirm)
+        } catch (fetchError) {
+          setSubmitError(fetchError instanceof Error ? fetchError.message : error.message)
+        }
         return
       }
       setSubmitError(error.message)
