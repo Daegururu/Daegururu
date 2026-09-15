@@ -2,56 +2,88 @@ import { useNavigate } from 'react-router'
 
 import { AppLayout } from '@/components/layout'
 import { CashFlowCard } from '@/features/home/components/CashFlowCard'
+import { DashboardStatusCard } from '@/features/home/components/DashboardStatusCard'
+import { EmptyReportCard } from '@/features/home/components/EmptyReportCard'
 import { FixedCostCard } from '@/features/home/components/FixedCostCard'
 import { MetricSummaryGrid } from '@/features/home/components/MetricSummaryGrid'
 import { RiskHeroCard } from '@/features/home/components/RiskHeroCard'
 import { SupportProgramSection } from '@/features/home/components/SupportProgramSection'
+import { useDashboardSummary } from '@/features/home/hooks/useDashboardSummary'
 import {
-  MOCK_CASH_FLOW,
-  MOCK_CASH_FLOW_AVERAGE,
-  MOCK_CASH_FLOW_NOTE,
-  MOCK_DIAGNOSIS,
-  MOCK_FIXED_COSTS,
-  MOCK_FIXED_COST_NOTE,
-  MOCK_METRICS,
-  MOCK_SUPPORT_PROGRAMS,
-  MOCK_USER,
-} from '@/features/home/mockData'
+  toCashFlowPoints,
+  toDiagnosisSummary,
+  toFixedCostItems,
+  toFixedCostNote,
+  toMetrics,
+  toSupportPrograms,
+} from '@/features/home/mapping'
 import { PATHS, financeDetailPath } from '@/routes/paths'
+import { useAuthStore } from '@/stores/authStore'
 
 /** 03 홈 대시보드. 업종 평균을 켠 모습이 03-1 입니다. */
 export function HomePage() {
   const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+  const { data, isPending, isError, error, refetch } = useDashboardSummary()
 
-  // TODO: 진단 결과·거래내역·추천 상품 API 연동. 지금은 전부 목데이터입니다.
-  return (
-    <AppLayout title="홈" user={MOCK_USER}>
-      {/* 진단 결과 영역과 그에 따른 추천 영역을 섹션 제목으로 나눕니다. */}
-      <section className="flex flex-col gap-6">
-        <h2 className="text-heading-s font-bold text-text-primary">우리 가게 진단</h2>
+  // TODO: 가게 주소는 GET /stores/me 연동 후 붙입니다.
+  const userLabel = user ? `${user.representativeName} 사장님` : ''
 
-        <RiskHeroCard diagnosis={MOCK_DIAGNOSIS} onViewReport={() => navigate(PATHS.diagnosis)} />
+  const renderBody = () => {
+    if (isPending) return <DashboardStatusCard loading />
+    if (isError)
+      return <DashboardStatusCard errorMessage={error.message} onRetry={() => refetch()} />
 
-        <MetricSummaryGrid metrics={MOCK_METRICS} />
+    const { hasReport, risk, metrics, cashflowChart, fixedCostBreakdown, recommendedProducts } =
+      data
+
+    // 진단 이력이 없으면(DASH2001) 히어로 자리에 안내 카드만 둡니다.
+    if (!hasReport || !risk || !metrics || !cashflowChart || !fixedCostBreakdown) {
+      return <EmptyReportCard onStart={() => navigate(PATHS.onboardingStore)} />
+    }
+
+    const fixedCostItems = toFixedCostItems(fixedCostBreakdown.items)
+
+    return (
+      <>
+        <RiskHeroCard
+          diagnosis={toDiagnosisSummary(risk)}
+          onViewReport={() => navigate(PATHS.diagnosis)}
+        />
+
+        <MetricSummaryGrid metrics={toMetrics(metrics)} />
 
         {/* 현금흐름 : 고정비 = 700 : 412 (Figma 기준 비율) */}
         <div className="grid grid-cols-[700fr_412fr] gap-6">
           <CashFlowCard
-            points={MOCK_CASH_FLOW}
-            average={MOCK_CASH_FLOW_AVERAGE}
-            note={MOCK_CASH_FLOW_NOTE}
+            points={toCashFlowPoints(cashflowChart)}
+            average={cashflowChart.industryAvgReference.value}
+            note={metrics.cashflow.note}
           />
-          <FixedCostCard items={MOCK_FIXED_COSTS} note={MOCK_FIXED_COST_NOTE} />
+          <FixedCostCard
+            items={fixedCostItems}
+            note={toFixedCostNote(fixedCostItems)}
+            averageAvailable={fixedCostBreakdown.industryAvgAvailable}
+          />
         </div>
-      </section>
 
-      {/* 두 섹션 사이는 카드 간격(24px)보다 넓은 48px로 띄웁니다. */}
-      <SupportProgramSection
-        className="mt-6"
-        programs={MOCK_SUPPORT_PROGRAMS}
-        onViewAll={() => navigate(PATHS.finance)}
-        onViewDetail={(id) => navigate(financeDetailPath(id))}
-      />
+        {/* 두 섹션 사이는 카드 간격(24px)보다 넓은 48px로 띄웁니다. */}
+        <SupportProgramSection
+          className="mt-6"
+          programs={toSupportPrograms(recommendedProducts)}
+          onViewAll={() => navigate(PATHS.finance)}
+          onViewDetail={(id) => navigate(financeDetailPath(id))}
+        />
+      </>
+    )
+  }
+
+  return (
+    <AppLayout title="홈" user={userLabel}>
+      <section className="flex flex-col gap-6">
+        <h2 className="text-heading-s font-bold text-text-primary">우리 가게 진단</h2>
+        {renderBody()}
+      </section>
     </AppLayout>
   )
 }

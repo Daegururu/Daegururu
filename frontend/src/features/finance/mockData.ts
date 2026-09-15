@@ -2,7 +2,7 @@ import type { DocumentSlot, FinanceProductDetail, ProductCategory } from './type
 
 /*
  * 금융 지원 목데이터입니다.
- * 상품 id는 홈 대시보드 추천 지원사업(features/home/mockData.ts)과 같아야 [자세히 보기]가 이어집니다.
+ * TODO: 홈 추천 지원사업은 이제 API의 productId(숫자)로 넘어옵니다. 금융 API 연동 시 id 체계를 맞춥니다.
  * 08 상세는 Figma에 iM뱅크 1건만 있어 나머지 2건은 같은 구조로 채워 넣었습니다.
  * API 연동 시 MOCK_PRODUCTS를 응답으로 교체합니다.
  */
