@@ -118,8 +118,9 @@ function formatLimit(amount: number): string {
 
 export function toSupportPrograms(products: DashboardProduct[]): SupportProgram[] {
   return products.map(({ productId, name, limitAmount, interestRate }) => ({
+    id: String(productId),
     // TODO: 08 상세가 목데이터라 상품명으로 목 id를 찾습니다. 금융 API 연동(#32) 후 productId만 씁니다.
-    id: findProductIdByName(name) ?? String(productId),
+    detailId: findProductIdByName(name) ?? null,
     name,
     status: '신청 가능',
     limit: formatLimit(limitAmount),

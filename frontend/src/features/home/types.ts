@@ -38,7 +38,10 @@ export interface FixedCostItem {
 }
 
 export interface SupportProgram {
+  /** 백엔드 productId. 목록 key로만 씁니다. */
   id: string
+  /** 08 상품 상세로 이어지는 id. 상세 목데이터에 없는 상품이면 null이고 [자세히 보기]가 비활성됩니다. */
+  detailId: string | null
   name: string
   /** 신청 상태 칩 문구. 예: "신청 가능" */
   status: string
