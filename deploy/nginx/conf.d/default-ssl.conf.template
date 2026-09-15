@@ -5,7 +5,7 @@
 
 server {
     listen 80;
-    server_name DOMAIN;
+    server_name api.daegururu.cloud;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -18,10 +18,10 @@ server {
 
 server {
     listen 443 ssl;
-    server_name DOMAIN;
+    server_name api.daegururu.cloud;
 
-    ssl_certificate /etc/letsencrypt/live/DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/DOMAIN/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/api.daegururu.cloud/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.daegururu.cloud/privkey.pem;
 
     location / {
         proxy_pass http://backend:8000;
