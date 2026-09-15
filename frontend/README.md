@@ -15,6 +15,7 @@
 | HTTP       | axios                 | 요청, 인터셉터로 토큰·에러 일괄 처리 |
 | 전역 상태  | zustand               | 로그인 토큰·유저 정보 (`stores/`)    |
 | 차트       | recharts              | 대시보드 라인·도넛 차트              |
+| 아이콘     | lucide-react          | 눈 모양 등 UI 아이콘                 |
 | 린트       | oxlint                | 코드 검사                            |
 | 포맷       | prettier              | 코드 포맷 자동 정렬                  |
 
