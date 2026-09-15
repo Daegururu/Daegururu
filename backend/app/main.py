@@ -16,7 +16,7 @@ app = FastAPI(title="대구르르 API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://daegururu.cloud", "https://www.daegururu.cloud"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
