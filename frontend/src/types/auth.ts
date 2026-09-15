@@ -7,6 +7,8 @@ export interface SignupRequest {
   /** 하이픈을 뺀 사업자등록번호 10자리 */
   business_reg_no: string
   representative_name: string
+  /** 하이픈을 뺀 휴대폰 번호 11자리 */
+  phone_number: string
   password: string
 }
 
