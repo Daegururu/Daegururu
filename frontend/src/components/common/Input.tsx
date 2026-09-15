@@ -1,4 +1,4 @@
-import { useId, type ComponentPropsWithRef } from 'react'
+import { useId, type ComponentPropsWithRef, type ReactNode } from 'react'
 
 import { cn } from '@/utils/cn'
 
@@ -8,12 +8,15 @@ export interface InputProps extends Omit<ComponentPropsWithRef<'input'>, 'id'> {
   helperText?: string
   /** 값이 있으면 에러 상태로 표시되고 helperText 대신 이 문구가 보입니다. */
   errorMessage?: string
+  /** 입력칸 오른쪽 안에 겹쳐 놓는 요소. 비밀번호 [보기] 같은 작은 버튼용입니다. */
+  trailing?: ReactNode
 }
 
 export function Input({
   label,
   helperText,
   errorMessage,
+  trailing,
   className,
   // 아래 두 속성은 {...props}에 섞이면 내부 계산 값을 덮어쓰므로 미리 분리합니다.
   'aria-describedby': ariaDescribedBy,
@@ -36,22 +39,27 @@ export function Input({
         </label>
       )}
 
-      <input
-        id={id}
-        aria-invalid={hasError || ariaInvalid || undefined}
-        aria-describedby={describedBy}
-        className={cn(
-          'h-11 w-full rounded-md border bg-bg-surface px-4',
-          'text-body-m text-text-primary placeholder:text-text-tertiary',
-          'transition-colors focus:outline-none',
-          hasError
-            ? 'border-status-danger focus:ring-1 focus:ring-status-danger'
-            : 'border-border-default focus:border-border-brand focus:ring-1 focus:ring-border-brand',
-          'disabled:cursor-not-allowed disabled:bg-bg-subtle disabled:text-text-tertiary',
-          className,
-        )}
-        {...props}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          aria-invalid={hasError || ariaInvalid || undefined}
+          aria-describedby={describedBy}
+          className={cn(
+            'h-11 w-full rounded-md border bg-bg-surface px-4',
+            'text-body-m text-text-primary placeholder:text-text-tertiary',
+            'transition-colors focus:outline-none',
+            hasError
+              ? 'border-status-danger focus:ring-1 focus:ring-status-danger'
+              : 'border-border-default focus:border-border-brand focus:ring-1 focus:ring-border-brand',
+            'disabled:cursor-not-allowed disabled:bg-bg-subtle disabled:text-text-tertiary',
+            // 오른쪽 요소가 있으면 글자가 그 밑으로 들어가지 않게 여백을 둡니다.
+            Boolean(trailing) && 'pr-12',
+            className,
+          )}
+          {...props}
+        />
+        {trailing && <div className="absolute inset-y-0 right-4 flex items-center">{trailing}</div>}
+      </div>
 
       {description && (
         <p
