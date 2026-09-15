@@ -17,6 +17,7 @@ import { SignupPage } from '@/pages/SignupPage'
 import { SplashPage } from '@/pages/SplashPage'
 import { DiagnosisStartPage } from '@/pages/onboarding/DiagnosisStartPage'
 import { StoreInfoPage } from '@/pages/onboarding/StoreInfoPage'
+import { RedirectIfAuth } from '@/routes/RedirectIfAuth'
 import { RequireAuth } from '@/routes/RequireAuth'
 import { PATHS } from '@/routes/paths'
 
@@ -24,12 +25,18 @@ import { PATHS } from '@/routes/paths'
 // paths.ts의 IMPLEMENTED_PATHS에도 같은 경로를 추가합니다.
 export const router = createBrowserRouter([
   {
-    // 스플래시와 로그인은 브랜드 패널을 공유합니다. 같은 레이아웃 아래 두어야
-    // 패널이 다시 그려지지 않고 전체 화면 → 왼쪽 패널로 이어서 줄어듭니다.
-    element: <AuthLayout />,
+    // 로그인 상태면 스플래시·로그인 대신 홈으로 보냅니다.
+    element: <RedirectIfAuth />,
     children: [
-      { path: PATHS.splash, element: <SplashPage /> },
-      { path: PATHS.login, element: <LoginPage /> },
+      {
+        // 스플래시와 로그인은 브랜드 패널을 공유합니다. 같은 레이아웃 아래 두어야
+        // 패널이 다시 그려지지 않고 전체 화면 → 왼쪽 패널로 이어서 줄어듭니다.
+        element: <AuthLayout />,
+        children: [
+          { path: PATHS.splash, element: <SplashPage /> },
+          { path: PATHS.login, element: <LoginPage /> },
+        ],
+      },
     ],
   },
   {
