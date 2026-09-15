@@ -2,14 +2,18 @@ import { useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
+import { postSignup } from '@/apis/auth'
 import { uploadCertificate } from '@/apis/certificates'
+import { ApiError } from '@/apis/client'
 import { Button, Checkbox, FileDropzone, Input, Modal, TermsModal } from '@/components/common'
 import type { TermsKey } from '@/constants/terms'
 import { LogoBar } from '@/components/layout'
 import { certificateToStoreInfo } from '@/features/onboarding/certificateMapping'
 import { EMPTY_STORE_INFO, useOnboarding } from '@/features/onboarding/onboardingContext'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
-import { formatBusinessNumber, formatPhoneNumber } from '@/utils/format'
+import { PATHS } from '@/routes/paths'
+import { useAuthStore } from '@/stores/authStore'
+import { formatBusinessNumber, formatPhoneNumber, toDigits } from '@/utils/format'
 import {
   validateBusinessNumber,
   validatePassword,
@@ -33,6 +37,7 @@ const AGREEMENTS: { key: TermsKey; label: string }[] = [
 export function SignupPage() {
   const navigate = useNavigate()
   const { setStoreInfo, setCertificate } = useOnboarding()
+  const setAuth = useAuthStore((state) => state.setAuth)
   const [file, setFile] = useState<File | null>(null)
   const [businessNumber, setBusinessNumber] = useState('')
   const [ownerName, setOwnerName] = useState('')
@@ -74,6 +79,21 @@ export function SignupPage() {
     },
   })
 
+  const signup = useMutation({
+    mutationFn: postSignup,
+    onSuccess: (response) => {
+      // 가입 응답의 토큰으로 바로 로그인 상태가 되어 온보딩의 가게 정보 저장까지 이어집니다.
+      setAuth(response)
+      navigate(PATHS.onboardingStore)
+    },
+    onError: (error) => {
+      // 409(이미 가입된 번호)는 번호 필드에, 그 외는 비밀번호 필드 아래에 보여줍니다.
+      const field: FieldKey =
+        error instanceof ApiError && error.status === 409 ? 'businessNumber' : 'password'
+      setErrors((prev) => ({ ...prev, [field]: error.message }))
+    },
+  })
+
   // 사업자 정보는 PDF에서 읽어온 값만 사용합니다. 업로드 전에는 입력할 수 없습니다.
   const isUploaded = file !== null
   const isAllAgreed = AGREEMENTS.every(({ key }) => agreements[key])
@@ -81,6 +101,7 @@ export function SignupPage() {
   const canSubmit =
     isUploaded &&
     !upload.isPending &&
+    !signup.isPending &&
     Boolean(phone.trim()) &&
     Boolean(password.trim()) &&
     isRequiredAgreed
@@ -142,9 +163,13 @@ export function SignupPage() {
 
     if (Object.values(nextErrors).some(Boolean)) return
 
-    // TODO: 회원가입 API 연동. 번호는 하이픈을 떼고 숫자만 전송합니다.
-    // { businessNumber: toDigits(businessNumber), phone: toDigits(phone), ownerName, password }
-    navigate('/onboarding/store')
+    // 번호는 하이픈을 떼고 숫자만 보냅니다. 로그인도 같은 형식으로 보내야 대조됩니다.
+    // TODO: 휴대폰 번호는 백엔드 #24에서 필드가 추가되면 toDigits(phone)으로 함께 보냅니다.
+    signup.mutate({
+      business_reg_no: toDigits(businessNumber),
+      representative_name: ownerName.trim(),
+      password,
+    })
   }
 
   return (
@@ -271,11 +296,11 @@ export function SignupPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => navigate('/login')}>
+            <Button variant="ghost" onClick={() => navigate(PATHS.login)}>
               이전
             </Button>
             <Button type="submit" disabled={!canSubmit}>
-              가입하고 시작하기
+              {signup.isPending ? '가입 중...' : '가입하고 시작하기'}
             </Button>
           </div>
         </form>

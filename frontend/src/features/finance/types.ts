@@ -4,7 +4,7 @@
 export type ProductCategory = 'operating' | 'facility' | 'policy'
 
 export interface FinanceProduct {
-  /** 홈 추천 지원사업 카드와 같은 id를 씁니다. [자세히 보기]가 여기로 연결됩니다. */
+  /** 홈 추천 지원사업 카드는 상품명으로 이 id를 찾아 [자세히 보기]를 연결합니다. */
   id: string
   name: string
   /** 로고 자리에 넣을 짧은 글자. 예: "iM", "대구" */

@@ -14,17 +14,24 @@ export interface FixedCostCardProps {
   items: FixedCostItem[]
   /** 도넛 아래 요약 문구 */
   note: string
+  /** 업종 평균 데이터가 없으면 false. 비교 토글이 잠깁니다. */
+  averageAvailable?: boolean
 }
 
 /** 고정비 구성 도넛차트입니다. 업종 평균 비교는 기본 해제입니다. */
-export function FixedCostCard({ items, note }: FixedCostCardProps) {
+export function FixedCostCard({ items, note, averageAvailable = true }: FixedCostCardProps) {
   const [showAverage, setShowAverage] = useState(false)
 
   return (
     <section className="flex flex-col gap-4 rounded-lg border border-border-default bg-bg-surface p-6 shadow-sm">
       <h2 className="text-heading-s font-bold text-text-primary">고정비 구성</h2>
 
-      <AverageToggle label="업종 평균 비교" value={showAverage} onChange={setShowAverage} />
+      <AverageToggle
+        label="업종 평균 비교"
+        value={showAverage}
+        onChange={setShowAverage}
+        disabled={!averageAvailable}
+      />
 
       {/* 도넛과 범례가 카드 안에서 세로 가운데에 오도록 남는 높이를 이 줄이 흡수합니다. */}
       <div className="flex flex-1 items-center gap-10">
@@ -67,7 +74,7 @@ export function FixedCostCard({ items, note }: FixedCostCardProps) {
                   {ratio}%
                 </span>
               </div>
-              {showAverage && (
+              {showAverage && averageRatio !== null && (
                 <span className="self-end text-caption text-text-tertiary tabular-nums">
                   업종평균 {averageRatio}%
                 </span>

@@ -1,0 +1,33 @@
+# 도메인 연결 + 인증서 발급이 끝난 뒤 사용하는 설정입니다.
+# 사용법: DOMAIN 부분을 실제 도메인으로 바꾸고, 파일명을 default.conf로 바꿔서
+# deploy/nginx/conf.d/default.conf를 덮어쓴 다음 nginx 컨테이너를 재시작합니다.
+# (자세한 절차는 README 배포 가이드의 "HTTPS 적용" 단계 참고)
+
+server {
+    listen 80;
+    server_name api.daegururu.cloud;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name api.daegururu.cloud;
+
+    ssl_certificate /etc/letsencrypt/live/api.daegururu.cloud/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.daegururu.cloud/privkey.pem;
+
+    location / {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
