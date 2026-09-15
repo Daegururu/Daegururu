@@ -1,0 +1,21 @@
+# 새 서버에서 처음 배포할 때(도메인 연결/인증서 발급 전) 쓰는 부트스트랩 설정입니다.
+# 사용법: 이 파일을 deploy/nginx/conf.d/default.conf로 복사해서 nginx를 띄운 다음,
+# certbot으로 인증서를 발급받고 나면 default-ssl.conf.template로 교체합니다.
+# (default.conf는 서버마다 값이 달라 git으로 추적하지 않습니다 — .gitignore 참고)
+
+server {
+    listen 80;
+    server_name _;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
