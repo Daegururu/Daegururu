@@ -1,3 +1,4 @@
+import { findPrescriptionDetailIdByTitle } from '@/features/diagnosis/mockData'
 import type {
   CashFlowRecent,
   CauseAnalysis,
@@ -66,6 +67,8 @@ export function toPrescriptions(prescriptions: DiagnosisPrescription[]): Prescri
     .sort((a, b) => a.rank - b.rank)
     .map(({ prescriptionId, title, description }) => ({
       id: String(prescriptionId),
+      // TODO: 처방 상세 API가 없어 제목으로 목 상세를 찾습니다. 상세 API가 생기면 prescriptionId만 씁니다.
+      detailId: findPrescriptionDetailIdByTitle(title) ?? null,
       title,
       description,
     }))

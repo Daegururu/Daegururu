@@ -63,7 +63,10 @@ export interface CauseAnalysis {
 }
 
 export interface Prescription {
+  /** 백엔드 prescriptionId. 목록 key로만 씁니다. */
   id: string
+  /** 04e 처방 실행으로 이어지는 id. 상세 목데이터에 없는 처방이면 null이고 [실행하기]가 비활성됩니다. */
+  detailId: string | null
   title: string
   description: string
 }

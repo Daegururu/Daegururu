@@ -3,11 +3,12 @@ import type { PrescriptionDetail } from './types'
 /*
  * 04e 처방 실행 상세 목데이터입니다.
  * 리포트·탭 데이터는 진단 API로 교체됐고, 처방 상세는 아직 API가 없어 여기 남겨 둡니다.
- * 키는 API의 prescriptionId(rank 1 = 인건비 구조 점검)입니다. 상세 API가 생기면 이 파일을 지웁니다.
+ * API의 prescriptionId는 DB id라 고정할 수 없어, 처방 제목으로 여기 상세를 찾습니다. 상세 API가 생기면 이 파일을 지웁니다.
  */
 export const MOCK_PRESCRIPTION_DETAILS: Record<string, PrescriptionDetail> = {
-  '1': {
-    id: '1',
+  'labor-cost': {
+    id: 'labor-cost',
+    detailId: 'labor-cost',
     title: '인건비 구조 점검',
     description:
       '주휴수당 발생 구간을 피하도록 주간 근무 스케줄을 재배치하면 월 약 62만원 절감이 예상됩니다.',
@@ -50,4 +51,12 @@ export const MOCK_PRESCRIPTION_DETAILS: Record<string, PrescriptionDetail> = {
       '근무시간 단축은 근로자 동의가 필요하고, 일방적으로 줄이면 불이익 변경에 해당할 수 있습니다. 합의서 없이 진행하지 마세요.',
     ],
   },
+}
+
+/**
+ * 처방 제목으로 목데이터 상세 id를 찾습니다. 백엔드 prescriptionId는 시드에 따라 달라져 제목이 유일한 공통 키입니다.
+ * 없으면 undefined이고, 호출 쪽에서 [실행하기]를 비활성합니다.
+ */
+export function findPrescriptionDetailIdByTitle(title: string): string | undefined {
+  return Object.values(MOCK_PRESCRIPTION_DETAILS).find((detail) => detail.title === title)?.id
 }

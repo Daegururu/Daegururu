@@ -14,7 +14,7 @@ export function PrescriptionPage() {
   const user = useAuthStore((state) => state.user)
   const userLabel = user ? `${user.representativeName} 사장님` : ''
 
-  // TODO: 처방 상세 API가 생기면 id로 조회합니다. 지금은 인건비 구조 점검(id 1)만 목데이터가 있습니다.
+  // TODO: 처방 상세 API가 생기면 prescriptionId로 조회합니다. 지금은 인건비 구조 점검만 목데이터가 있습니다.
   const detail = MOCK_PRESCRIPTION_DETAILS[id]
 
   if (!detail) {
@@ -36,7 +36,7 @@ export function PrescriptionPage() {
     <AppLayout title="우리 가게 진단" user={userLabel}>
       <div className="flex flex-col gap-1">
         <p className="text-caption text-text-tertiary">
-          우리 가게 진단 › 진단 리포트 › 맞춤 처방 {id}
+          우리 가게 진단 › 진단 리포트 › {detail.title}
         </p>
         <h2 className="text-heading-l font-bold text-text-primary">{detail.title}</h2>
         <p className="text-body-s text-text-secondary">{detail.meta}</p>
