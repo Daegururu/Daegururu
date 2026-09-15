@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
-from app.models import DiagnosisReport, IndustryBenchmark, FinancialProduct, Store, User
+from app.models import DiagnosisReport, IndustryBenchmark, Store, User
 from app.services.aggregations import (
     FIXED_COST_CATEGORIES,
     FIXED_COST_LABELS,
@@ -12,12 +12,8 @@ from app.services.aggregations import (
     month_key,
     monthly_sales_series as _monthly_sales_series,
 )
-
-
-def _region_from_address(address: str) -> str:
-    """'대구광역시 중구 동성로 12' 같은 주소에서 앞 2개 토큰(시/도 + 구/군)만 뽑아 업종 평균 매칭에 쓴다."""
-    parts = address.split()
-    return " ".join(parts[:2]) if len(parts) >= 2 else address
+from app.services.finance_matching import match_products as _match_products
+from app.services.finance_matching import region_from_address as _region_from_address
 
 
 def _industry_benchmark(db: Session, store: Store | None) -> IndustryBenchmark | None:
@@ -31,28 +27,6 @@ def _industry_benchmark(db: Session, store: Store | None) -> IndustryBenchmark |
         )
         .first()
     )
-
-
-def _match_products(db: Session, user: User, store: Store | None, sales_series: list[int], top_n: int = 3) -> list[FinancialProduct]:
-    business_years = (date.today() - store.open_date).days / 365 if store is not None else 0
-    region = _region_from_address(store.business_address) if store is not None else None
-    annual_revenue = sum(sales_series)  # 최근 12개월 매출 합계로 연매출 추정
-
-    candidates = db.query(FinancialProduct).all()
-
-    matched = []
-    for product in candidates:
-        rules = product.eligibility_rules or {}
-        if "max_annual_revenue" in rules and annual_revenue > rules["max_annual_revenue"]:
-            continue
-        if "regions" in rules and region not in rules["regions"]:
-            continue
-        if "min_business_years" in rules and business_years < rules["min_business_years"]:
-            continue
-        matched.append(product)
-
-    matched.sort(key=lambda p: p.limit_amount, reverse=True)
-    return matched[:top_n]
 
 
 def get_dashboard_summary(db: Session, user: User) -> dict:
@@ -105,7 +79,7 @@ def get_dashboard_summary(db: Session, user: User) -> dict:
             {"category": FIXED_COST_LABELS[cat], "pct": pct, "industryAvgPct": industry_avg_pct}
         )
 
-    recommended = _match_products(db, user, store, sales_series)
+    recommended = _match_products(db, store, sales_series)
 
     return {
         "hasReport": True,
