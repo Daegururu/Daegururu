@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router'
 
+import { EmptyReportCard, StatusCard } from '@/components/common'
 import { AppLayout } from '@/components/layout'
 import { CashFlowCard } from '@/features/home/components/CashFlowCard'
-import { DashboardStatusCard } from '@/features/home/components/DashboardStatusCard'
-import { EmptyReportCard } from '@/features/home/components/EmptyReportCard'
 import { FixedCostCard } from '@/features/home/components/FixedCostCard'
 import { MetricSummaryGrid } from '@/features/home/components/MetricSummaryGrid'
 import { RiskHeroCard } from '@/features/home/components/RiskHeroCard'
@@ -30,9 +29,8 @@ export function HomePage() {
   const userLabel = user ? `${user.representativeName} 사장님` : ''
 
   const renderBody = () => {
-    if (isPending) return <DashboardStatusCard loading />
-    if (isError)
-      return <DashboardStatusCard errorMessage={error.message} onRetry={() => refetch()} />
+    if (isPending) return <StatusCard loading loadingMessage="가게 상태를 불러오는 중이에요..." />
+    if (isError) return <StatusCard errorMessage={error.message} onRetry={() => refetch()} />
 
     const { hasReport, risk, metrics, cashflowChart, fixedCostBreakdown, recommendedProducts } =
       data

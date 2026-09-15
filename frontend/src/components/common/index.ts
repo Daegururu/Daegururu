@@ -7,6 +7,9 @@ export type { ChatBubbleProps, ChatBubbleRole } from './ChatBubble'
 export { Checkbox } from './Checkbox'
 export type { CheckboxProps } from './Checkbox'
 
+export { EmptyReportCard } from './EmptyReportCard'
+export type { EmptyReportCardProps } from './EmptyReportCard'
+
 export { FileDropzone } from './FileDropzone'
 export type { FileDropzoneProps } from './FileDropzone'
 
@@ -36,6 +39,9 @@ export type { RiskGaugeProps } from './RiskGauge'
 
 export { Select } from './Select'
 export type { SelectOption, SelectProps } from './Select'
+
+export { StatusCard } from './StatusCard'
+export type { StatusCardProps } from './StatusCard'
 
 export { StatusChip } from './StatusChip'
 export type { StatusChipProps, StatusChipTone } from './StatusChip'
