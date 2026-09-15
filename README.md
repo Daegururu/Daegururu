@@ -13,13 +13,65 @@ Daegururu/
 
 각 파트는 아래 뼈대 위에서 독립적으로 기능을 붙여나가면 됩니다.
 
+## 시스템 구조도
+
+```mermaid
+flowchart TB
+    User["사용자 (브라우저)"]
+
+    subgraph FE["프론트엔드"]
+        Vercel["Vercel\nReact SPA (Vite)\ndaegururu.cloud"]
+    end
+
+    subgraph BE["백엔드 (EC2, ap-northeast-2)"]
+        Nginx["nginx\n리버스 프록시 + Let's Encrypt(certbot)\napi.daegururu.cloud"]
+        API["FastAPI 컨테이너\n(uvicorn)"]
+        Nginx --> API
+    end
+
+    subgraph AWS["AWS 관리형 서비스"]
+        RDS[("RDS\nPostgreSQL")]
+        S3[("S3\n업로드 파일 (인증서 PDF 등)")]
+    end
+
+    Claude["Anthropic Claude API\n(AI 진단/챗봇 — 연동 예정)"]
+    Bench[("업종 평균 벤치마크\n대구 지역 카드매출 공공데이터 기반\n(정적 시드 데이터)")]
+
+    User -->|HTTPS| Vercel
+    Vercel -->|HTTPS REST\n/api/v1| Nginx
+    API --> RDS
+    API --> S3
+    API -.-> Claude
+    Bench -. 시드 적재 .-> RDS
+
+    subgraph CICD["CI/CD"]
+        GH["GitHub\n(main push)"]
+        GA["GitHub Actions\n(deploy-backend.yml)"]
+        ECR["ECR\n(Docker 이미지)"]
+        GH --> GA --> ECR -->|SSH 배포| API
+    end
+```
+
+- **프론트엔드**: Vercel에 정적 배포된 React SPA. `daegururu.cloud` 커스텀 도메인 연결.
+- **백엔드**: EC2 위 Docker Compose로 `backend`(FastAPI) + `nginx`(리버스 프록시, Let's Encrypt 인증서) + `certbot` 컨테이너 구동. `api.daegururu.cloud`로 HTTPS 서빙.
+- **데이터베이스**: AWS RDS PostgreSQL. Alembic으로 스키마 마이그레이션 관리.
+- **스토리지**: AWS S3 — 사업자/소상공인 확인서 PDF 등 업로드 파일 저장.
+- **AI**: Anthropic Claude API 연동을 위한 설정(`ANTHROPIC_API_KEY`)은 준비되어 있으나, 실제 진단/챗봇 로직(`app/ai/`)은 아직 구현 전 단계.
+- **배포 파이프라인**: `main` 브랜치 push 시 GitHub Actions가 Docker 이미지를 빌드해 ECR에 push하고, SSH로 EC2에 접속해 최신 이미지를 pull·재기동.
+
 ## 기술 스택
 
 | 영역 | 스택 |
 |---|---|
-| 프론트엔드 | React 19 (Vite), TypeScript, Tailwind CSS v4, react-router, TanStack Query, axios |
-| 백엔드 | FastAPI, SQLAlchemy 2.0, Alembic, PostgreSQL |
-| AI | Claude API (`anthropic` SDK), pandas |
+| 프론트엔드 | React 19.2, TypeScript, Vite 8, Tailwind CSS v4, react-router 8(데이터 라우터), TanStack Query 5(서버 상태), zustand 5(클라이언트 상태), axios(공통 API 클라이언트), recharts(차트), lucide-react(아이콘), oxlint/prettier(린트·포맷) |
+| 백엔드 | Python 3.13, FastAPI + uvicorn, SQLAlchemy 2.0, Alembic(마이그레이션), pydantic-settings(환경설정) |
+| 인증 | JWT(pyjwt, python-jose), 비밀번호 해싱(pwdlib + argon2) |
+| 파일 처리 | PyMuPDF + pytesseract + Pillow(사업자/소상공인 확인서 PDF OCR 파싱), python-multipart(업로드) |
+| AI/데이터 | Anthropic Claude API(`anthropic` SDK, 연동 예정), pandas |
+| 데이터베이스 | PostgreSQL (AWS RDS) |
+| 스토리지 | AWS S3 (boto3) |
+| 데이터셋 | 사용자 실거래 데이터(카드·배달·현금 매출 및 고정비 트랜잭션, PG/카드사 정산 내역) · 업종 평균 벤치마크(대구 지역 카드매출 공공데이터·소상공인시장진흥공단 상권정보 참고, 현재는 정적 시드 데이터) |
+| 인프라/CI-CD | AWS EC2(배포 서버), ECR(이미지 레지스트리), nginx + Let's Encrypt(HTTPS), GitHub Actions(빌드·배포 자동화), Vercel(프론트 호스팅) |
 
 ## 백엔드 (`backend/`)
 
