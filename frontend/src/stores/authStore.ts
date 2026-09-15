@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { queryClient } from '@/apis/queryClient'
 import type { AuthResponse } from '@/types/auth'
 
 /** 로그인한 사용자. 화면에서 바로 쓰기 좋게 camelCase로 옮겨 둡니다. */
@@ -16,7 +17,10 @@ interface AuthState {
   user: AuthUser | null
   /** 회원가입·로그인 응답을 그대로 넘기면 토큰과 유저 정보를 함께 저장합니다. */
   setAuth: (response: AuthResponse) => void
-  /** 로그아웃·401 응답에서 호출합니다. 토큰이 사라지면 RequireAuth가 로그인으로 보냅니다. */
+  /**
+   * 로그아웃·401 응답에서 호출합니다. 토큰이 사라지면 RequireAuth가 로그인으로 보냅니다.
+   * 다음 사용자가 이전 사용자의 응답을 보지 않도록 react-query 캐시도 함께 비웁니다.
+   */
   clearAuth: () => void
 }
 
@@ -41,7 +45,10 @@ export const useAuthStore = create<AuthState>()(
             representativeName: representative_name,
           },
         }),
-      clearAuth: () => set({ token: null, user: null }),
+      clearAuth: () => {
+        set({ token: null, user: null })
+        queryClient.clear()
+      },
     }),
     { name: STORAGE_KEY },
   ),
