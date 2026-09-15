@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.core.envelope import ApiError, error
-from app.api import certificates, dashboard, diagnosis, auth, stores, mypage, sales
+from app.api import certificates, dashboard, diagnosis, auth, stores, mypage, sales, finance
 
 from sqlalchemy import text
 from app.core.database import engine
@@ -56,3 +56,4 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(stores.router, prefix="/api/v1")
 app.include_router(mypage.router, prefix="/api/v1")
 app.include_router(sales.router, prefix="/api/v1")
+app.include_router(finance.router, prefix="/api/v1")
