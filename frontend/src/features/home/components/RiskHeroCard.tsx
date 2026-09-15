@@ -9,7 +9,7 @@ export interface RiskHeroCardProps {
 
 /** 폐업 위험 점수와 원인 요약을 보여주는 히어로 카드입니다. */
 export function RiskHeroCard({ diagnosis, onViewReport }: RiskHeroCardProps) {
-  const { score, levelLabel, updatedAt, title, descriptions } = diagnosis
+  const { score, level, levelLabel, updatedAt, title, descriptions } = diagnosis
 
   return (
     <section className="flex items-center gap-8 rounded-lg border border-border-default bg-bg-surface p-6 shadow-sm">
@@ -17,7 +17,7 @@ export function RiskHeroCard({ diagnosis, onViewReport }: RiskHeroCardProps) {
 
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
-          <StatusChip tone="warn">{levelLabel}</StatusChip>
+          <StatusChip tone={level}>{levelLabel}</StatusChip>
           <span className="text-caption text-text-tertiary">{updatedAt} 갱신</span>
         </div>
 

@@ -36,8 +36,8 @@ function AverageLabel({ viewBox }: AverageLabelProps) {
 
 export interface CashFlowCardProps {
   points: CashFlowPoint[]
-  /** 동일 상권·업종 평균 순현금흐름(원) */
-  average: number
+  /** 동일 상권·업종 평균(원). 업종 평균 데이터가 없으면 null이고 토글이 잠깁니다. */
+  average: number | null
   /** 차트 아래 경고 문구 */
   note: string
 }
@@ -53,7 +53,12 @@ export function CashFlowCard({ points, average, note }: CashFlowCardProps) {
         <span className="text-caption text-text-tertiary">최근 12개월</span>
       </div>
 
-      <AverageToggle label="업종 평균 참고선" value={showAverage} onChange={setShowAverage} />
+      <AverageToggle
+        label="업종 평균 참고선"
+        value={showAverage}
+        onChange={setShowAverage}
+        disabled={average === null}
+      />
 
       <div className="h-[220px] w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -71,7 +76,7 @@ export function CashFlowCard({ points, average, note }: CashFlowCardProps) {
             />
             {/* y축 눈금은 Figma에 없어 숨기고, 값 범위 계산에만 씁니다. */}
             <YAxis hide />
-            {showAverage && (
+            {showAverage && average !== null && (
               <ReferenceLine
                 y={average}
                 stroke="var(--color-chart-average)"

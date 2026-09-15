@@ -2,7 +2,8 @@ import type { DocumentSlot, FinanceProductDetail, ProductCategory } from './type
 
 /*
  * 금융 지원 목데이터입니다.
- * 상품 id는 홈 대시보드 추천 지원사업(features/home/mockData.ts)과 같아야 [자세히 보기]가 이어집니다.
+ * 홈 추천 지원사업은 API의 productId(숫자, DB마다 다름)로 오므로 상품명으로 여기 id를 찾습니다.
+ * 금융 API 연동 시 id 체계를 백엔드 productId로 통일합니다.
  * 08 상세는 Figma에 iM뱅크 1건만 있어 나머지 2건은 같은 구조로 채워 넣었습니다.
  * API 연동 시 MOCK_PRODUCTS를 응답으로 교체합니다.
  */
@@ -167,6 +168,14 @@ export const DOCUMENT_SLOTS: DocumentSlot[] = [
 /** id로 상품을 찾습니다. 없으면 undefined입니다. */
 export function findProduct(id: string): FinanceProductDetail | undefined {
   return MOCK_PRODUCTS.find((product) => product.id === id)
+}
+
+/**
+ * 상품명으로 목데이터 id를 찾습니다. 백엔드 productId는 시드 순서에 따라 달라져 이름이 유일한 공통 키입니다.
+ * 없으면 undefined이고, 호출 쪽에서 productId를 그대로 씁니다.
+ */
+export function findProductIdByName(name: string): string | undefined {
+  return MOCK_PRODUCTS.find((product) => product.name === name)?.id
 }
 
 /** 상단바에 표시할 사용자 정보 */
