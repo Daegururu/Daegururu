@@ -1,5 +1,6 @@
 import { useId, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 
+import { Spinner } from '@/components/common/Spinner'
 import { cn } from '@/utils/cn'
 
 /**
@@ -40,6 +41,10 @@ export interface FileDropzoneProps {
   description?: string
   /** 앞선 파일을 처리하는 동안 다음 파일을 받지 않으려면 켭니다. */
   disabled?: boolean
+  /** 올린 파일을 서버가 읽는 중이면 true. 드롭존 안에 스피너와 pendingText를 보여줍니다. */
+  pending?: boolean
+  /** 읽는 중 문구. 기본값은 "파일을 읽고 있습니다" */
+  pendingText?: string
   className?: string
 }
 
@@ -54,6 +59,8 @@ export function FileDropzone({
   title = '파일을 업로드하세요',
   description,
   disabled = false,
+  pending = false,
+  pendingText = '파일을 읽고 있습니다',
   className,
 }: FileDropzoneProps) {
   const id = useId()
@@ -113,12 +120,21 @@ export function FileDropzone({
           'border-[1.5px] border-dashed transition-colors',
           isRejected
             ? 'border-status-danger bg-status-danger-bg'
-            : file
+            : file || pending
               ? 'border-brand-primary bg-brand-subtle'
               : 'border-border-strong bg-bg-canvas',
         )}
       >
-        {file ? (
+        {pending ? (
+          // 읽는 동안은 파일 선택 UI를 통째로 바꿔 진행 중임이 바로 보이게 합니다.
+          <div className="flex items-center gap-3 py-1">
+            <Spinner size={28} label={pendingText} />
+            <div className="flex flex-col">
+              <p className="text-body-m font-medium text-text-primary">{pendingText}</p>
+              <p className="text-caption text-text-secondary">잠시만 기다려주세요</p>
+            </div>
+          </div>
+        ) : file ? (
           <div className="flex w-full items-center gap-3">
             <span
               aria-hidden

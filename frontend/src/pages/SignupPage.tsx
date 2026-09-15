@@ -5,7 +5,15 @@ import { useNavigate } from 'react-router'
 import { postSignup } from '@/apis/auth'
 import { uploadCertificate } from '@/apis/certificates'
 import { ApiError } from '@/apis/client'
-import { Button, Checkbox, FileDropzone, Input, Modal, TermsModal } from '@/components/common'
+import {
+  Button,
+  Checkbox,
+  FileDropzone,
+  Input,
+  Modal,
+  PasswordInput,
+  TermsModal,
+} from '@/components/common'
 import type { TermsKey } from '@/constants/terms'
 import { LogoBar } from '@/components/layout'
 import { certificateToStoreInfo } from '@/features/onboarding/certificateMapping'
@@ -25,7 +33,7 @@ type FieldKey = 'businessNumber' | 'ownerName' | 'phone' | 'password'
 
 const UPLOAD_HELPER_TEXT =
   'PDF 형식만 가능 · 국세청 소상공인확인서 발급 페이지에서 발급받을 수 있습니다'
-const UPLOAD_PENDING_TEXT = '확인서를 읽고 있습니다. 스캔본은 조금 더 걸릴 수 있어요'
+const UPLOAD_PENDING_TEXT = '확인서를 읽고 있습니다'
 
 const AGREEMENTS: { key: TermsKey; label: string }[] = [
   { key: 'terms', label: '서비스 이용약관 (필수)' },
@@ -43,6 +51,9 @@ export function SignupPage() {
   const [ownerName, setOwnerName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [passwordConfirm, setPasswordConfirm] = useState('')
+  // 확인 칸을 한 번이라도 벗어났는지. 치는 도중에 "불일치"가 뜨지 않게 합니다.
+  const [isConfirmTouched, setConfirmTouched] = useState(false)
   const [openedTerms, setOpenedTerms] = useState<TermsKey | null>(null)
   const [isFailureModalOpen, setFailureModalOpen] = useState(false)
   // 특정 입력칸과 무관한 서버 오류. 가입 버튼 위에 보여줍니다.
@@ -100,6 +111,10 @@ export function SignupPage() {
 
   // 사업자 정보는 PDF에서 읽어온 값만 사용합니다. 업로드 전에는 입력할 수 없습니다.
   const isUploaded = file !== null
+  // 일치는 치는 중에도 바로 알려주고, 불일치는 칸을 벗어난 뒤에만 알려줍니다.
+  const isConfirmFilled = passwordConfirm !== ''
+  const isConfirmMatched = isConfirmFilled && passwordConfirm === password
+  const showConfirmMismatch = isConfirmTouched && isConfirmFilled && !isConfirmMatched
   const isAllAgreed = AGREEMENTS.every(({ key }) => agreements[key])
   const isRequiredAgreed = agreements.terms && agreements.privacy
   const canSubmit =
@@ -108,9 +123,8 @@ export function SignupPage() {
     !signup.isPending &&
     Boolean(phone.trim()) &&
     Boolean(password.trim()) &&
+    isConfirmMatched &&
     isRequiredAgreed
-
-  const uploadHelperText = upload.isPending ? UPLOAD_PENDING_TEXT : UPLOAD_HELPER_TEXT
 
   /** 입력을 고치는 동안에는 해당 필드의 에러를 지웁니다. */
   const clearError = (field: FieldKey) => setErrors((prev) => ({ ...prev, [field]: '' }))
@@ -131,6 +145,8 @@ export function SignupPage() {
     // 업로드 전 상태로 돌아가므로 함께 잠기는 필드도 비웁니다.
     setPhone('')
     setPassword('')
+    setPasswordConfirm('')
+    setConfirmTouched(false)
     // 온보딩으로 넘길 값도 함께 비웁니다.
     setCertificate(null)
     setStoreInfo(EMPTY_STORE_INFO)
@@ -203,10 +219,12 @@ export function SignupPage() {
               onFileClear={handleFileClear}
               // 읽는 중에 다음 파일을 받으면 늦게 온 응답이 최신 값을 덮어씁니다.
               disabled={upload.isPending}
+              pending={upload.isPending}
+              pendingText={UPLOAD_PENDING_TEXT}
               title="소상공인 확인서를 업로드하세요"
               description="업로드하면 사업자등록번호·대표자명이 자동으로 입력됩니다"
               // 실패 문구를 따로 띄우므로 안내 문구는 비웁니다.
-              helperText={upload.isError ? undefined : uploadHelperText}
+              helperText={upload.isError ? undefined : UPLOAD_HELPER_TEXT}
             />
             {upload.isError && (
               <p role="alert" className="text-caption text-status-danger">
@@ -254,9 +272,8 @@ export function SignupPage() {
             maxLength={13}
           />
 
-          <Input
+          <PasswordInput
             label="비밀번호"
-            type="password"
             placeholder="영문·숫자 조합 8자 이상"
             value={password}
             onChange={(event) => {
@@ -264,6 +281,18 @@ export function SignupPage() {
               clearError('password')
             }}
             errorMessage={errors.password}
+            disabled={!isUploaded}
+            autoComplete="new-password"
+          />
+
+          <PasswordInput
+            label="비밀번호 확인"
+            placeholder="비밀번호를 한 번 더 입력하세요"
+            value={passwordConfirm}
+            onChange={(event) => setPasswordConfirm(event.target.value)}
+            onBlur={() => setConfirmTouched(true)}
+            helperText={isConfirmMatched ? '비밀번호가 일치합니다' : undefined}
+            errorMessage={showConfirmMismatch ? '비밀번호가 일치하지 않습니다' : ''}
             disabled={!isUploaded}
             autoComplete="new-password"
           />

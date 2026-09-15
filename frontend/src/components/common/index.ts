@@ -28,6 +28,9 @@ export type { ModalProps } from './Modal'
 export { NavItem } from './NavItem'
 export type { NavItemProps } from './NavItem'
 
+export { PasswordInput } from './PasswordInput'
+export type { PasswordInputProps } from './PasswordInput'
+
 export { RiskGauge } from './RiskGauge'
 export type { RiskGaugeProps } from './RiskGauge'
 

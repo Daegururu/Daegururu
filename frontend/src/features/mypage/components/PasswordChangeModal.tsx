@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Button, FormModal, Input } from '@/components/common'
+import { Button, FormModal, PasswordInput } from '@/components/common'
 import { validatePassword } from '@/utils/validate'
 
 type FieldKey = 'current' | 'next' | 'confirm'
@@ -66,25 +66,22 @@ export function PasswordChangeModal({ open, onClose, onSave }: PasswordChangeMod
       }
     >
       <div className="flex flex-col gap-5">
-        <Input
+        <PasswordInput
           label="현재 비밀번호"
-          type="password"
           value={form.current}
           onChange={(event) => update('current')(event.target.value)}
           errorMessage={errors.current}
           autoComplete="current-password"
         />
-        <Input
+        <PasswordInput
           label="새 비밀번호"
-          type="password"
           value={form.next}
           onChange={(event) => update('next')(event.target.value)}
           errorMessage={errors.next}
           autoComplete="new-password"
         />
-        <Input
+        <PasswordInput
           label="새 비밀번호 확인"
-          type="password"
           value={form.confirm}
           onChange={(event) => update('confirm')(event.target.value)}
           errorMessage={errors.confirm}
