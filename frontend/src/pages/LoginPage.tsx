@@ -38,6 +38,12 @@ export function LoginPage() {
     setBusinessNumberError('')
   })
 
+  // 버튼·ESC·배경 클릭 어느 쪽으로 닫아도 로그인은 이미 성공했으니 저장하고 홈으로 갑니다.
+  const goHome = () => {
+    if (loggedIn) setAuth(loggedIn)
+    navigate(PATHS.home)
+  }
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
 
@@ -98,7 +104,7 @@ export function LoginPage() {
         </p>
       </form>
 
-      <Modal open={loggedIn !== null} onClose={() => setLoggedIn(null)} ariaLabel="로그인 완료">
+      <Modal open={loggedIn !== null} onClose={goHome} ariaLabel="로그인 완료">
         <span
           aria-hidden
           className="flex size-14 items-center justify-center rounded-full bg-status-safe text-[26px] font-bold text-text-inverse"
@@ -111,14 +117,7 @@ export function LoginPage() {
           <br />
           대시보드로 이동해 오늘의 가게 상태를 확인해보세요.
         </p>
-        <Button
-          onClick={() => {
-            if (loggedIn) setAuth(loggedIn)
-            navigate(PATHS.home)
-          }}
-        >
-          홈으로 이동
-        </Button>
+        <Button onClick={goHome}>홈으로 이동</Button>
       </Modal>
     </>
   )
