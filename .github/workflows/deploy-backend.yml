@@ -44,10 +44,13 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: ECR_REGISTRY
+          command_timeout: 5m
           script: |
+            set -e
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
             cd ~/daegururu
-            git pull
+            git fetch origin main
+            git reset --hard origin/main
             export BACKEND_IMAGE=$ECR_REGISTRY/daegururu-backend:latest
             docker compose pull backend
             docker compose up -d backend
