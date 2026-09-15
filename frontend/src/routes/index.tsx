@@ -11,6 +11,7 @@ import { FinancePage } from '@/pages/FinancePage'
 import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
 import { MyPage } from '@/pages/MyPage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PrescriptionPage } from '@/pages/PrescriptionPage'
 import { SalesPage } from '@/pages/SalesPage'
 import { SignupPage } from '@/pages/SignupPage'
@@ -75,4 +76,6 @@ export const router = createBrowserRouter([
       { path: PATHS.mypage, element: <MyPage /> },
     ],
   },
+  // 위 어디에도 안 맞는 주소는 전부 404입니다. 맨 마지막에 둡니다.
+  { path: '*', element: <NotFoundPage /> },
 ])
