@@ -1,26 +1,26 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 
 import { ReportCard } from '@/features/diagnosis/components/ReportCard'
-import {
-  MOCK_CASH_FLOW_NOTE,
-  MOCK_MONTHLY_CASH_FLOW,
-  MOCK_RECENT_CASH_FLOW,
-  MOCK_RECENT_CASH_FLOW_NOTE,
-} from '@/features/diagnosis/mockData'
+import type { CashFlowRecent, MonthlyAmount } from '@/features/diagnosis/types'
 import { cn } from '@/utils/cn'
 import { formatWon } from '@/utils/format'
 
+export interface CashFlowTabPanelProps {
+  points: MonthlyAmount[]
+  /** 최근 3개월. 최신 달이 위에 옵니다. */
+  recent: CashFlowRecent[]
+  recentNote: string
+  note: string
+}
+
 /** 현금흐름 탭. 라인차트 옆에 최근 3개월 요약을 붙입니다. */
-export function CashFlowTabPanel() {
+export function CashFlowTabPanel({ points, recent, recentNote, note }: CashFlowTabPanelProps) {
   return (
-    <ReportCard title="월별 순현금흐름" meta="단위: 만원 · 최근 12개월" note={MOCK_CASH_FLOW_NOTE}>
+    <ReportCard title="월별 순현금흐름" meta="단위: 만원 · 최근 12개월" note={note}>
       <div className="flex items-center gap-8">
         <div className="h-[220px] min-w-0 flex-1">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={MOCK_MONTHLY_CASH_FLOW}
-              margin={{ top: 8, right: 8, bottom: 0, left: 8 }}
-            >
+            <LineChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
               <CartesianGrid vertical={false} stroke="var(--color-chart-grid)" />
               <XAxis
                 dataKey="month"
@@ -49,7 +49,7 @@ export function CashFlowTabPanel() {
           <p className="text-caption text-text-tertiary">최근 3개월 순현금흐름</p>
 
           <dl className="flex flex-col gap-2.5">
-            {MOCK_RECENT_CASH_FLOW.map(({ month, amount }) => (
+            {recent.map(({ month, amount }) => (
               <div key={month} className="flex items-center justify-between gap-4">
                 <dt className="text-body-m text-text-primary">{month}</dt>
                 <dd
@@ -65,7 +65,7 @@ export function CashFlowTabPanel() {
           </dl>
 
           <p className="border-t border-border-default pt-3 text-caption text-text-secondary">
-            {MOCK_RECENT_CASH_FLOW_NOTE}
+            {recentNote}
           </p>
         </div>
       </div>

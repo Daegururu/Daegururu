@@ -1,12 +1,7 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 
 import { ReportCard } from '@/features/diagnosis/components/ReportCard'
-import {
-  MOCK_FIXED_COST_META,
-  MOCK_FIXED_COST_NOTE,
-  MOCK_FIXED_COST_ROWS,
-  MOCK_FIXED_COST_SHARES,
-} from '@/features/diagnosis/mockData'
+import type { FixedCostRow, FixedCostShare } from '@/features/diagnosis/types'
 import { cn } from '@/utils/cn'
 import { formatSignedRate, formatWon } from '@/utils/format'
 
@@ -16,23 +11,32 @@ const SERIES_COLORS = [
   'var(--color-chart-series-3)',
 ]
 
-/** 증가는 빨강, 감소는 초록, 변화 없으면 회색으로 표시합니다. */
-function deltaClass(delta: number): string {
+/** 증가는 빨강, 감소는 초록, 변화 없거나 값이 없으면 회색으로 표시합니다. */
+function deltaClass(delta: number | null): string {
+  if (delta === null) return 'text-text-tertiary'
   if (delta > 0) return 'text-status-danger'
   if (delta < 0) return 'text-status-safe'
   return 'text-text-secondary'
 }
 
+export interface FixedCostTabPanelProps {
+  shares: FixedCostShare[]
+  rows: FixedCostRow[]
+  /** 예: "이번 달 · 총 7,880,000원" */
+  meta: string
+  note: string
+}
+
 /** 고정비 탭. 도넛 + 항목별 표로 구성됩니다. */
-export function FixedCostTabPanel() {
+export function FixedCostTabPanel({ shares, rows, meta, note }: FixedCostTabPanelProps) {
   return (
-    <ReportCard title="고정비 구성" meta={MOCK_FIXED_COST_META} note={MOCK_FIXED_COST_NOTE}>
+    <ReportCard title="고정비 구성" meta={meta} note={note}>
       <div className="flex items-center gap-9">
         <div className="size-[168px] shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={MOCK_FIXED_COST_SHARES}
+                data={shares}
                 dataKey="ratio"
                 nameKey="label"
                 innerRadius={52}
@@ -44,7 +48,7 @@ export function FixedCostTabPanel() {
                 stroke="none"
                 isAnimationActive={false}
               >
-                {MOCK_FIXED_COST_SHARES.map((share, index) => (
+                {shares.map((share, index) => (
                   <Cell key={share.label} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />
                 ))}
               </Pie>
@@ -53,7 +57,7 @@ export function FixedCostTabPanel() {
         </div>
 
         <ul className="flex w-[152px] shrink-0 flex-col gap-4">
-          {MOCK_FIXED_COST_SHARES.map(({ label, ratio }, index) => (
+          {shares.map(({ label, ratio }, index) => (
             <li key={label} className="flex items-center gap-2.5">
               <span
                 aria-hidden
@@ -88,7 +92,7 @@ export function FixedCostTabPanel() {
             </span>
           </div>
 
-          {MOCK_FIXED_COST_ROWS.map(({ label, amount, ratio, delta }) => (
+          {rows.map(({ label, amount, ratio, delta }) => (
             <div
               key={label}
               role="row"
@@ -110,7 +114,7 @@ export function FixedCostTabPanel() {
                   deltaClass(delta),
                 )}
               >
-                {formatSignedRate(delta)}
+                {delta === null ? '-' : formatSignedRate(delta)}
               </span>
             </div>
           ))}
