@@ -17,6 +17,7 @@ import {
 import type { MypageTab, NotificationValues, StoreProfile } from '@/features/mypage/types'
 import { useToast } from '@/hooks/useToast'
 import { PATHS } from '@/routes/paths'
+import { useAuthStore } from '@/stores/authStore'
 
 type OpenModal = 'password' | 'delete' | null
 
@@ -43,8 +44,13 @@ export function MyPage() {
     showToast('비밀번호가 변경되었습니다')
   }
 
-  // TODO: 계정 삭제 API 연동. 지금은 확인 후 로그인 화면으로만 보냅니다.
-  const handleDeleteAccount = () => navigate(PATHS.login)
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+
+  // TODO: 계정 삭제 API 연동. 지금은 확인 후 로그아웃하고 로그인 화면으로만 보냅니다.
+  const handleDeleteAccount = () => {
+    clearAuth()
+    navigate(PATHS.login)
+  }
 
   return (
     <AppLayout

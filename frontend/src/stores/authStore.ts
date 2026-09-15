@@ -1,0 +1,48 @@
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+import type { AuthResponse } from '@/types/auth'
+
+/** 로그인한 사용자. 화면에서 바로 쓰기 좋게 camelCase로 옮겨 둡니다. */
+export interface AuthUser {
+  userId: number
+  /** 하이픈을 뺀 사업자등록번호 */
+  businessRegNo: string
+  representativeName: string
+}
+
+interface AuthState {
+  token: string | null
+  user: AuthUser | null
+  /** 회원가입·로그인 응답을 그대로 넘기면 토큰과 유저 정보를 함께 저장합니다. */
+  setAuth: (response: AuthResponse) => void
+  /** 로그아웃·401 응답에서 호출합니다. 토큰이 사라지면 RequireAuth가 로그인으로 보냅니다. */
+  clearAuth: () => void
+}
+
+/** localStorage 키. 새로고침해도 로그인 상태가 유지됩니다. */
+const STORAGE_KEY = 'daegururu-auth'
+
+/*
+ * 토큰·로그인 유저는 서버 데이터가 아니라 앱 전역 상태라 react-query 대신 여기 둡니다.
+ * 컴포넌트 밖(axios 인터셉터)에서는 useAuthStore.getState()로 읽습니다.
+ */
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      token: null,
+      user: null,
+      setAuth: ({ access_token, user_id, business_reg_no, representative_name }) =>
+        set({
+          token: access_token,
+          user: {
+            userId: user_id,
+            businessRegNo: business_reg_no,
+            representativeName: representative_name,
+          },
+        }),
+      clearAuth: () => set({ token: null, user: null }),
+    }),
+    { name: STORAGE_KEY },
+  ),
+)

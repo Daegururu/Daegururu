@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react'
+import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router'
 
+import { postLogin } from '@/apis/auth'
 import { Button, Input, Modal } from '@/components/common'
-import { findMockAccount, type MockAccount } from '@/features/auth/mockData'
 import { useFormattedInput } from '@/hooks/useFormattedInput'
-import { formatBusinessNumber } from '@/utils/format'
+import { PATHS } from '@/routes/paths'
+import { useAuthStore } from '@/stores/authStore'
+import { formatBusinessNumber, toDigits } from '@/utils/format'
 import { validateBusinessNumber, validateRequired } from '@/utils/validate'
 
 /** 01 로그인 / 01-1 로그인 완료 */
@@ -14,8 +17,22 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [businessNumberError, setBusinessNumberError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  // 로그인에 성공한 계정. 완료 모달 문구에 씁니다.
-  const [loggedInAccount, setLoggedInAccount] = useState<MockAccount | null>(null)
+  // 로그인에 성공한 대표자명. 완료 모달 문구에 씁니다.
+  const [loggedInName, setLoggedInName] = useState<string | null>(null)
+  const setAuth = useAuthStore((state) => state.setAuth)
+
+  const login = useMutation({
+    mutationFn: postLogin,
+    onSuccess: (response) => {
+      setAuth(response)
+      setLoggedInName(response.representative_name)
+    },
+    onError: (error) => {
+      // 번호·비밀번호 중 어느 쪽이 틀렸는지 알려주지 않기 위해 비밀번호 아래에만 표시합니다.
+      // 서버 연결 실패 같은 오류도 같은 자리에 보여줍니다.
+      setPasswordError(error.message)
+    },
+  })
 
   const businessNumberField = useFormattedInput(formatBusinessNumber, (value) => {
     setBusinessNumber(value)
@@ -33,17 +50,8 @@ export function LoginPage() {
 
     if (nextBusinessNumberError || nextPasswordError) return
 
-    // TODO: 로그인 API 연동. 사업자등록번호는 하이픈을 떼고 숫자만 전송합니다.
-    // 그때까지는 데모 계정(features/auth/mockData.ts)과 대조합니다.
-    const account = findMockAccount(businessNumber, password)
-
-    if (!account) {
-      // 어느 쪽이 틀렸는지 알려주지 않기 위해 비밀번호 아래에만 표시합니다.
-      setPasswordError('사업자등록번호 또는 비밀번호가 일치하지 않습니다')
-      return
-    }
-
-    setLoggedInAccount(account)
+    // 사업자등록번호는 회원가입 때와 같이 하이픈을 떼고 숫자만 보냅니다.
+    login.mutate({ business_reg_no: toDigits(businessNumber), password })
   }
 
   return (
@@ -79,8 +87,8 @@ export function LoginPage() {
           autoComplete="current-password"
         />
 
-        <Button type="submit" className="w-full">
-          로그인
+        <Button type="submit" className="w-full" disabled={login.isPending}>
+          {login.isPending ? '로그인 중...' : '로그인'}
         </Button>
 
         <p className="text-center text-caption text-text-tertiary">
@@ -92,8 +100,8 @@ export function LoginPage() {
       </form>
 
       <Modal
-        open={loggedInAccount !== null}
-        onClose={() => setLoggedInAccount(null)}
+        open={loggedInName !== null}
+        onClose={() => setLoggedInName(null)}
         ariaLabel="로그인 완료"
       >
         <span
@@ -104,11 +112,11 @@ export function LoginPage() {
         </span>
         <p className="text-heading-m font-bold text-text-primary">로그인 완료</p>
         <p className="text-center text-body-m text-text-secondary">
-          {loggedInAccount?.storeName} 사장님, 환영합니다!
+          {loggedInName} 사장님, 환영합니다!
           <br />
           대시보드로 이동해 오늘의 가게 상태를 확인해보세요.
         </p>
-        <Button onClick={() => navigate('/home')}>홈으로 이동</Button>
+        <Button onClick={() => navigate(PATHS.home)}>홈으로 이동</Button>
       </Modal>
     </>
   )

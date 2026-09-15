@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import { Button } from '@/components/common'
 import { OnboardingLayout } from '@/components/layout'
 import { useOnboarding } from '@/features/onboarding/onboardingContext'
+import { PATHS } from '@/routes/paths'
 import { formatBusinessPeriod } from '@/utils/date'
 
 /** 이번 진단에서 확인하는 항목 */
@@ -16,7 +17,7 @@ export function DiagnosisStartPage() {
 
   // 가게 정보 없이 이 화면에 직접 들어오면 입력 단계로 되돌립니다.
   useEffect(() => {
-    if (!storeInfo.name) navigate('/onboarding/store', { replace: true })
+    if (!storeInfo.name) navigate(PATHS.onboardingStore, { replace: true })
   }, [storeInfo.name, navigate])
 
   const summary = [
@@ -27,8 +28,8 @@ export function DiagnosisStartPage() {
   ]
 
   const handleStart = () => {
-    // TODO: 진단 실행 API 연동
-    navigate('/home')
+    // TODO: 진단 실행 API 연동. 백엔드에 아직 엔드포인트가 없어 홈으로 바로 보냅니다.
+    navigate(PATHS.home)
   }
 
   return (
@@ -69,7 +70,7 @@ export function DiagnosisStartPage() {
       </div>
 
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate('/onboarding/store')}>
+        <Button variant="ghost" onClick={() => navigate(PATHS.onboardingStore)}>
           이전
         </Button>
         <Button onClick={handleStart}>진단 시작하기</Button>
