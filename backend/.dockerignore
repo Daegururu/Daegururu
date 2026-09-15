@@ -2,6 +2,6 @@ venv/
 __pycache__/
 *.pyc
 .env
-.env.production
 .pytest_cache/
 *.db
+alembic/versions/__pycache__/
