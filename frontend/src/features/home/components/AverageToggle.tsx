@@ -6,10 +6,12 @@ export interface AverageToggleProps {
   /** true면 업종 평균을 표시합니다. */
   value: boolean
   onChange: (next: boolean) => void
+  /** 업종 평균 데이터가 없으면 true. 라디오를 잠그고 이유를 덧붙입니다. */
+  disabled?: boolean
 }
 
 /** 업종 평균을 표시·해제하는 라디오 한 쌍입니다. 기본값은 해제입니다. */
-export function AverageToggle({ label, value, onChange }: AverageToggleProps) {
+export function AverageToggle({ label, value, onChange, disabled = false }: AverageToggleProps) {
   // 같은 화면에 라디오 그룹이 2개라 name이 겹치지 않도록 id를 만들어 씁니다.
   const name = useId()
   const labelId = useId()
@@ -27,11 +29,19 @@ export function AverageToggle({ label, value, onChange }: AverageToggleProps) {
       {/* 읽어주는 순서상 그룹 이름이 먼저 오도록 설명 span을 aria-labelledby로 묶습니다. */}
       <div role="radiogroup" aria-labelledby={labelId} className="flex items-center gap-4">
         {options.map(({ text, checked }) => (
-          <label key={text} className="flex cursor-pointer items-center gap-1.5">
+          <label
+            key={text}
+            className={
+              disabled
+                ? 'flex cursor-not-allowed items-center gap-1.5 opacity-40'
+                : 'flex cursor-pointer items-center gap-1.5'
+            }
+          >
             <input
               type="radio"
               name={name}
               checked={checked}
+              disabled={disabled}
               onChange={() => onChange(text === '표시')}
               className="size-4 accent-brand-primary"
             />
@@ -39,6 +49,7 @@ export function AverageToggle({ label, value, onChange }: AverageToggleProps) {
           </label>
         ))}
       </div>
+      {disabled && <span className="text-caption text-text-tertiary">업종 평균 데이터 없음</span>}
     </div>
   )
 }
