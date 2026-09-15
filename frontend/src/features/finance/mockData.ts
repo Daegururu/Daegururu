@@ -2,7 +2,7 @@ import type { DocumentSlot, FinanceProductDetail, ProductCategory } from './type
 
 /*
  * 금융 지원 목데이터입니다.
- * TODO: 홈 추천 지원사업은 이제 API의 productId(숫자)로 넘어옵니다. 금융 API 연동 시 id 체계를 맞춥니다.
+ * 홈 추천 지원사업은 API의 productId(숫자)로 넘어와 apiId로 찾습니다. 금융 API 연동 시 id 체계를 통일합니다.
  * 08 상세는 Figma에 iM뱅크 1건만 있어 나머지 2건은 같은 구조로 채워 넣었습니다.
  * API 연동 시 MOCK_PRODUCTS를 응답으로 교체합니다.
  */
@@ -31,6 +31,7 @@ export const MOCK_MATCH_BANNER = {
 export const MOCK_PRODUCTS: FinanceProductDetail[] = [
   {
     id: 'daegu-alley',
+    apiId: 1,
     name: '대구시 골목상권 활력자금',
     logoText: '대구',
     provider: '대구광역시',
@@ -72,6 +73,7 @@ export const MOCK_PRODUCTS: FinanceProductDetail[] = [
   },
   {
     id: 'im-bank',
+    apiId: 2,
     name: 'iM뱅크 소상공인 특별운영자금',
     logoText: 'iM',
     provider: 'iM뱅크',
@@ -113,6 +115,7 @@ export const MOCK_PRODUCTS: FinanceProductDetail[] = [
   },
   {
     id: 'semas',
+    apiId: 3,
     name: '소상공인시장진흥공단 정책자금',
     logoText: '소진',
     provider: '소진공',
@@ -164,9 +167,9 @@ export const DOCUMENT_SLOTS: DocumentSlot[] = [
   { key: 'bankbook', label: '통장 사본', hint: '입출금 계좌' },
 ]
 
-/** id로 상품을 찾습니다. 없으면 undefined입니다. */
+/** 목데이터 id 또는 백엔드 productId(문자열)로 상품을 찾습니다. 없으면 undefined입니다. */
 export function findProduct(id: string): FinanceProductDetail | undefined {
-  return MOCK_PRODUCTS.find((product) => product.id === id)
+  return MOCK_PRODUCTS.find((product) => product.id === id || String(product.apiId) === id)
 }
 
 /** 상단바에 표시할 사용자 정보 */

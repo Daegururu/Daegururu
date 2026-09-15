@@ -4,8 +4,12 @@
 export type ProductCategory = 'operating' | 'facility' | 'policy'
 
 export interface FinanceProduct {
-  /** 홈 추천 지원사업 카드와 같은 id를 씁니다. [자세히 보기]가 여기로 연결됩니다. */
   id: string
+  /**
+   * 백엔드 financial_products.id. 홈 추천 지원사업이 이 값을 문자열로 넘깁니다.
+   * 금융 API 연동 시 id를 이 값으로 통일하고 이 필드는 없앱니다.
+   */
+  apiId: number
   name: string
   /** 로고 자리에 넣을 짧은 글자. 예: "iM", "대구" */
   logoText: string
