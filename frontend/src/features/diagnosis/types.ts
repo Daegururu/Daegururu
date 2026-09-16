@@ -32,8 +32,8 @@ export interface FixedCostRow {
   amount: number
   /** 고정비에서 차지하는 비중(%) */
   ratio: number
-  /** 전월 대비 증감(%p). 0이면 변화 없음 */
-  delta: number
+  /** 전월 대비 증감(%p). 0이면 변화 없음, API가 아직 안 주면 null */
+  delta: number | null
 }
 
 export interface FixedCostShare {
@@ -48,16 +48,11 @@ export interface CashFlowRecent {
   amount: number
 }
 
-export interface SettlementRow {
-  /** 정산 예정일 YYYY-MM-DD */
-  date: string
-  /** 예: "카드", "배달" */
-  kind: string
-  content: string
-  /** 금액(원) */
-  amount: number
-  /** 예: "정산 예정", "정산 완료" */
-  status: string
+/** 정산 탭. API가 건별 내역 대신 평균값 2개만 주므로 지표 타일로 보여줍니다. */
+export interface SettlementStat {
+  label: string
+  value: string
+  caption: string
 }
 
 export interface CauseAnalysis {
@@ -68,7 +63,10 @@ export interface CauseAnalysis {
 }
 
 export interface Prescription {
+  /** 백엔드 prescriptionId. 목록 key로만 씁니다. */
   id: string
+  /** 04e 처방 실행으로 이어지는 id. 상세 목데이터에 없는 처방이면 null이고 [실행하기]가 비활성됩니다. */
+  detailId: string | null
   title: string
   description: string
 }

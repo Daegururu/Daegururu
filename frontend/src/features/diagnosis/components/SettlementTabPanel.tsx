@@ -1,28 +1,27 @@
-import { TableHeader, TableRow } from '@/components/common'
-import type { TableCells } from '@/components/common'
 import { ReportCard } from '@/features/diagnosis/components/ReportCard'
-import {
-  MOCK_SETTLEMENTS,
-  MOCK_SETTLEMENT_META,
-  MOCK_SETTLEMENT_NOTE,
-} from '@/features/diagnosis/mockData'
-import { formatWon } from '@/utils/format'
+import type { SettlementStat } from '@/features/diagnosis/types'
 
-/** 정산 탭은 거래일자 대신 정산 예정일을 보여줍니다. */
-const COLUMNS: TableCells = ['정산 예정일', '구분', '내용', '금액', '정산상태']
+export interface SettlementTabPanelProps {
+  stats: SettlementStat[]
+  note: string
+}
 
-export function SettlementTabPanel() {
+/**
+ * 정산 탭. API가 평균 수수료율·평균 정산 소요일만 주므로 지표 타일 2개로 보여줍니다.
+ * 카드사별 건별 내역은 정산 API가 생기면 표로 붙입니다.
+ */
+export function SettlementTabPanel({ stats, note }: SettlementTabPanelProps) {
   return (
-    <ReportCard title="카드사별 정산 내역" meta={MOCK_SETTLEMENT_META} note={MOCK_SETTLEMENT_NOTE}>
-      <div role="table">
-        <TableHeader labels={COLUMNS} />
-        {MOCK_SETTLEMENTS.map(({ date, kind, content, amount, status }) => (
-          <TableRow
-            key={`${date}-${content}`}
-            cells={[date, kind, content, formatWon(amount), status]}
-          />
+    <ReportCard title="정산 현황" meta="이번 달 기준" note={note}>
+      <dl className="grid grid-cols-2 gap-4">
+        {stats.map(({ label, value, caption }) => (
+          <div key={label} className="flex flex-col gap-1 rounded-md bg-bg-subtle px-5 py-4">
+            <dt className="text-body-s text-text-secondary">{label}</dt>
+            <dd className="text-number-l font-bold text-text-primary">{value}</dd>
+            <dd className="text-caption text-text-tertiary">{caption}</dd>
+          </div>
         ))}
-      </div>
+      </dl>
     </ReportCard>
   )
 }

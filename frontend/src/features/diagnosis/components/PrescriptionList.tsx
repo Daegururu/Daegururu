@@ -4,7 +4,8 @@ import type { Prescription } from '@/features/diagnosis/types'
 export interface PrescriptionListProps {
   prescriptions: Prescription[]
   /** 04e 처방 실행 화면으로 이동합니다. */
-  onExecute?: (id: string) => void
+  /** 04e 처방 실행으로 이동. 넘기지 않거나 처방에 detailId가 없으면 버튼이 비활성됩니다. */
+  onExecute?: (detailId: string) => void
 }
 
 /** 번호가 붙은 맞춤 처방 목록입니다. */
@@ -14,7 +15,7 @@ export function PrescriptionList({ prescriptions, onExecute }: PrescriptionListP
       <h3 className="text-heading-s font-bold text-text-primary">맞춤 처방</h3>
 
       <ul className="flex flex-col">
-        {prescriptions.map(({ id, title, description }, index) => (
+        {prescriptions.map(({ id, detailId, title, description }, index) => (
           <li
             key={id}
             className="flex items-center gap-4 border-b border-border-default py-4 last:border-b-0"
@@ -31,8 +32,8 @@ export function PrescriptionList({ prescriptions, onExecute }: PrescriptionListP
             <Button
               variant="ghost"
               size="sm"
-              disabled={!onExecute}
-              onClick={onExecute ? () => onExecute(id) : undefined}
+              disabled={!onExecute || !detailId}
+              onClick={onExecute && detailId ? () => onExecute(detailId) : undefined}
             >
               실행하기
             </Button>
