@@ -1,5 +1,5 @@
 import { TableHeader, TableRow } from '@/components/common'
-import { SETTLEMENT_LABEL } from '@/features/sales/mockData'
+import { SETTLEMENT_LABEL } from '@/features/sales/constants'
 import type { Transaction } from '@/features/sales/types'
 import { cn } from '@/utils/cn'
 import { formatWon } from '@/utils/format'
@@ -25,7 +25,16 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
         transactions.map(({ id, date, method, content, amount, settlement }, index) => (
           <TableRow
             key={id}
-            cells={[date, method, content, formatWon(amount), SETTLEMENT_LABEL[settlement]]}
+            cells={[
+              date,
+              method,
+              content,
+              // 들어온 돈은 +파랑, 나간 돈은 -빨강으로 짝을 맞춥니다.
+              <span key="amount" className={amount < 0 ? 'text-status-danger' : 'text-blue-500'}>
+                {amount > 0 ? `+${formatWon(amount)}` : formatWon(amount)}
+              </span>,
+              SETTLEMENT_LABEL[settlement],
+            ]}
             className={cn('last:border-b-0', index % 2 === 1 && 'bg-bg-subtle')}
           />
         ))
