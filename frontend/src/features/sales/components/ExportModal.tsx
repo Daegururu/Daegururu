@@ -8,6 +8,7 @@ const INCLUDE_ITEMS: { key: ExportIncludeKey; label: string; caption: string }[]
   { key: 'sales', label: '매출 내역', caption: '카드 · 현금 · 배달' },
   { key: 'expense', label: '고정비·지출 내역', caption: '인건비 · 임대료 · 공과금' },
   { key: 'scheduled', label: '정산 예정 내역', caption: '정산 예정 · 미정산' },
+  { key: 'other', label: '기타 내역', caption: '환불 · 예약금 · 기타 입금' },
 ]
 
 export interface ExportModalProps {
@@ -34,6 +35,7 @@ export function ExportModal({
   const [includes, setIncludes] = useState<Record<ExportIncludeKey, boolean>>({
     sales: true,
     expense: true,
+    other: true,
     scheduled: true,
   })
 

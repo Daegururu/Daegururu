@@ -22,6 +22,7 @@ import { toTransaction } from '@/features/sales/mapping'
 import type { ExportOptions, NewTransaction, SalesSummaryItem } from '@/features/sales/types'
 import { useToast } from '@/hooks/useToast'
 import { useAuthStore } from '@/stores/authStore'
+import { cn } from '@/utils/cn'
 import { toCalendarDate, toCalendarMonth } from '@/utils/date'
 
 type OpenModal = 'add' | 'export' | null
@@ -130,7 +131,10 @@ export function SalesPage() {
     }
     return (
       <>
-        <TransactionTable transactions={transactions.data.items} />
+        {/* 필터·페이지가 바뀌어 새 데이터를 받는 동안은 이전 표를 흐리게 두어 바뀌는 중임을 보입니다. */}
+        <div className={cn(transactions.isPlaceholderData && 'opacity-50')}>
+          <TransactionTable transactions={transactions.data.items} />
+        </div>
         <Pagination
           page={transactions.data.page}
           totalPages={transactions.data.totalPages}
@@ -155,7 +159,9 @@ export function SalesPage() {
           {summary.isError ? (
             <StatusCard errorMessage={summary.error.message} onRetry={() => summary.refetch()} />
           ) : (
-            <SalesSummaryCards items={summary.data ?? SUMMARY_PLACEHOLDER} />
+            <div className={cn(summary.isPlaceholderData && 'opacity-50')}>
+              <SalesSummaryCards items={summary.data ?? SUMMARY_PLACEHOLDER} />
+            </div>
           )}
 
           {renderTable()}

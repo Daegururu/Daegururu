@@ -42,7 +42,7 @@ export interface NewTransaction {
 }
 
 /** 내보내기 모달에서 고르는 포함 항목 */
-export type ExportIncludeKey = 'sales' | 'expense' | 'scheduled'
+export type ExportIncludeKey = 'sales' | 'expense' | 'other' | 'scheduled'
 
 /** ExportModal.onExport가 넘기는 값 */
 export interface ExportOptions {

@@ -36,6 +36,7 @@ const SECTIONS: SectionSpec[] = [
     title: '정산 예정 내역',
     filter: (t) => t.settlement === 'scheduled' || t.settlement === 'unsettled',
   },
+  { key: 'other', title: '기타 내역', filter: (t) => t.category === 'other' },
 ]
 
 const COLUMNS = ['거래일자', '구분', '내용', '금액', '정산상태'] as const
