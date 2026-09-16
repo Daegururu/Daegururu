@@ -41,3 +41,29 @@ export function formatBusinessPeriod(openedAt: string, now: Date = new Date()): 
   if (restMonths === 0) return `${years}년`
   return `${years}년 ${restMonths}개월`
 }
+
+/** Date를 로컬 기준 YYYY-MM-DD로 만듭니다. toISOString()은 UTC라 밤에는 하루가 밀립니다. */
+export function toCalendarDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/** Date를 로컬 기준 YYYY-MM으로 만듭니다. */
+export function toCalendarMonth(date: Date): string {
+  return toCalendarDate(date).slice(0, 7)
+}
+
+/** 이번 달부터 거슬러 올라가는 최근 N개월의 YYYY-MM 목록입니다. 최신 달이 앞에 옵니다. */
+export function recentMonths(count: number, now: Date = new Date()): string[] {
+  return Array.from({ length: count }, (_, offset) =>
+    toCalendarMonth(new Date(now.getFullYear(), now.getMonth() - offset, 1)),
+  )
+}
+
+/** YYYY-MM의 마지막 날짜(1~31)입니다. */
+export function daysInMonth(month: string): number {
+  const [year, monthIndex] = month.split('-').map(Number)
+  return new Date(year, monthIndex, 0).getDate()
+}

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 
 import { Button, Checkbox, FormModal, Input, Select } from '@/components/common'
-import { CATEGORY_LABEL, PAYMENT_METHOD_OPTIONS } from '@/features/sales/mockData'
+import { CATEGORY_LABEL, PAYMENT_METHOD_OPTIONS } from '@/features/sales/constants'
 import type { NewTransaction, TransactionCategory } from '@/features/sales/types'
 import { cn } from '@/utils/cn'
+import { toCalendarDate } from '@/utils/date'
 import { toDigits } from '@/utils/format'
 
 const CATEGORIES: TransactionCategory[] = ['sales', 'expense', 'other']
@@ -15,38 +16,47 @@ const REFLECT_HINT: Record<TransactionCategory, string> = {
   other: '기타 거래는 매출·고정비 계산에서 제외되지만 현금흐름에는 반영됩니다.',
 }
 
-const INITIAL: NewTransaction = {
-  category: 'sales',
-  date: '2026-08-29',
-  amount: 0,
-  content: '',
-  method: '현금',
-  reflectInDiagnosis: true,
+/** 거래일자는 오늘로 시작합니다. 모달을 열 때마다 새로 계산합니다. */
+function initialForm(): NewTransaction {
+  return {
+    category: 'sales',
+    date: toCalendarDate(new Date()),
+    amount: 0,
+    content: '',
+    method: '현금',
+    reflectInDiagnosis: true,
+  }
 }
 
 export interface AddTransactionModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (transaction: NewTransaction) => void
+  /** 저장 요청. 성공하면 resolve, 실패하면 message를 가진 오류로 reject합니다. 모달이 문구를 보여줍니다. */
+  onSubmit: (transaction: NewTransaction) => Promise<unknown>
 }
 
 /** 06b 거래 추가 모달. 카드·계좌로 자동 수집되지 않는 현금 거래를 직접 넣습니다. */
 export function AddTransactionModal({ open, onClose, onSubmit }: AddTransactionModalProps) {
-  const [form, setForm] = useState<NewTransaction>(INITIAL)
+  const [form, setForm] = useState<NewTransaction>(initialForm)
   const [amountText, setAmountText] = useState('')
   const [errors, setErrors] = useState<{ amount?: string; content?: string }>({})
+  // 검증과 무관한 서버 오류. 폼 아래에 보여줍니다.
+  const [submitError, setSubmitError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const update = <K extends keyof NewTransaction>(key: K, value: NewTransaction[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
   const reset = () => {
-    setForm(INITIAL)
+    setForm(initialForm())
     setAmountText('')
     setErrors({})
+    setSubmitError('')
   }
 
   const handleClose = () => {
+    if (submitting) return
     reset()
     onClose()
   }
@@ -58,7 +68,7 @@ export function AddTransactionModal({ open, onClose, onSubmit }: AddTransactionM
     setErrors((prev) => ({ ...prev, amount: undefined }))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const nextErrors = {
       amount: form.amount > 0 ? undefined : '금액을 입력해주세요',
       content: form.content.trim() ? undefined : '내용을 입력해주세요',
@@ -66,8 +76,16 @@ export function AddTransactionModal({ open, onClose, onSubmit }: AddTransactionM
     setErrors(nextErrors)
     if (nextErrors.amount || nextErrors.content) return
 
-    onSubmit(form)
-    reset()
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      await onSubmit({ ...form, content: form.content.trim() })
+      reset()
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : '거래를 추가하지 못했습니다')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -78,10 +96,12 @@ export function AddTransactionModal({ open, onClose, onSubmit }: AddTransactionM
       description="카드·계좌로 자동 수집되지 않는 현금 매출과 현금 지출을 직접 넣습니다."
       footer={
         <>
-          <Button variant="ghost" onClick={handleClose}>
+          <Button variant="ghost" disabled={submitting} onClick={handleClose}>
             취소
           </Button>
-          <Button onClick={handleSubmit}>추가하기</Button>
+          <Button disabled={submitting} onClick={handleSubmit}>
+            {submitting ? '추가하는 중...' : '추가하기'}
+          </Button>
         </>
       }
     >
@@ -165,6 +185,12 @@ export function AddTransactionModal({ open, onClose, onSubmit }: AddTransactionM
             <p className="text-caption text-text-secondary">{REFLECT_HINT[form.category]}</p>
           </div>
         </div>
+
+        {submitError && (
+          <p role="alert" className="text-body-s text-status-danger">
+            {submitError}
+          </p>
+        )}
       </div>
     </FormModal>
   )

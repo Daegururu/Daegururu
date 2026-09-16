@@ -1,15 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Button, Checkbox, FormModal, Select } from '@/components/common'
-import { EXPORT_PERIOD_OPTIONS } from '@/features/sales/mockData'
-import type { SalesMonth } from '@/features/sales/types'
+import { buildExportPeriodOptions } from '@/features/sales/mapping'
+import type { ExportIncludeKey, ExportOptions, SalesMonth } from '@/features/sales/types'
 
-type IncludeKey = 'sales' | 'expense' | 'scheduled'
-
-const INCLUDE_ITEMS: { key: IncludeKey; label: string; caption: string }[] = [
+const INCLUDE_ITEMS: { key: ExportIncludeKey; label: string; caption: string }[] = [
   { key: 'sales', label: '매출 내역', caption: '카드 · 현금 · 배달' },
   { key: 'expense', label: '고정비·지출 내역', caption: '인건비 · 임대료 · 공과금' },
-  { key: 'scheduled', label: '정산 예정 내역', caption: '미정산 3,180,000원' },
+  { key: 'scheduled', label: '정산 예정 내역', caption: '정산 예정 · 미정산' },
+  { key: 'other', label: '기타 내역', caption: '환불 · 예약금 · 기타 입금' },
 ]
 
 export interface ExportModalProps {
@@ -17,15 +16,26 @@ export interface ExportModalProps {
   /** 필터 바에서 고른 달. 기간 셀렉트의 초기값입니다. */
   month: SalesMonth
   onClose: () => void
-  onExport: () => void
+  /** 고른 기간과 포함 항목을 넘깁니다. 인쇄는 부모가 처리합니다. */
+  onExport: (options: ExportOptions) => void
+  /** 인쇄용 데이터를 받는 동안 true. [내보내기]를 잠급니다. */
+  exporting?: boolean
 }
 
 /** 06c 내보내기 모달. 형식은 PDF 요약본으로 고정되어 고를 수 없습니다. */
-export function ExportModal({ open, month, onClose, onExport }: ExportModalProps) {
+export function ExportModal({
+  open,
+  month,
+  onClose,
+  onExport,
+  exporting = false,
+}: ExportModalProps) {
+  const periodOptions = useMemo(() => buildExportPeriodOptions(), [])
   const [period, setPeriod] = useState<SalesMonth>(month)
-  const [includes, setIncludes] = useState<Record<IncludeKey, boolean>>({
+  const [includes, setIncludes] = useState<Record<ExportIncludeKey, boolean>>({
     sales: true,
     expense: true,
+    other: true,
     scheduled: true,
   })
 
@@ -43,8 +53,11 @@ export function ExportModal({ open, month, onClose, onExport }: ExportModalProps
           <Button variant="ghost" onClick={onClose}>
             취소
           </Button>
-          <Button disabled={!hasSelection} onClick={onExport}>
-            내보내기
+          <Button
+            disabled={!hasSelection || exporting}
+            onClick={() => onExport({ period, includes })}
+          >
+            {exporting ? '준비 중...' : '내보내기'}
           </Button>
         </>
       }
@@ -54,7 +67,7 @@ export function ExportModal({ open, month, onClose, onExport }: ExportModalProps
           label="기간"
           fullWidth
           value={period}
-          options={EXPORT_PERIOD_OPTIONS}
+          options={periodOptions}
           onChange={setPeriod}
         />
 

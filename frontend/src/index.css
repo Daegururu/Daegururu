@@ -46,3 +46,25 @@
     min-height: 100vh;
   }
 }
+
+/* 06c 내보내기: 브라우저 인쇄로 PDF를 만듭니다. 앱 레이아웃은 숨기고 인쇄 요약본만 종이에 올립니다. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 16mm;
+  }
+
+  body {
+    background: white;
+  }
+
+  #root {
+    display: block;
+    min-height: 0;
+  }
+
+  .print-summary table,
+  .print-summary tr {
+    break-inside: avoid;
+  }
+}

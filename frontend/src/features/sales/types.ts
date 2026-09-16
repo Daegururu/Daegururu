@@ -1,4 +1,4 @@
-/** 매출·정산 화면(06 계열)에서 쓰는 타입입니다. API 연동 전까지는 mockData가 이 형태를 채웁니다. */
+/** 매출·정산 화면(06 계열)에서 쓰는 타입입니다. API 응답은 mapping.ts에서 이 형태로 바꿉니다. */
 
 /** 필터 [구분]과 거래 추가 모달의 세그먼트가 공유하는 분류입니다. */
 export type TransactionCategory = 'sales' | 'expense' | 'other'
@@ -7,7 +7,7 @@ export type TransactionCategory = 'sales' | 'expense' | 'other'
 export type SettlementStatus = 'completed' | 'scheduled' | 'unsettled' | 'none' | 'withdrawn'
 
 export interface Transaction {
-  id: string
+  id: number
   /** 거래일자 YYYY-MM-DD */
   date: string
   category: TransactionCategory
@@ -26,10 +26,10 @@ export interface SalesSummaryItem {
   caption: string
 }
 
-/** 필터 [월 선택]의 값. YYYY-MM */
-export type SalesMonth = '2026-08' | '2026-07' | '2026-06'
+/** 필터 [월 선택]과 내보내기 기간의 값. YYYY-MM */
+export type SalesMonth = string
 
-/** 거래 추가 모달에서 만드는 값. id와 표시용 method는 저장할 때 붙입니다. */
+/** 거래 추가 모달에서 만드는 값. 서버 요청 본문과 같은 형태입니다. */
 export interface NewTransaction {
   category: TransactionCategory
   date: string
@@ -39,4 +39,13 @@ export interface NewTransaction {
   method: string
   /** 진단에 반영할지 여부 */
   reflectInDiagnosis: boolean
+}
+
+/** 내보내기 모달에서 고르는 포함 항목 */
+export type ExportIncludeKey = 'sales' | 'expense' | 'other' | 'scheduled'
+
+/** ExportModal.onExport가 넘기는 값 */
+export interface ExportOptions {
+  period: SalesMonth
+  includes: Record<ExportIncludeKey, boolean>
 }

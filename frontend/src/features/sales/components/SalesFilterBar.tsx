@@ -1,11 +1,13 @@
+import { useMemo } from 'react'
+
 import { Button, Select } from '@/components/common'
 import {
   CATEGORY_OPTIONS,
-  MONTH_OPTIONS,
   SETTLEMENT_OPTIONS,
   type CategoryFilter,
   type SettlementFilter,
-} from '@/features/sales/mockData'
+} from '@/features/sales/constants'
+import { buildMonthOptions } from '@/features/sales/mapping'
 import type { SalesMonth } from '@/features/sales/types'
 
 export interface SalesFilters {
@@ -23,12 +25,15 @@ export interface SalesFilterBarProps {
 
 /** 필터 셀렉트 3개 + [내보내기] / [거래 추가]. 드롭다운 펼침(06d)은 Select 내부 상태입니다. */
 export function SalesFilterBar({ filters, onChange, onExport, onAdd }: SalesFilterBarProps) {
+  // 월 선택지는 이번 달 기준이라 화면이 떠 있는 동안 바뀌지 않습니다.
+  const monthOptions = useMemo(() => buildMonthOptions(), [])
+
   return (
     <div className="flex items-center gap-3">
       <Select
         ariaLabel="월 선택"
         value={filters.month}
-        options={MONTH_OPTIONS}
+        options={monthOptions}
         onChange={(month) => onChange({ ...filters, month })}
       />
       <Select
