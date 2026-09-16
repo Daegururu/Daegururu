@@ -42,6 +42,14 @@ export function PrescriptionPage() {
         <p className="text-body-s text-text-secondary">{detail.meta}</p>
       </div>
 
+      {/* 처방 상세 API 연동 전이라 아래 수치는 목데이터입니다. API가 붙으면 이 안내와 mockData.ts를 함께 지웁니다. */}
+      <p
+        role="note"
+        className="rounded-md border border-status-warn bg-status-warn-bg px-4 py-3 text-body-s text-text-secondary"
+      >
+        처방 상세 API 연동 전이라 예시 데이터로 보여드립니다. 실제 가게 수치와 다를 수 있습니다.
+      </p>
+
       {/* TODO: 실행 계획 저장 API가 붙으면 onSave를 연결합니다. */}
       <PrescriptionDetailView detail={detail} onAskAi={() => navigate(PATHS.assistant)} />
     </AppLayout>
