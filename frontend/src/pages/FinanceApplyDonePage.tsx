@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router'
 
 import { Button } from '@/components/common'
 import { ApplyLayout } from '@/features/finance/components/ApplyLayout'
+import { ApplyProductStatus } from '@/features/finance/components/ApplyProductStatus'
 import { useFinanceProduct } from '@/features/finance/hooks/useFinance'
 import { parseProductId } from '@/features/finance/mapping'
 import { MOCK_APPLICATION_RECEIPT } from '@/features/finance/mockData'
@@ -16,18 +17,11 @@ export function FinanceApplyDonePage() {
   const productId = parseProductId(id)
   const product = useFinanceProduct(productId)
 
-  if (productId === null || product.isError) {
-    return (
-      <ApplyLayout productName="지원사업" currentStep={4} hideSteps>
-        <p className="text-body-m text-text-secondary">찾을 수 없는 상품입니다.</p>
-        <Button variant="secondary" onClick={() => navigate(PATHS.finance)}>
-          금융 지원으로 돌아가기
-        </Button>
-      </ApplyLayout>
-    )
+  if (productId === null || !product.data) {
+    return <ApplyProductStatus productId={productId} query={product} currentStep={4} />
   }
 
-  const productName = product.data?.name ?? '지원사업'
+  const productName = product.data.name
 
   // TODO: 신청 제출 API가 붙으면 접수 정보를 응답으로 교체합니다. 지금은 예시 값입니다.
   const { amount, receiptNumber } = MOCK_APPLICATION_RECEIPT

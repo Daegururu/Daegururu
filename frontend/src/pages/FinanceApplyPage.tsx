@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router'
 
 import { Button } from '@/components/common'
 import { ApplyLayout } from '@/features/finance/components/ApplyLayout'
+import { ApplyProductStatus } from '@/features/finance/components/ApplyProductStatus'
 import { DocumentUploadSlot } from '@/features/finance/components/DocumentUploadSlot'
 import { DOCUMENT_SLOTS } from '@/features/finance/constants'
 import { useFinanceProduct } from '@/features/finance/hooks/useFinance'
 import { parseProductId } from '@/features/finance/mapping'
 import { useToast } from '@/hooks/useToast'
-import { PATHS, financeApplyDonePath, financeDetailPath } from '@/routes/paths'
+import { financeApplyDonePath, financeDetailPath } from '@/routes/paths'
 
 /** 09 신청 플로우 · 서류 제출. 정보 확인(1단계)은 08 상세에서 끝난 것으로 봅니다. */
 export function FinanceApplyPage() {
@@ -21,24 +22,17 @@ export function FinanceApplyPage() {
   const productId = parseProductId(id)
   const product = useFinanceProduct(productId)
 
-  if (productId === null || product.isError) {
-    return (
-      <ApplyLayout productName="지원사업" currentStep={2} hideSteps>
-        <p className="text-body-m text-text-secondary">찾을 수 없는 상품입니다.</p>
-        <Button variant="secondary" onClick={() => navigate(PATHS.finance)}>
-          금융 지원으로 돌아가기
-        </Button>
-      </ApplyLayout>
-    )
+  if (productId === null || !product.data) {
+    return <ApplyProductStatus productId={productId} query={product} currentStep={2} />
   }
 
-  const productName = product.data?.name ?? '지원사업'
+  const productName = product.data.name
   const isComplete = DOCUMENT_SLOTS.every(({ key }) => files[key])
 
   // TODO: 서류 업로드·신청 제출·임시저장 API는 후순위입니다. 지금은 안내만 띄우고 화면만 이동합니다.
   const handleSubmit = () => navigate(financeApplyDonePath(id))
   const handleSaveDraft = () => {
-    showToast('임시 저장되었습니다')
+    showToast('임시저장은 준비 중입니다')
     navigate(financeDetailPath(id))
   }
 
