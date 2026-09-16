@@ -1,4 +1,4 @@
-import { CATEGORY_FILTERS, type CategoryFilter } from '@/features/finance/mockData'
+import { CATEGORY_FILTERS, type CategoryFilter } from '@/features/finance/constants'
 import { cn } from '@/utils/cn'
 
 export interface CategoryFilterChipsProps {

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { StepItem } from '@/components/common'
 import { LogoBar } from '@/components/layout'
-import { APPLY_STEPS } from '@/features/finance/mockData'
+import { APPLY_STEPS } from '@/features/finance/constants'
 import { cn } from '@/utils/cn'
 
 export interface ApplyLayoutProps {

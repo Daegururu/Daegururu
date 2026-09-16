@@ -1,6 +1,7 @@
 import { Button } from '@/components/common'
 import { DetailCard } from '@/features/finance/components/DetailCard'
 import type { FinanceProductDetail } from '@/features/finance/types'
+import { cn } from '@/utils/cn'
 
 export interface ProductDetailViewProps {
   product: FinanceProductDetail
@@ -10,8 +11,17 @@ export interface ProductDetailViewProps {
 
 /** 08 상품 상세 본문. 왼쪽은 개요·자격·서류, 오른쪽은 신청 요약과 진단 연동 안내입니다. */
 export function ProductDetailView({ product, onApply, onAskAi }: ProductDetailViewProps) {
-  const { overview, limit, rate, termDetail, eligibility, documents, summary, diagnosisNote } =
-    product
+  const {
+    overview,
+    limit,
+    rate,
+    termDetail,
+    eligibility,
+    documents,
+    summary,
+    diagnosisNote,
+    eligible,
+  } = product
 
   const metrics = [
     { label: '한도', value: limit },
@@ -38,13 +48,17 @@ export function ProductDetailView({ product, onApply, onAskAi }: ProductDetailVi
 
         <DetailCard title="자격 매칭 근거">
           <ul className="flex flex-col gap-3">
-            {eligibility.map(({ condition, evidence }) => (
+            {eligibility.map(({ condition, evidence, met }) => (
               <li key={condition} className="flex items-center gap-3">
+                {/* 충족은 초록 체크, 미충족은 빨간 엑스로 구분합니다. */}
                 <span
                   aria-hidden
-                  className="flex size-6 shrink-0 items-center justify-center rounded-full bg-status-safe text-caption text-text-inverse"
+                  className={cn(
+                    'flex size-6 shrink-0 items-center justify-center rounded-full text-caption text-text-inverse',
+                    met ? 'bg-status-safe' : 'bg-status-danger',
+                  )}
                 >
-                  ✓
+                  {met ? '✓' : '✕'}
                 </span>
                 <span className="flex-1 text-body-m text-text-primary">{condition}</span>
                 <span className="text-body-s text-text-secondary">{evidence}</span>
@@ -74,8 +88,8 @@ export function ProductDetailView({ product, onApply, onAskAi }: ProductDetailVi
               </div>
             ))}
           </dl>
-          <Button className="w-full" onClick={onApply}>
-            신청하기
+          <Button className="w-full" disabled={!eligible} onClick={onApply}>
+            {eligible ? '신청하기' : '자격 미충족'}
           </Button>
           <Button variant="secondary" className="w-full" onClick={onAskAi}>
             AI에게 물어보기

@@ -1,15 +1,16 @@
 import { Button, StatusChip } from '@/components/common'
-import { CATEGORY_LABEL } from '@/features/finance/mockData'
+import { CATEGORY_LABEL } from '@/features/finance/constants'
 import type { FinanceProduct } from '@/features/finance/types'
 
 export interface ProductCardProps {
   product: FinanceProduct
-  onViewDetail: (id: string) => void
+  onViewDetail: (id: number) => void
 }
 
 /** 07 상품 카드 한 줄. 로고 · 정보 · 한도/금리/기간 · 상태 칩 + [자세히 보기] 순입니다. */
 export function ProductCard({ product, onViewDetail }: ProductCardProps) {
-  const { id, name, logoText, provider, category, target, limit, rate, term, status } = product
+  const { id, name, logoText, provider, category, target, limit, rate, term, status, eligible } =
+    product
 
   const metrics = [
     { label: '한도', value: limit },
@@ -43,7 +44,7 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
       </dl>
 
       <div className="flex shrink-0 flex-col items-end gap-2.5">
-        <StatusChip tone="safe">{status}</StatusChip>
+        <StatusChip tone={eligible ? 'safe' : 'warn'}>{status}</StatusChip>
         <Button onClick={() => onViewDetail(id)}>자세히 보기</Button>
       </div>
     </li>
