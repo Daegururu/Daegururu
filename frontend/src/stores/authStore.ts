@@ -36,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       token: null,
       user: null,
-      setAuth: ({ access_token, user_id, business_reg_no, representative_name }) =>
+      setAuth: ({ access_token, user_id, business_reg_no, representative_name }) => {
         set({
           token: access_token,
           user: {
@@ -44,7 +44,10 @@ export const useAuthStore = create<AuthState>()(
             businessRegNo: business_reg_no,
             representativeName: representative_name,
           },
-        }),
+        })
+        // 로그인 상태에서 다른 계정으로 가입하면 이전 계정의 조회 캐시가 남습니다. 함께 비웁니다.
+        queryClient.clear()
+      },
       clearAuth: () => {
         set({ token: null, user: null })
         queryClient.clear()
