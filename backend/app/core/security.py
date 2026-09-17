@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, Request
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
@@ -10,7 +9,8 @@ from app.core.database import get_db
 from app.core.envelope import ApiError
 from app.models.user import User
 
-security = HTTPBearer()
+# 토큰을 담는 HttpOnly 쿠키 이름. auth 라우터에서 쿠키를 심고 지울 때도 이 이름을 쓴다.
+ACCESS_TOKEN_COOKIE_NAME = "access_token"
 
 
 def create_access_token(user_id: int) -> str:
@@ -25,14 +25,16 @@ def create_access_token(user_id: int) -> str:
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
     db: Session = Depends(get_db),
 ) -> User:
-    """Authorization: Bearer <accessToken>을 검증하고 User를 반환한다.
+    """HttpOnly 쿠키(access_token)를 검증하고 User를 반환한다.
 
     실패 시 팀 공통 envelope(AUTH4010, 401)로 응답한다.
     """
-    token = credentials.credentials
+    token = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)
+    if token is None:
+        raise ApiError(status_code=401, code="AUTH4010", message="로그인이 필요합니다.")
 
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
