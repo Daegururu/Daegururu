@@ -46,3 +46,13 @@ class StoreUpdateRequest(BaseModel):
 class StoreUpdateResponse(BaseModel):
     message: str
     store: StoreInfoResponse
+
+
+# 회원 탈퇴 요청
+class AccountDeleteRequest(BaseModel):
+    password: str
+
+
+# 회원 탈퇴 응답
+class AccountDeleteResponse(BaseModel):
+    message: str

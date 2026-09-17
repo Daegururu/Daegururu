@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60
 
+    # HttpOnly 쿠키 옵션. 운영(HTTPS)에서는 .env에 COOKIE_SECURE=True로 설정한다.
+    COOKIE_SECURE: bool = False
+    COOKIE_SAMESITE: str = "lax"
+
     AWS_ACCESS_KEY_ID: str = ""
     AWS_SECRET_ACCESS_KEY: str = ""
     AWS_REGION: str = "ap-northeast-2"

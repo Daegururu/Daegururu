@@ -2,6 +2,11 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.models.store import Store
+from app.models.transaction import Transaction
+from app.models.settlement import Settlement
+from app.models.diagnosis_report import DiagnosisReport
+from app.models.prescription import Prescription
+from app.models.diagnosis_cause import DiagnosisCause
 from app.services.auth import password_hash
 
 def get_mypage(
@@ -59,3 +64,31 @@ def update_store(
     db.refresh(store)
 
     return store
+
+def delete_account(
+    db: Session,
+    user: User,
+    password: str,
+) -> None:
+    # 비밀번호 확인
+    if not password_hash.verify(password, user.password_hash):
+        raise ValueError("비밀번호가 올바르지 않습니다.")
+
+    # FK 제약상 자식 데이터부터 지운다: 진단서 하위(처방·원인) → 진단서/매출/정산 → 가게 → 회원 순.
+    report_ids = [
+        report_id
+        for (report_id,) in db.query(DiagnosisReport.id)
+        .filter(DiagnosisReport.user_id == user.user_id)
+        .all()
+    ]
+    if report_ids:
+        db.query(Prescription).filter(Prescription.report_id.in_(report_ids)).delete(synchronize_session=False)
+        db.query(DiagnosisCause).filter(DiagnosisCause.report_id.in_(report_ids)).delete(synchronize_session=False)
+        db.query(DiagnosisReport).filter(DiagnosisReport.user_id == user.user_id).delete(synchronize_session=False)
+
+    db.query(Transaction).filter(Transaction.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(Settlement).filter(Settlement.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(Store).filter(Store.user_id == user.user_id).delete(synchronize_session=False)
+
+    db.delete(user)
+    db.commit()
