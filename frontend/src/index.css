@@ -38,6 +38,9 @@
     background: var(--color-bg-canvas);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
+    /* Figma(1440 기준)를 그대로 옮기면 실제 화면에선 커 보여 브라우저 90%와 같은 크기로 줄입니다.
+       글자·여백·차트가 모두 비례해서 줄어들고, 인쇄할 때는 원래 크기로 돌립니다. */
+    zoom: 0.9;
   }
 
   #root {
@@ -56,6 +59,7 @@
 
   body {
     background: white;
+    zoom: 1;
   }
 
   #root {
