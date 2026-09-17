@@ -28,6 +28,16 @@ class Store(Base):
         nullable=False
     )
 
+    business_type: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False
+    )
+
+    business_category: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False
+    )
+
     business_address: Mapped[str] = mapped_column(
         String(255),
         nullable=False

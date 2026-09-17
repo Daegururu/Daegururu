@@ -41,6 +41,8 @@ def create_store(
         user_id=current_user.user_id,
         business_name=request.business_name,
         industry_name=request.industry_name,
+        business_type=request.business_type,
+        business_category=request.business_category,
         business_address=request.business_address,
         open_date=request.open_date,
     )
@@ -77,6 +79,8 @@ def get_my_store(
     return {
         "business_name": store.business_name,
         "industry_name": store.industry_name,
+        "business_type": store.business_type,
+        "business_category": store.business_category,
         "business_address": store.business_address,
         "open_date": store.open_date,
         "business_period": business_period,
