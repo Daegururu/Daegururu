@@ -1,11 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.security import get_current_user
+from app.core.security import ACCESS_TOKEN_COOKIE_NAME, get_current_user
 from app.models.user import User
-from app.schemas.mypage import MyPageResponse, PasswordChangeRequest, PasswordChangeResponse, StoreUpdateRequest, StoreUpdateResponse
-from app.services.mypage import get_mypage, change_password, update_store
+from app.schemas.mypage import (
+    AccountDeleteRequest,
+    AccountDeleteResponse,
+    MyPageResponse,
+    PasswordChangeRequest,
+    PasswordChangeResponse,
+    StoreUpdateRequest,
+    StoreUpdateResponse,
+)
+from app.services.mypage import get_mypage, change_password, update_store, delete_account
 
 
 router = APIRouter(
@@ -113,3 +121,29 @@ def update_store_info(
             status_code=404,
             detail=str(e),
         )
+
+# 회원 탈퇴
+@router.delete(
+    "/account",
+    response_model=AccountDeleteResponse,
+)
+def delete_my_account(
+    request: AccountDeleteRequest,
+    response: Response,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        delete_account(db, current_user, request.password)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
+
+    # 탈퇴한 계정의 세션 쿠키도 지운다.
+    response.delete_cookie(key=ACCESS_TOKEN_COOKIE_NAME, path="/")
+
+    return {
+        "message": "회원 탈퇴가 완료되었습니다."
+    }
