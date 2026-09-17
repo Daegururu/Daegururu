@@ -1,3 +1,5 @@
+import html
+import re
 from datetime import date
 
 from sqlalchemy.orm import Session
@@ -115,18 +117,36 @@ def _detail(product: FinancialProduct, store: Store | None, years: float, region
     }
 
 
-def _external_program_item(program: ExternalSupportProgram) -> dict:
-    period = None
+def _apply_period(program: ExternalSupportProgram) -> str | None:
     if program.apply_start_date and program.apply_end_date:
-        period = f"{program.apply_start_date.isoformat()} ~ {program.apply_end_date.isoformat()}"
+        return f"{program.apply_start_date.isoformat()} ~ {program.apply_end_date.isoformat()}"
+    return None
 
+
+def _strip_html(value: str) -> str:
+    """bsnsSumryCn 등 bizinfo 원문에 섞인 HTML 태그만 걷어내고 텍스트만 남긴다."""
+    text = html.unescape(re.sub(r"<[^>]+>", "\n", value))
+    lines = [line.strip() for line in text.splitlines()]
+    return "\n".join(line for line in lines if line)
+
+
+def _external_program_item(program: ExternalSupportProgram) -> dict:
     return {
+        "programId": program.id,
         "title": program.title,
         "agency": program.agency,
         "target": program.target,
-        "applyPeriod": period,
+        "applyPeriod": _apply_period(program),
         "detailUrl": program.detail_url,
         "source": program.source,
+    }
+
+
+def _external_program_detail(program: ExternalSupportProgram) -> dict:
+    return {
+        **_external_program_item(program),
+        "category": program.category,
+        "summary": _strip_html(program.summary),
     }
 
 
@@ -175,6 +195,18 @@ def get_finance_products(db: Session, user: User, category: str | None = None) -
         }
 
     return {"matchBanner": match_banner, "products": items, "externalPrograms": _external_programs(db)}
+
+
+def get_external_program_detail(db: Session, program_id: int) -> dict | None:
+    program = (
+        db.query(ExternalSupportProgram)
+        .filter(ExternalSupportProgram.id == program_id)
+        .first()
+    )
+    if program is None:
+        return None
+
+    return _external_program_detail(program)
 
 
 def get_finance_product_detail(db: Session, user: User, product_id: int) -> dict | None:

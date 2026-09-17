@@ -105,6 +105,7 @@ Authorization : Bearer accessToken
 | —— term | String |  | 대출 기간 표시 문자열(예: "5년") |
 | —— status | String |  | `신청 가능` \| `자격 미충족` |
 | — externalPrograms | Array\<Object\> |  | 기업마당(bizinfo) 공공데이터 연동 지원사업 공고. 자격 매칭 없이 원문 그대로 노출 |
+| —— programId | Long |  | `GET /finance/external-programs/{programId}` 상세 조회에 쓰는 id |
 | —— title | String |  | 공고명 |
 | —— agency | String |  | 소관기관 |
 | —— target | String |  | 지원대상 원문(자유서술, 자격 판정에 쓰지 않음) |
@@ -163,6 +164,7 @@ Authorization : Bearer accessToken
     ],
     "externalPrograms": [
       {
+        "programId": 9,
         "title": "[경남] 2026년 3분기 중소기업육성자금 특별자금 지원계획 공고",
         "agency": "경상남도",
         "target": "중소기업",
@@ -325,3 +327,105 @@ Authorization : Bearer accessToken
 - `가게(Stores)` (업력·지역·업종 조회)
 - `거래내역(Transactions)` (연매출 추정)
 - `금융상품(FinancialProducts)` (상세 정보·자격 조건)
+
+---
+
+### [GET] /finance/external-programs/{programId}
+
+`/finance/products`의 `externalPrograms` 목록에서 카드를 클릭했을 때 보여줄 기업마당(bizinfo) 지원사업 공고 상세 정보를 조회한다. 자격 매칭·신청 플로우가 없는 외부 공고라 사업개요와 원문 링크만 제공하며, 프론트는 이 화면에서 "상품 보러가기" 버튼으로 `detailUrl`을 새 탭으로 열어주면 된다.
+
+### 처리 로직
+
+1. 토큰 검증 후 `userId` 추출(공고 자체는 사용자별로 다르지 않음 — 로그인 여부만 확인).
+2. `programId`로 `ExternalSupportProgram`을 조회한다. 존재하지 않으면 404를 반환한다.
+3. `bsnsSumryCn` 원문에 섞인 HTML 태그와 엔티티(`&nbsp;` 등)를 제거해 읽기 쉬운 텍스트로 정리한 뒤 `summary`로 반환한다.
+
+### 유효성 검증
+
+| 필드 | 규칙 |
+| --- | --- |
+| programId | Path 파라미터. 정수. 존재하지 않는 id면 404(FIN4041) |
+
+### Request
+
+**Request Header**
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| Authorization | String | Required | accessToken |
+
+```
+Authorization : Bearer accessToken
+```
+
+**Path Parameter**
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| programId | Long | Required | 지원사업 공고 id (`externalPrograms[].programId`) |
+
+### Response
+
+**Response Body**
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| isSuccess | Boolean | Required |  |
+| code | String | Required |  |
+| message | String | Required |  |
+| result | Object | Optional |  |
+| — programId | Long |  | 공고 id |
+| — title | String |  | 공고명 |
+| — agency | String |  | 소관기관 |
+| — target | String |  | 지원대상 원문(자유서술) |
+| — applyPeriod | String |  | "YYYY-MM-DD ~ YYYY-MM-DD", 기간 정보 없으면 null |
+| — detailUrl | String |  | bizinfo 공고 상세 페이지 링크. "상품 보러가기" 버튼에 사용 |
+| — source | String |  | 데이터 출처(현재 `bizinfo` 고정) |
+| — category | String |  | 지원분야(bizinfo 원문 분류) |
+| — summary | String |  | 사업개요(HTML 태그·엔티티 제거된 텍스트, 줄바꿈 포함) |
+| error | Object | Optional |  |
+
+### 응답 형식 (envelope)
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| isSuccess | Boolean | Required | 성공 여부 |
+| code | String | Required | 응답 코드(예: FIN2002) |
+| message | String | Required | 응답 메시지 |
+| result | Any | Optional | 성공 데이터(실패 시 null) |
+| error | Object | Optional | 에러 정보(성공 시 null) |
+
+✅ 성공 : Response 200 OK
+
+```json
+{
+  "isSuccess": true,
+  "code": "FIN2002",
+  "message": "지원사업 공고 상세 정보를 조회하였습니다.",
+  "result": {
+    "programId": 9,
+    "title": "[경남] 2026년 3분기 중소기업육성자금 특별자금 지원계획 공고",
+    "agency": "경상남도",
+    "target": "중소기업",
+    "applyPeriod": "2026-10-13 ~ 2026-10-15",
+    "detailUrl": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000126396",
+    "source": "bizinfo",
+    "category": "금융",
+    "summary": "「경상남도 중소기업육성자금 지원 조례」제8조에 따라 2026년 경상남도 중소기업 육성자금 3분기 특별자금 융자(이차보전) 지원계획을 다음과 같이 공고합니다.\n☞ 경상남도에 소재한「중소기업기본법」제2조에 따른 중소기업으로서 지원 제외대상에 해당되지 않고, 자금별 세부 지원대상에 해당하는 기업"
+  },
+  "error": null
+}
+```
+
+### 에러 응답
+
+| code | HTTP | message | 발생 조건 |
+| --- | --- | --- | --- |
+| AUTH4010 | 401 | 유효하지 않은 토큰입니다. / 사용자를 찾을 수 없습니다. | 토큰 문제 |
+| FIN4041 | 404 | 존재하지 않는 지원사업 공고입니다. | `programId`에 해당하는 공고가 없음 |
+| FIN5002 | 500 | 지원사업 공고 상세 정보를 불러오지 못했습니다. | 서버 내부 오류 |
+
+### 연관 테이블
+
+- `사용자(Users)` (로그인 확인)
+- `외부지원사업(ExternalSupportPrograms)` (기업마당 bizinfo 공공데이터 동기화)
