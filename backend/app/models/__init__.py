@@ -7,6 +7,7 @@ from app.models.transaction import Transaction
 from app.models.settlement import Settlement
 from app.models.industry_benchmark import IndustryBenchmark
 from app.models.financial_product import FinancialProduct
+from app.models.external_support_program import ExternalSupportProgram
 
 __all__ = [
     "User",
@@ -18,4 +19,5 @@ __all__ = [
     "Settlement",
     "IndustryBenchmark",
     "FinancialProduct",
+    "ExternalSupportProgram",
 ]

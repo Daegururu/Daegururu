@@ -1,8 +1,10 @@
+import html
+import re
 from datetime import date
 
 from sqlalchemy.orm import Session
 
-from app.models import FinancialProduct, Store, User
+from app.models import ExternalSupportProgram, FinancialProduct, Store, User
 from app.services.aggregations import last_12_months, monthly_sales_series
 from app.services.finance_matching import (
     business_years as _business_years,
@@ -115,6 +117,55 @@ def _detail(product: FinancialProduct, store: Store | None, years: float, region
     }
 
 
+def _apply_period(program: ExternalSupportProgram) -> str | None:
+    if program.apply_start_date and program.apply_end_date:
+        return f"{program.apply_start_date.isoformat()} ~ {program.apply_end_date.isoformat()}"
+    return None
+
+
+def _strip_html(value: str) -> str:
+    """bsnsSumryCn 등 bizinfo 원문에 섞인 HTML 태그만 걷어내고 텍스트만 남긴다."""
+    text = html.unescape(re.sub(r"<[^>]+>", "\n", value))
+    lines = [line.strip() for line in text.splitlines()]
+    return "\n".join(line for line in lines if line)
+
+
+def _external_program_item(program: ExternalSupportProgram) -> dict:
+    return {
+        "programId": program.id,
+        "title": program.title,
+        "agency": program.agency,
+        "target": program.target,
+        "applyPeriod": _apply_period(program),
+        "detailUrl": program.detail_url,
+        "source": program.source,
+    }
+
+
+def _external_program_detail(program: ExternalSupportProgram) -> dict:
+    return {
+        **_external_program_item(program),
+        "category": program.category,
+        "summary": _strip_html(program.summary),
+    }
+
+
+def _external_programs(db: Session) -> list[dict]:
+    """bizinfo 등에서 동기화한 지원사업 공고. 자격 매칭은 하지 않고 마감 안 지난 공고만 노출한다."""
+    today = date.today()
+    programs = (
+        db.query(ExternalSupportProgram)
+        .filter(
+            (ExternalSupportProgram.apply_end_date.is_(None))
+            | (ExternalSupportProgram.apply_end_date >= today)
+        )
+        .order_by(ExternalSupportProgram.apply_start_date.desc().nullslast())
+        .limit(20)
+        .all()
+    )
+    return [_external_program_item(p) for p in programs]
+
+
 def get_finance_products(db: Session, user: User, category: str | None = None) -> dict:
     store = user.store
     annual_revenue = _annual_revenue(db, user)
@@ -143,7 +194,19 @@ def get_finance_products(db: Session, user: User, category: str | None = None) -
             "description": f"신청 가능한 소상공인 지원사업 {eligible_count}건을 찾았습니다. 한도가 큰 순서로 정렬했습니다.",
         }
 
-    return {"matchBanner": match_banner, "products": items}
+    return {"matchBanner": match_banner, "products": items, "externalPrograms": _external_programs(db)}
+
+
+def get_external_program_detail(db: Session, program_id: int) -> dict | None:
+    program = (
+        db.query(ExternalSupportProgram)
+        .filter(ExternalSupportProgram.id == program_id)
+        .first()
+    )
+    if program is None:
+        return None
+
+    return _external_program_detail(program)
 
 
 def get_finance_product_detail(db: Session, user: User, product_id: int) -> dict | None:
