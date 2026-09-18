@@ -58,8 +58,9 @@ export function StoreProfileForm({
     const nextErrors: Record<FieldKey, string> = {
       name: validateRequired(form.name, '상호명'),
       category: validateRequired(form.category, '업종'),
-      businessType: validateRequired(form.businessType, '업태'),
-      businessCategory: validateRequired(form.businessCategory, '종목'),
+      // 업태·종목은 컬럼이 생기기 전 가게엔 비어 있어서 여기서는 필수로 잡지 않습니다. 온보딩에서만 필수입니다.
+      businessType: '',
+      businessCategory: '',
       address: validateRequired(form.address, '사업장 주소'),
       openedAt: validateRequired(form.openedAt, '개업일'),
     }
