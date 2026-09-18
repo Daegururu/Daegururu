@@ -44,6 +44,28 @@ export interface FinanceProductDetail extends FinanceProduct {
   diagnosisNote: string
 }
 
+/** 07 지원사업 공고 카드. 기업마당 등 외부 공고라 자격 매칭 없이 그대로 보여줍니다. */
+export interface ExternalProgram {
+  /** 백엔드 programId. 공고 상세 경로에 그대로 씁니다. */
+  id: number
+  title: string
+  agency: string
+  target: string
+  /** 예: "2026-09-01 ~ 2026-09-30". 없으면 "상시" */
+  applyPeriod: string
+  /** 공고 원문 주소. [신청하러 가기]가 새 탭으로 엽니다. */
+  detailUrl: string
+  /** 출처 표시 문구. 예: "기업마당" */
+  sourceLabel: string
+}
+
+export interface ExternalProgramDetail extends ExternalProgram {
+  /** 지원분야. 예: "금융" */
+  category: string
+  /** 공고 요약을 문단 단위로 나눈 것 */
+  summaryParagraphs: string[]
+}
+
 /** 09 신청 플로우의 서류 업로드 슬롯 */
 export interface DocumentSlot {
   key: string

@@ -17,6 +17,11 @@ export const CATEGORY_FILTERS: { value: CategoryFilter; label: string }[] = [
   { value: 'policy', label: '정책자금' },
 ]
 
+/** 외부 공고 출처 코드 → 표시 문구. 모르는 출처는 코드를 그대로 보여줍니다. */
+export const SOURCE_LABEL: Record<string, string> = {
+  bizinfo: '기업마당',
+}
+
 /** 09 신청 플로우 단계 */
 export const APPLY_STEPS = ['정보 확인', '서류 제출', '심사', '완료'] as const
 

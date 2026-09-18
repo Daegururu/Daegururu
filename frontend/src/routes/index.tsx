@@ -7,6 +7,7 @@ import { DiagnosisReportPage } from '@/pages/DiagnosisReportPage'
 import { FinanceApplyDonePage } from '@/pages/FinanceApplyDonePage'
 import { FinanceApplyPage } from '@/pages/FinanceApplyPage'
 import { FinanceDetailPage } from '@/pages/FinanceDetailPage'
+import { FinanceProgramPage } from '@/pages/FinanceProgramPage'
 import { FinancePage } from '@/pages/FinancePage'
 import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
       { path: PATHS.financeDetail, element: <FinanceDetailPage /> },
       { path: PATHS.financeApply, element: <FinanceApplyPage /> },
       { path: PATHS.financeApplyDone, element: <FinanceApplyDonePage /> },
+      { path: PATHS.financeProgram, element: <FinanceProgramPage /> },
       { path: PATHS.mypage, element: <MyPage /> },
     ],
   },

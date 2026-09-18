@@ -1,4 +1,7 @@
-/** GET /api/v1/finance/products · GET /api/v1/finance/products/{product_id} 응답. 표시 문구는 서버가 만들어 내려줍니다. */
+/**
+ * GET /api/v1/finance/products · /products/{product_id} · /external-programs/{program_id} 응답.
+ * 표시 문구는 서버가 만들어 내려줍니다.
+ */
 
 export interface FinanceProductResponse {
   productId: number
@@ -26,11 +29,36 @@ export interface FinanceMatchBanner {
   description: string
 }
 
+/** 기업마당 등 외부에서 동기화한 지원사업 공고. 자격 매칭은 하지 않고 마감 안 지난 공고만 옵니다. */
+export interface ExternalProgramResponse {
+  programId: number
+  title: string
+  /** 소관기관. 예: "중소벤처기업부" */
+  agency: string
+  /** 지원 대상. 예: "소상공인" */
+  target: string
+  /** 예: "2026-09-01 ~ 2026-09-30". 기간이 없으면 null */
+  applyPeriod: string | null
+  /** 공고 원문 주소. [신청하러 가기]가 새 탭으로 엽니다. */
+  detailUrl: string
+  /** 출처. 예: "bizinfo" */
+  source: string
+}
+
+export interface ExternalProgramDetailResponse extends ExternalProgramResponse {
+  /** 지원분야. 예: "금융" */
+  category: string
+  /** 공고 요약. 줄바꿈으로 문단이 나뉩니다. */
+  summary: string
+}
+
 export interface FinanceProductListResponse {
   /** 가게 정보가 없으면 null */
   matchBanner: FinanceMatchBanner | null
   /** 신청 가능한 상품이 앞에 옵니다. */
   products: FinanceProductResponse[]
+  /** 최신 공고가 앞에 옵니다. 최대 20개 */
+  externalPrograms: ExternalProgramResponse[]
 }
 
 export interface FinanceEligibilityItem {
