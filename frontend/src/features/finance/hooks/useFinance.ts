@@ -1,9 +1,9 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
-import { getFinanceProduct, getFinanceProducts } from '@/apis/finance'
+import { getExternalProgram, getFinanceProduct, getFinanceProducts } from '@/apis/finance'
 
 import type { CategoryFilter } from '../constants'
-import { toProduct, toProductDetail } from '../mapping'
+import { toExternalProgram, toExternalProgramDetail, toProduct, toProductDetail } from '../mapping'
 
 const FINANCE_KEY = ['finance'] as const
 
@@ -15,6 +15,7 @@ export function useFinanceProducts(category: CategoryFilter) {
     select: (data) => ({
       matchBanner: data.matchBanner,
       products: data.products.map(toProduct),
+      externalPrograms: data.externalPrograms.map(toExternalProgram),
     }),
     placeholderData: keepPreviousData,
   })
@@ -27,5 +28,15 @@ export function useFinanceProduct(productId: number | null) {
     queryFn: () => getFinanceProduct(productId!),
     select: toProductDetail,
     enabled: productId !== null,
+  })
+}
+
+/** 지원사업 공고 상세. id가 null(잘못된 경로)이면 부르지 않습니다. */
+export function useExternalProgram(programId: number | null) {
+  return useQuery({
+    queryKey: [...FINANCE_KEY, 'external-program', programId],
+    queryFn: () => getExternalProgram(programId!),
+    select: toExternalProgramDetail,
+    enabled: programId !== null,
   })
 }

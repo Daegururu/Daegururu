@@ -25,6 +25,8 @@ export const PATHS = {
   financeApply: '/finance/:id/apply',
   /** 09b 신청 완료. financeApplyDonePath(id)로 실제 경로를 만듭니다. */
   financeApplyDone: '/finance/:id/apply/done',
+  /** 지원사업 공고 상세. financeProgramPath(id)로 실제 경로를 만듭니다. */
+  financeProgram: '/finance/programs/:id',
   /** 10 마이페이지. 알림 설정 탭과 비밀번호 변경 모달은 이 화면 안의 상태입니다. */
   mypage: '/mypage',
 } as const
@@ -50,6 +52,7 @@ export const IMPLEMENTED_PATHS: ReadonlySet<string> = new Set([
   PATHS.financeDetail,
   PATHS.financeApply,
   PATHS.financeApplyDone,
+  PATHS.financeProgram,
   PATHS.mypage,
 ])
 
@@ -71,6 +74,11 @@ export function financeApplyPath(id: string): string {
 /** 신청 완료 화면의 실제 경로를 만듭니다. */
 export function financeApplyDonePath(id: string): string {
   return PATHS.financeApplyDone.replace(':id', id)
+}
+
+/** 지원사업 공고 상세 화면의 실제 경로를 만듭니다. */
+export function financeProgramPath(id: string): string {
+  return PATHS.financeProgram.replace(':id', id)
 }
 
 /** 해당 경로의 화면이 이미 만들어졌는지 확인합니다. */

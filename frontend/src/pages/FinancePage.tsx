@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router'
 import { StatusCard } from '@/components/common'
 import { AppLayout } from '@/components/layout'
 import { CategoryFilterChips } from '@/features/finance/components/CategoryFilterChips'
+import { ExternalProgramCard } from '@/features/finance/components/ExternalProgramCard'
 import { ProductCard } from '@/features/finance/components/ProductCard'
 import type { CategoryFilter } from '@/features/finance/constants'
 import { useFinanceProducts } from '@/features/finance/hooks/useFinance'
-import { financeDetailPath } from '@/routes/paths'
+import { financeDetailPath, financeProgramPath } from '@/routes/paths'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils/cn'
 
@@ -49,6 +50,37 @@ export function FinancePage() {
     )
   }
 
+  // 기업마당 공고는 분류 필터와 무관하게 항상 같은 목록입니다. 목록 응답에 같이 옵니다.
+  const renderPrograms = () => {
+    if (products.isPending || products.isError) return null
+    const programs = products.data.externalPrograms
+    return (
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-heading-s font-bold text-text-primary">지원사업 공고</h2>
+          <p className="text-body-s text-text-secondary">
+            기업마당에 올라온 공고입니다. 신청은 원문 사이트에서 진행됩니다.
+          </p>
+        </div>
+        {programs.length === 0 ? (
+          <p className="rounded-lg border border-border-default bg-bg-surface px-6 py-10 text-center text-body-m text-text-secondary shadow-sm">
+            지금 신청할 수 있는 공고가 없습니다.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-6">
+            {programs.map((program) => (
+              <ExternalProgramCard
+                key={program.id}
+                program={program}
+                onViewDetail={(id) => navigate(financeProgramPath(String(id)))}
+              />
+            ))}
+          </ul>
+        )}
+      </section>
+    )
+  }
+
   const banner = products.data?.matchBanner
 
   return (
@@ -64,6 +96,8 @@ export function FinancePage() {
       <CategoryFilterChips value={category} onChange={setCategory} />
 
       {renderList()}
+
+      {renderPrograms()}
     </AppLayout>
   )
 }

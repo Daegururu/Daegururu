@@ -1,6 +1,18 @@
-import type { FinanceProductDetailResponse, FinanceProductResponse } from '@/types/finance'
+import type {
+  ExternalProgramDetailResponse,
+  ExternalProgramResponse,
+  FinanceProductDetailResponse,
+  FinanceProductResponse,
+} from '@/types/finance'
 
-import type { FinanceProduct, FinanceProductDetail, ProductCategory } from './types'
+import { SOURCE_LABEL } from './constants'
+import type {
+  ExternalProgram,
+  ExternalProgramDetail,
+  FinanceProduct,
+  FinanceProductDetail,
+  ProductCategory,
+} from './types'
 
 const CATEGORIES: readonly ProductCategory[] = ['operating', 'facility', 'policy']
 
@@ -49,7 +61,34 @@ export function toProductDetail(response: FinanceProductDetailResponse): Finance
   }
 }
 
-/** URL 파라미터 id를 productId 숫자로 바꿉니다. 숫자가 아니면 null입니다. */
+/** 지원사업 공고 카드(07)에 쓰는 형태로 바꿉니다. */
+export function toExternalProgram(response: ExternalProgramResponse): ExternalProgram {
+  return {
+    id: response.programId,
+    title: response.title,
+    agency: response.agency,
+    target: response.target,
+    applyPeriod: response.applyPeriod ?? '상시',
+    detailUrl: response.detailUrl,
+    sourceLabel: SOURCE_LABEL[response.source] ?? response.source,
+  }
+}
+
+/** 지원사업 공고 상세에 쓰는 형태로 바꿉니다. 요약은 줄바꿈으로 문단을 나눕니다. */
+export function toExternalProgramDetail(
+  response: ExternalProgramDetailResponse,
+): ExternalProgramDetail {
+  return {
+    ...toExternalProgram(response),
+    category: response.category,
+    summaryParagraphs: response.summary
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean),
+  }
+}
+
+/** URL 파라미터 id를 숫자 id로 바꿉니다. 숫자가 아니면 null입니다. */
 export function parseProductId(value: string): number | null {
   return /^\d+$/.test(value) ? Number(value) : null
 }
