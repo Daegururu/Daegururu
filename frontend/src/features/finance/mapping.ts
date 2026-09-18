@@ -88,7 +88,9 @@ export function toExternalProgramDetail(
   }
 }
 
-/** URL 파라미터 id를 숫자 id로 바꿉니다. 숫자가 아니면 null입니다. */
+/** URL 파라미터 id를 숫자 id로 바꿉니다. 숫자가 아니거나 안전하게 표현할 수 없을 만큼 크면 null입니다. */
 export function parseProductId(value: string): number | null {
-  return /^\d+$/.test(value) ? Number(value) : null
+  if (!/^\d+$/.test(value)) return null
+  const id = Number(value)
+  return Number.isSafeInteger(id) ? id : null
 }
