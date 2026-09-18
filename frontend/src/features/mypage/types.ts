@@ -1,24 +1,26 @@
-/** 마이페이지(10 계열)에서 쓰는 타입입니다. API 연동 전까지는 mockData가 이 형태를 채웁니다. */
+/** 마이페이지(10 계열)에서 쓰는 타입입니다. 응답을 이 형태로 옮기는 건 mapping.ts가 합니다. */
 
 export type MypageTab = 'store' | 'notification'
 
-/** 가게 정보 폼. 온보딩 StoreInfo와 같은 항목입니다. 연락처는 계정의 휴대폰을 읽기 전용으로 보여줍니다. */
+/** 가게 정보 폼. 온보딩 StoreInfo와 같은 항목입니다. 휴대폰은 계정 카드에서만 보여줍니다. */
 export interface StoreProfile {
   name: string
   category: string
+  /** 업태. 예: 음식점업 */
+  businessType: string
+  /** 종목. 예: 한식 */
+  businessCategory: string
   address: string
   /** 개업일 YYYY-MM-DD */
   openedAt: string
 }
 
 export interface BusinessCertification {
+  /** 000-00-00000 */
   businessNumber: string
   ownerName: string
-  /** 예: "음식점업 · 한식" */
+  /** 업태·종목을 한 줄로. 예: "음식점업 · 한식". 둘 다 없으면 빈 문자열 */
   businessType: string
-  /** 상태 칩 문구. 예: "인증 완료" */
-  status: string
-  note: string
 }
 
 export interface AccountInfo {
