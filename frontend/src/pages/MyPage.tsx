@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
+import { postLogout } from '@/apis/auth'
 import { Button, FormModal, StatusChip, Tab } from '@/components/common'
 import { AppLayout } from '@/components/layout'
 import { InfoCard } from '@/features/mypage/components/InfoCard'
@@ -48,6 +49,7 @@ export function MyPage() {
 
   // TODO: 계정 삭제 API 연동. 지금은 확인 후 로그아웃하고 로그인 화면으로만 보냅니다.
   const handleDeleteAccount = () => {
+    postLogout().catch(() => {})
     clearAuth()
     navigate(PATHS.login)
   }

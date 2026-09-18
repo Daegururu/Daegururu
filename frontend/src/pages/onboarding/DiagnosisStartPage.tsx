@@ -23,6 +23,7 @@ export function DiagnosisStartPage() {
   const summary = [
     { label: '상호명', value: storeInfo.name },
     { label: '업종', value: storeInfo.category },
+    { label: '업태·종목', value: `${storeInfo.businessType} · ${storeInfo.businessCategory}` },
     { label: '사업장', value: storeInfo.address },
     { label: '사업기간', value: formatBusinessPeriod(storeInfo.openedAt) },
   ]

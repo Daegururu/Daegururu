@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
+import { postLogout } from '@/apis/auth'
 import { LogoMark, NavItem } from '@/components/common'
 import { PATHS, isImplemented } from '@/routes/paths'
 import { useAuthStore } from '@/stores/authStore'
@@ -35,8 +36,11 @@ export function AppLayout({ title, user, sidebarFooter, children }: AppLayoutPro
   const { pathname } = useLocation()
   const clearAuth = useAuthStore((state) => state.clearAuth)
 
-  // 토큰을 지우면 RequireAuth가 로그인으로 보내지만, 바로 이동시켜 화면이 잠깐 비지 않게 합니다.
+  // 서버에 쿠키 삭제를 요청하고, 결과와 상관없이 프론트 상태를 지웁니다. 쿠키가 이미 만료됐어도
+  // 로그아웃은 돼야 해서 실패는 무시합니다. 유저를 지우면 RequireAuth가 로그인으로 보내지만,
+  // 바로 이동시켜 화면이 잠깐 비지 않게 합니다.
   const handleLogout = () => {
+    postLogout().catch(() => {})
     clearAuth()
     navigate(PATHS.login, { replace: true })
   }

@@ -49,15 +49,12 @@ if (!baseUrl) {
 }
 
 export const client = axios.create({
-  baseURL: `${baseUrl}/api/v1`,
+  // 개발 서버에서는 vite 프록시(/api → VITE_API_BASE_URL)를 거칩니다. vite.config.ts 참고.
+  baseURL: import.meta.env.DEV ? '/api/v1' : `${baseUrl}/api/v1`,
   timeout: TIMEOUT_MS,
-})
-
-// 로그인해 있으면 모든 요청에 Bearer 토큰을 붙입니다. 호출하는 쪽은 토큰을 신경 쓰지 않습니다.
-client.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
+  // 인증은 서버가 내려주는 HttpOnly 쿠키입니다. 다른 오리진(api.daegururu.cloud)에도 쿠키가
+  // 오가도록 켭니다. 토큰을 프론트가 들고 있지 않아 헤더에 붙일 것은 없습니다.
+  withCredentials: true,
 })
 
 // 호출하는 쪽이 axios 오류 구조를 몰라도 되도록 ApiError 하나로 좁힙니다.
@@ -77,9 +74,9 @@ client.interceptors.response.use(
       return Promise.reject(new ApiError(NETWORK_ERROR_MESSAGE))
     }
 
-    // 토큰을 붙여 보낸 요청이 401이면 세션이 끝난 것입니다. 토큰을 지우면 RequireAuth가
-    // 로그인으로 보냅니다. 로그인 실패(토큰 없이 401)는 화면이 직접 문구를 보여줍니다.
-    if (response.status === 401 && error.config?.headers.Authorization) {
+    // 로그인한 상태에서 401이면 쿠키가 만료된 것입니다. 유저 정보를 지우면 RequireAuth가
+    // 로그인으로 보냅니다. 로그인 실패(로그인 전 401)는 화면이 직접 문구를 보여줍니다.
+    if (response.status === 401 && useAuthStore.getState().user) {
       useAuthStore.getState().clearAuth()
       return Promise.reject(new ApiError(SESSION_EXPIRED_MESSAGE, 401))
     }
