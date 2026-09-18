@@ -1,37 +1,9 @@
-import type {
-  AccountInfo,
-  BusinessCertification,
-  NotificationSetting,
-  NotificationValues,
-  StoreProfile,
-} from './types'
+import type { NotificationSetting, NotificationValues } from './types'
 
 /*
- * 마이페이지 목데이터입니다.
- * 가게 정보는 온보딩에서 입력한 값을 그대로 가져온다는 전제이고, 사업자 인증은
- * 국세청 진위확인 API 연동 후 상태를 다시 조회합니다. 지금은 전부 고정값입니다.
+ * 알림 설정 목데이터입니다. 가게 정보·사업자 인증·계정은 GET /mypage로 채우고,
+ * 알림 설정은 아직 API가 없어 항목과 초깃값을 여기 둡니다. 저장은 화면에서만 유지됩니다.
  */
-
-export const MOCK_STORE_PROFILE: StoreProfile = {
-  name: '영수네 국밥',
-  category: '한식 음식점업',
-  address: '대구 중구 동성로2가 88-3',
-  openedAt: '2023-06-14',
-}
-
-export const MOCK_CERTIFICATION: BusinessCertification = {
-  businessNumber: '123-45-67890',
-  ownerName: '김영수',
-  businessType: '음식점업 · 한식',
-  status: '인증 완료',
-  note: '국세청 진위확인 기준 · 휴폐업 없음',
-}
-
-/** 휴대폰은 회원가입 때 인증한 010 번호입니다. 가게 정보의 연락처 칸에도 같은 값을 보여줍니다. */
-export const MOCK_ACCOUNT: AccountInfo = {
-  loginId: '123-45-67890',
-  phone: '010-2847-1130',
-}
 
 /** 받을 알림 5개 */
 export const NOTIFICATION_TYPES: NotificationSetting[] = [
@@ -65,7 +37,7 @@ export const NOTIFICATION_TYPES: NotificationSetting[] = [
 /** 받는 방법 3개 */
 export const NOTIFICATION_CHANNELS: NotificationSetting[] = [
   { key: 'push', label: '앱 알림', description: '대구르르 앱 푸시' },
-  { key: 'sms', label: '문자', description: MOCK_ACCOUNT.phone },
+  { key: 'sms', label: '문자', description: '회원가입 때 인증한 휴대폰 번호' },
   { key: 'quietHours', label: '야간 수신 안 함', description: '21:00~08:00에는 보내지 않습니다' },
 ]
 
@@ -79,6 +51,3 @@ export const MOCK_NOTIFICATION_VALUES: NotificationValues = {
   sms: true,
   quietHours: true,
 }
-
-/** 상단바에 표시할 사용자 정보 */
-export const MOCK_USER = '김영수 사장님 · 대구 중구 동성로'

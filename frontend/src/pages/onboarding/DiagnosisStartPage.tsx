@@ -23,6 +23,11 @@ export function DiagnosisStartPage() {
   const summary = [
     { label: '상호명', value: storeInfo.name },
     { label: '업종', value: storeInfo.category },
+    // 업태·종목 컬럼이 생기기 전에 등록된 가게는 둘 다 비어 있을 수 있어, 빈 쪽은 빼고 붙입니다.
+    {
+      label: '업태·종목',
+      value: [storeInfo.businessType, storeInfo.businessCategory].filter(Boolean).join(' · '),
+    },
     { label: '사업장', value: storeInfo.address },
     { label: '사업기간', value: formatBusinessPeriod(storeInfo.openedAt) },
   ]
