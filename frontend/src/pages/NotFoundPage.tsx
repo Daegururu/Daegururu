@@ -8,7 +8,7 @@ import { useAuthStore } from '@/stores/authStore'
 /** 없는 주소로 들어왔을 때. 로그인 상태면 홈, 아니면 로그인으로 보냅니다. */
 export function NotFoundPage() {
   const navigate = useNavigate()
-  const token = useAuthStore((state) => state.token)
+  const user = useAuthStore((state) => state.user)
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-canvas">
@@ -23,8 +23,8 @@ export function NotFoundPage() {
               주소가 바뀌었거나 잘못 입력됐을 수 있어요.
             </p>
           </div>
-          <Button onClick={() => navigate(token ? PATHS.home : PATHS.login, { replace: true })}>
-            {token ? '홈으로 가기' : '로그인으로 가기'}
+          <Button onClick={() => navigate(user ? PATHS.home : PATHS.login, { replace: true })}>
+            {user ? '홈으로 가기' : '로그인으로 가기'}
           </Button>
         </div>
       </main>

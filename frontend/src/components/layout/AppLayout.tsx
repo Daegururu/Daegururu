@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
+import { postLogout } from '@/apis/auth'
 import { LogoMark, NavItem } from '@/components/common'
+import { useToast } from '@/hooks/useToast'
 import { PATHS, isImplemented } from '@/routes/paths'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -34,9 +36,18 @@ export function AppLayout({ title, user, sidebarFooter, children }: AppLayoutPro
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const clearAuth = useAuthStore((state) => state.clearAuth)
+  const { showToast } = useToast()
 
-  // 토큰을 지우면 RequireAuth가 로그인으로 보내지만, 바로 이동시켜 화면이 잠깐 비지 않게 합니다.
-  const handleLogout = () => {
+  // 서버가 쿠키를 지운 뒤에 프론트 상태를 지웁니다. 요청이 실패하면 쿠키가 살아 있어 로그아웃된 게
+  // 아니므로 안내만 띄우고 화면에 남습니다. 유저를 지우면 RequireAuth가 로그인으로 보내지만,
+  // 바로 이동시켜 화면이 잠깐 비지 않게 합니다.
+  const handleLogout = async () => {
+    try {
+      await postLogout()
+    } catch {
+      showToast('로그아웃하지 못했습니다. 잠시 후 다시 시도해주세요')
+      return
+    }
     clearAuth()
     navigate(PATHS.login, { replace: true })
   }

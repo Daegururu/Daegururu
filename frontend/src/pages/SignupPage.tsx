@@ -95,7 +95,7 @@ export function SignupPage() {
   const signup = useMutation({
     mutationFn: postSignup,
     onSuccess: (response) => {
-      // 가입 응답의 토큰으로 바로 로그인 상태가 되어 온보딩의 가게 정보 저장까지 이어집니다.
+      // 가입 응답과 함께 인증 쿠키가 내려와 바로 로그인 상태가 되고, 온보딩의 가게 정보 저장까지 이어집니다.
       setAuth(response)
       navigate(PATHS.onboardingStore)
     },

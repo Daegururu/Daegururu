@@ -17,11 +17,16 @@ export interface LoginRequest {
   password: string
 }
 
-/** 회원가입과 로그인 응답 형태가 같습니다. */
+/**
+ * 회원가입과 로그인 응답. 토큰은 본문에 오지 않고 HttpOnly 쿠키(access_token)로 내려옵니다.
+ * 회원가입 응답에만 phone_number가 더 있습니다.
+ */
 export interface AuthResponse {
   user_id: number
   business_reg_no: string
   representative_name: string
-  access_token: string
-  token_type: 'bearer'
+}
+
+export interface SignupResponse extends AuthResponse {
+  phone_number: string
 }

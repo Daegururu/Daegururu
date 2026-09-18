@@ -19,7 +19,7 @@ export function LoginPage() {
   const [businessNumberError, setBusinessNumberError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   // 로그인에 성공한 응답. 완료 모달 문구에 쓰고, [홈으로 이동]을 누를 때 스토어에 저장합니다.
-  // 토큰을 먼저 저장하면 RedirectIfAuth가 모달을 보여주기 전에 홈으로 보내 버립니다.
+  // 유저를 먼저 저장하면 RedirectIfAuth가 모달을 보여주기 전에 홈으로 보내 버립니다.
   const [loggedIn, setLoggedIn] = useState<AuthResponse | null>(null)
   const setAuth = useAuthStore((state) => state.setAuth)
 

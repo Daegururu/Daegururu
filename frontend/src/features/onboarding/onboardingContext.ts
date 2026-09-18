@@ -7,6 +7,10 @@ export interface StoreInfo {
   name: string
   /** 업종 */
   category: string
+  /** 업태. 사업자등록증의 업태란 (예: 음식점업) */
+  businessType: string
+  /** 종목. 사업자등록증의 종목란 (예: 한식) */
+  businessCategory: string
   /** 사업장 주소 */
   address: string
   /** 개업일 (YYYY-MM-DD) */
@@ -16,6 +20,8 @@ export interface StoreInfo {
 export const EMPTY_STORE_INFO: StoreInfo = {
   name: '',
   category: '',
+  businessType: '',
+  businessCategory: '',
   address: '',
   openedAt: '',
 }

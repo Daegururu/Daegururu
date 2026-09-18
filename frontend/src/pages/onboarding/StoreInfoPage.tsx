@@ -15,6 +15,8 @@ type FieldKey = keyof StoreInfo
 const EMPTY_ERRORS: Record<FieldKey, string> = {
   name: '',
   category: '',
+  businessType: '',
+  businessCategory: '',
   address: '',
   openedAt: '',
 }
@@ -34,6 +36,8 @@ export function StoreInfoPage() {
       setStoreInfo({
         name: body.business_name,
         category: body.industry_name,
+        businessType: body.business_type,
+        businessCategory: body.business_category,
         address: body.business_address,
         openedAt: body.open_date,
       })
@@ -48,6 +52,8 @@ export function StoreInfoPage() {
           setStoreInfo({
             name: store.business_name,
             category: store.industry_name,
+            businessType: store.business_type,
+            businessCategory: store.business_category,
             address: store.business_address,
             openedAt: store.open_date,
           })
@@ -73,6 +79,8 @@ export function StoreInfoPage() {
     const nextErrors: Record<FieldKey, string> = {
       name: validateRequired(form.name, '상호명'),
       category: validateRequired(form.category, '업종'),
+      businessType: validateRequired(form.businessType, '업태'),
+      businessCategory: validateRequired(form.businessCategory, '종목'),
       address: validateRequired(form.address, '사업장 주소'),
       openedAt: validateRequired(form.openedAt, '개업일'),
     }
@@ -83,6 +91,8 @@ export function StoreInfoPage() {
     save.mutate({
       business_name: form.name.trim(),
       industry_name: form.category.trim(),
+      business_type: form.businessType.trim(),
+      business_category: form.businessCategory.trim(),
       business_address: form.address.trim(),
       open_date: form.openedAt,
     })
@@ -115,6 +125,25 @@ export function StoreInfoPage() {
             onChange={(event) => handleChange('category')(event.target.value)}
             errorMessage={errors.category}
           />
+          {/* 업태·종목은 사업자등록증에 나란히 적혀 있어 한 줄에 둡니다. */}
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="업태"
+              placeholder="예) 음식점업"
+              helperText="사업자등록증의 업태란"
+              value={form.businessType}
+              onChange={(event) => handleChange('businessType')(event.target.value)}
+              errorMessage={errors.businessType}
+            />
+            <Input
+              label="종목"
+              placeholder="예) 한식"
+              helperText="사업자등록증의 종목란"
+              value={form.businessCategory}
+              onChange={(event) => handleChange('businessCategory')(event.target.value)}
+              errorMessage={errors.businessCategory}
+            />
+          </div>
           <Input
             label="사업장 주소"
             placeholder="예) 대구 중구 동성로2가"

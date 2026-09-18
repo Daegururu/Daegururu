@@ -3,6 +3,10 @@
 export interface StoreCreateRequest {
   business_name: string
   industry_name: string
+  /** 업태 */
+  business_type: string
+  /** 종목 */
+  business_category: string
   business_address: string
   /** 개업일 YYYY-MM-DD */
   open_date: string
@@ -12,6 +16,10 @@ export interface StoreResponse {
   store_id: number
   business_name: string
   industry_name: string
+  /** 업태 */
+  business_type: string
+  /** 종목 */
+  business_category: string
   business_address: string
   open_date: string
 }
@@ -19,6 +27,10 @@ export interface StoreResponse {
 export interface StoreDetailResponse {
   business_name: string
   industry_name: string
+  /** 업태 */
+  business_type: string
+  /** 종목 */
+  business_category: string
   business_address: string
   open_date: string
   /** 서버가 계산한 사업기간. 예: "3년 2개월" */
