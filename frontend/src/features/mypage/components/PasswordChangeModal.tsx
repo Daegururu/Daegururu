@@ -10,12 +10,22 @@ const EMPTY: Record<FieldKey, string> = { current: '', next: '', confirm: '' }
 export interface PasswordChangeModalProps {
   open: boolean
   onClose: () => void
-  /** 검증을 통과해 저장한 경우 */
-  onSave: () => void
+  /**
+   * 화면 검증을 통과하면 호출합니다. 현재 비밀번호 대조는 서버가 하므로,
+   * 거절되면 그 문구를 현재 비밀번호 칸 아래에 보여줍니다. 성공하면 모달을 비웁니다.
+   */
+  onSave: (current: string, next: string) => Promise<void>
+  /** 변경 요청 중이면 true. 버튼을 잠급니다. */
+  saving?: boolean
 }
 
 /** 10d 비밀번호 변경 모달. 10 계정 카드의 [변경]으로 엽니다. */
-export function PasswordChangeModal({ open, onClose, onSave }: PasswordChangeModalProps) {
+export function PasswordChangeModal({
+  open,
+  onClose,
+  onSave,
+  saving = false,
+}: PasswordChangeModalProps) {
   const [form, setForm] = useState<Record<FieldKey, string>>(EMPTY)
   const [errors, setErrors] = useState<Record<FieldKey, string>>(EMPTY)
 
@@ -34,8 +44,7 @@ export function PasswordChangeModal({ open, onClose, onSave }: PasswordChangeMod
     onClose()
   }
 
-  // TODO: 비밀번호 변경 API 연동. 현재 비밀번호 대조는 서버에서 합니다.
-  const handleSave = () => {
+  const handleSave = async () => {
     const nextErrors: Record<FieldKey, string> = {
       current: form.current ? '' : '현재 비밀번호를 입력해주세요',
       next:
@@ -46,8 +55,17 @@ export function PasswordChangeModal({ open, onClose, onSave }: PasswordChangeMod
     setErrors(nextErrors)
 
     if (Object.values(nextErrors).some(Boolean)) return
-    onSave()
-    reset()
+
+    try {
+      await onSave(form.current, form.next)
+      reset()
+    } catch (error) {
+      // 서버가 거절하는 경우는 현재 비밀번호 불일치뿐이라 그 칸에 붙입니다.
+      setErrors((prev) => ({
+        ...prev,
+        current: error instanceof Error ? error.message : '비밀번호를 변경하지 못했습니다',
+      }))
+    }
   }
 
   return (
@@ -58,10 +76,12 @@ export function PasswordChangeModal({ open, onClose, onSave }: PasswordChangeMod
       description="안전한 비밀번호로 변경하세요. 8자 이상, 영문·숫자·특수문자 조합을 권장합니다."
       footer={
         <>
-          <Button variant="ghost" onClick={handleClose}>
+          <Button variant="ghost" onClick={handleClose} disabled={saving}>
             취소
           </Button>
-          <Button onClick={handleSave}>저장</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? '변경 중...' : '저장'}
+          </Button>
         </>
       }
     >
