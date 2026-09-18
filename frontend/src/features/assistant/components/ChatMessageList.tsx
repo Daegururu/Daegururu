@@ -1,5 +1,10 @@
+import { useEffect, useState } from 'react'
+
 import { Button, ChatBubble } from '@/components/common'
 import type { ChatMessage } from '@/features/assistant/types'
+
+/** 타이핑 효과에서 글자 하나가 찍히는 간격(ms) */
+const TYPE_INTERVAL_MS = 18
 
 export interface ChatMessageListProps {
   messages: ChatMessage[]
@@ -11,8 +16,9 @@ export interface ChatMessageListProps {
 export function ChatMessageList({ messages, onRetry }: ChatMessageListProps) {
   return (
     <ol className="flex flex-col gap-4">
-      {messages.map(({ id, role, paragraphs, status }) => (
-        <li key={id} className="flex">
+      {messages.map(({ id, role, paragraphs, status, typewriter }) => (
+        // 새 말풍선은 아래에서 올라오며 나타납니다. 움직임을 줄인 설정에서는 바로 보여줍니다.
+        <li key={id} className="flex motion-safe:animate-bubble-in">
           {status === 'pending' ? (
             <ChatBubble role={role}>
               <TypingDots />
@@ -27,6 +33,10 @@ export function ChatMessageList({ messages, onRetry }: ChatMessageListProps) {
               <Button type="button" variant="secondary" size="sm" onClick={() => onRetry(id)}>
                 다시 보내기
               </Button>
+            </ChatBubble>
+          ) : typewriter ? (
+            <ChatBubble role={role}>
+              <TypewriterParagraphs paragraphs={paragraphs} />
             </ChatBubble>
           ) : (
             <ChatBubble role={role}>
@@ -54,4 +64,35 @@ function TypingDots() {
       ))}
     </span>
   )
+}
+
+/**
+ * 문단을 한 글자씩 쳐지듯 보여줍니다. 전체 글자 수를 기준으로 앞에서부터 드러내고,
+ * 다 드러나면 멈춥니다. 움직임을 줄인 설정에서는 처음부터 전부 보여줍니다.
+ */
+function TypewriterParagraphs({ paragraphs }: { paragraphs: string[] }) {
+  const total = paragraphs.reduce((sum, paragraph) => sum + paragraph.length, 0)
+  const [shown, setShown] = useState(() =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? total : 0,
+  )
+  const typing = shown < total
+
+  useEffect(() => {
+    if (!typing) return
+    const timer = window.setInterval(() => {
+      setShown((prev) => Math.min(prev + 1, total))
+    }, TYPE_INTERVAL_MS)
+    return () => window.clearInterval(timer)
+  }, [typing, total])
+
+  // 문단마다 앞 문단들의 글자 수를 뺀 만큼만 자릅니다. 아직 안 드러난 문단도 자리를
+  // 잡아 두어 말풍선 높이가 타이핑 중에 변하지 않습니다.
+  return paragraphs.map((paragraph, index) => {
+    const before = paragraphs.slice(0, index).reduce((sum, prev) => sum + prev.length, 0)
+    return (
+      <p key={index} className="min-h-6">
+        {paragraph.slice(0, Math.max(shown - before, 0))}
+      </p>
+    )
+  })
 }

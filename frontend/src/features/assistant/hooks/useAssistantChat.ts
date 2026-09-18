@@ -11,7 +11,7 @@ import type { ChatMessage } from '../types'
  */
 export function useAssistantChat(greeting: string[]) {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: 'greeting', role: 'ai', paragraphs: greeting },
+    { id: 'greeting', role: 'ai', paragraphs: greeting, typewriter: true },
   ])
 
   // 특정 AI 말풍선(id)만 바꿉니다. 답변이 오거나 실패하면 로딩 자리를 그 결과로 채웁니다.

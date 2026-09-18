@@ -17,4 +17,6 @@ export interface ChatMessage {
   status?: ChatMessageStatus
   /** error 상태일 때 다시 보낼 원래 질문 */
   question?: string
+  /** true면 글자가 한 글자씩 쳐지듯 나타납니다. 첫 인사에만 씁니다. */
+  typewriter?: boolean
 }
