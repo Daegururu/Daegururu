@@ -48,8 +48,14 @@ export function MyPage() {
   const clearAuth = useAuthStore((state) => state.clearAuth)
 
   // TODO: 계정 삭제 API 연동. 지금은 확인 후 로그아웃하고 로그인 화면으로만 보냅니다.
-  const handleDeleteAccount = () => {
-    postLogout().catch(() => {})
+  // 서버가 쿠키를 지우지 못하면 로그아웃된 게 아니므로 안내만 띄우고 화면에 남습니다.
+  const handleDeleteAccount = async () => {
+    try {
+      await postLogout()
+    } catch {
+      showToast('로그아웃하지 못했습니다. 잠시 후 다시 시도해주세요')
+      return
+    }
     clearAuth()
     navigate(PATHS.login)
   }
