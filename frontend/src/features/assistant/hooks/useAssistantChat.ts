@@ -5,6 +5,9 @@ import { sendChatMessage } from '@/apis/chatbot'
 
 import type { ChatMessage } from '../types'
 
+/** 서버가 답변을 만들었지만 내용이 비어 있을 때 말풍선에 대신 넣는 문구입니다. */
+const EMPTY_REPLY_MESSAGE = '답변을 만들지 못했어요. 다시 보내 보세요.'
+
 /**
  * 대화 목록과 전송 상태를 관리합니다.
  * 서버에 대화 이력이 없어서 목록은 화면을 떠나면 사라집니다. 첫 인사는 호출하는 쪽이 넣어 줍니다.
@@ -23,7 +26,12 @@ export function useAssistantChat(greeting: string[]) {
 
   const reply = useMutation({
     mutationFn: ({ question }: { id: string; question: string }) => sendChatMessage(question),
-    onSuccess: ({ paragraphs }, { id }) => {
+    onSuccess: ({ paragraphs }, { id, question }) => {
+      // 답변이 빈 경우에도 200으로 옵니다. 빈 말풍선 대신 다시 보낼 수 있게 실패로 둡니다.
+      if (paragraphs.length === 0) {
+        replaceMessage(id, { paragraphs: [EMPTY_REPLY_MESSAGE], status: 'error', question })
+        return
+      }
       replaceMessage(id, { paragraphs, status: undefined, question: undefined })
     },
     onError: (error, { id, question }) => {
