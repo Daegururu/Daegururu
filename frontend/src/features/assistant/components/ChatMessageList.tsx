@@ -68,7 +68,7 @@ function TypingDots() {
       {[0, 150, 300].map((delay) => (
         <span
           key={delay}
-          className="size-2 animate-bounce rounded-full bg-text-tertiary"
+          className="size-2 rounded-full bg-text-tertiary motion-safe:animate-bounce"
           style={{ animationDelay: `${delay}ms` }}
         />
       ))}
