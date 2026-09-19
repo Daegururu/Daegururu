@@ -17,7 +17,9 @@ export interface ChatMessageListProps {
 /** 대화 말풍선 목록입니다. AI는 왼쪽, 사용자는 오른쪽에 붙습니다. */
 export function ChatMessageList({ messages, onRetry, isSending = false }: ChatMessageListProps) {
   return (
-    <ol className="flex flex-col gap-4">
+    // 대기 중 말풍선이 답변으로 바뀌며 사라져서, 목록 자체를 읽어 주도록 해야
+    // 스크린 리더가 답변이 도착한 것을 알 수 있습니다.
+    <ol role="log" aria-live="polite" className="flex flex-col gap-4">
       {messages.map(({ id, role, paragraphs, status, typewriter }) => (
         // 새 말풍선은 아래에서 올라오며 나타납니다. 움직임을 줄인 설정에서는 바로 보여줍니다.
         <li key={id} className="flex motion-safe:animate-bubble-in">
@@ -93,13 +95,17 @@ function TypewriterParagraphs({ paragraphs }: { paragraphs: string[] }) {
     return () => window.clearInterval(timer)
   }, [typing, total])
 
-  // 문단마다 앞 문단들의 글자 수를 뺀 만큼만 자릅니다. 아직 안 드러난 문단도 자리를
-  // 잡아 두어 말풍선 높이가 타이핑 중에 변하지 않습니다.
+  // 문단마다 앞 문단들의 글자 수를 뺀 만큼만 드러냅니다. 아직 안 드러난 부분도 투명하게
+  // 자리를 차지해 두어, 줄이 늘어나며 말풍선 높이가 변하지 않습니다.
   return paragraphs.map((paragraph, index) => {
     const before = paragraphs.slice(0, index).reduce((sum, prev) => sum + prev.length, 0)
+    const revealed = Math.max(shown - before, 0)
     return (
       <p key={index} className="min-h-6">
-        {paragraph.slice(0, Math.max(shown - before, 0))}
+        {paragraph.slice(0, revealed)}
+        <span aria-hidden className="opacity-0">
+          {paragraph.slice(revealed)}
+        </span>
       </p>
     )
   })

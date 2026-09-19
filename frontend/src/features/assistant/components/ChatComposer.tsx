@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/common'
 
@@ -13,10 +13,23 @@ export interface ChatComposerProps {
 /** 추천 질문 칩 + 입력창 + [전송] 버튼입니다. */
 export function ChatComposer({ suggestions, onSend, disabled = false }: ChatComposerProps) {
   const [text, setText] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+  // 여기서 질문을 보내 입력창이 잠긴 경우에만 true입니다. 진단 차단처럼 다른 이유로 잠겼다가
+  // 풀릴 때 포커스를 뺏지 않기 위해 구분합니다.
+  const sentFromHereRef = useRef(false)
+
+  // 답변을 기다리는 동안 입력창이 잠기면서 포커스가 풀립니다. 답변이 오면 돌려줘서
+  // 매번 입력창을 다시 누르지 않고 이어서 물어볼 수 있게 합니다.
+  useEffect(() => {
+    if (disabled || !sentFromHereRef.current) return
+    sentFromHereRef.current = false
+    inputRef.current?.focus()
+  }, [disabled])
 
   const send = (value: string) => {
     const trimmed = value.trim()
     if (!trimmed || disabled) return
+    sentFromHereRef.current = true
     onSend(trimmed)
     setText('')
   }
@@ -48,6 +61,7 @@ export function ChatComposer({ suggestions, onSend, disabled = false }: ChatComp
         className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-surface py-3 pr-3 pl-4"
       >
         <input
+          ref={inputRef}
           type="text"
           value={text}
           maxLength={500}
