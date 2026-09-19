@@ -74,9 +74,9 @@ export function toPrescriptions(prescriptions: DiagnosisPrescription[]): Prescri
     }))
 }
 
-/** 월별 시리즈. 최근 3개월은 강조합니다. */
+/** 월별 시리즈. 아직 집계 중인 마지막 달만 강조합니다. */
 export function toMonthlyAmounts(series: DiagnosisMonthlySeriesData): MonthlyAmount[] {
-  const highlightFrom = Math.max(0, series.months.length - 3)
+  const highlightFrom = Math.max(0, series.months.length - 1)
 
   return series.months.map((month, index) => ({
     month: toMonthLabel(month),
