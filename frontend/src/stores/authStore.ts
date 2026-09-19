@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import { queryClient } from '@/apis/queryClient'
+import { useDiagnosisStore } from '@/stores/diagnosisStore'
 import type { AuthResponse } from '@/types/auth'
 
 /** 로그인한 사용자. 화면에서 바로 쓰기 좋게 camelCase로 옮겨 둡니다. */
@@ -48,10 +49,12 @@ export const useAuthStore = create<AuthState>()(
         })
         // 로그인 상태에서 다른 계정으로 가입하면 이전 계정의 조회 캐시가 남습니다. 함께 비웁니다.
         queryClient.clear()
+        useDiagnosisStore.getState().forget()
       },
       clearAuth: () => {
         set({ user: null })
         queryClient.clear()
+        useDiagnosisStore.getState().forget()
       },
     }),
     {
