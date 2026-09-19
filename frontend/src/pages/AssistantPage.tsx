@@ -25,11 +25,21 @@ export function AssistantPage() {
   const { hasReport, isChecking } = useDiagnosisGate()
   const blocked = hasReport === false
 
-  // 메시지가 붙거나 답변이 채워지면 맨 아래로 내립니다. 입력창이 아래에 붙어 있어서
-  // 마지막 말풍선이 아니라 입력창 아래 지점을 기준으로 내려야 말풍선이 가려지지 않습니다.
+  // 메시지가 붙거나 답변이 채워지면 맨 아래로 내립니다.
+  //
+  // 기준점(bottomRef)으로 scrollIntoView를 하면 입력창의 음수 마진만큼 위에서 멈춰 마지막
+  // 말풍선이 조금 가립니다. 그래서 스크롤 영역(main)을 직접 끝까지 내립니다.
+  // 답변 말풍선은 타이핑 전에 전체 높이를 잡아 두므로(ChatMessageList) 한 번만 내리면 됩니다.
   const bottomRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: 'end' })
+    const container = bottomRef.current?.closest('main')
+    if (!container) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: reduceMotion ? 'auto' : 'smooth',
+    })
   }, [chat.messages])
 
   return (
@@ -37,7 +47,14 @@ export function AssistantPage() {
       {/* 대화 컬럼은 840px로 고정하고 가운데 둡니다. flex-1로 화면 높이를 채워서
           대화가 짧아도 입력창이 맨 아래에 갑니다. */}
       <div className="mx-auto flex w-full max-w-[840px] flex-1 flex-col">
-        <ChatMessageList messages={chat.messages} onRetry={chat.retry} isSending={chat.isSending} />
+        {/* 입력창이 sticky로 위를 덮기 때문에, 마지막 말풍선 아래쪽이 잘리지 않도록 여백을 둡니다. */}
+        <div className="pb-6">
+          <ChatMessageList
+            messages={chat.messages}
+            onRetry={chat.retry}
+            isSending={chat.isSending}
+          />
+        </div>
 
         {/* 입력창은 항상 화면 아래에 있습니다. 대화가 짧으면 mt-auto로 내려가고, 길어지면 sticky로
             스크롤을 따라옵니다. main의 아래 여백(p-8)만큼 음수 마진을 줘서 끝까지 내렸을 때 위치가
