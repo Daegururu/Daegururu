@@ -10,10 +10,12 @@ export interface ChatMessageListProps {
   messages: ChatMessage[]
   /** 실패한 AI 말풍선의 [다시 보내기]를 눌렀을 때 */
   onRetry: (id: string) => void
+  /** 답변을 기다리는 동안 true. 겹쳐 보낼 수 없어서 [다시 보내기]를 잠급니다. */
+  isSending?: boolean
 }
 
 /** 대화 말풍선 목록입니다. AI는 왼쪽, 사용자는 오른쪽에 붙습니다. */
-export function ChatMessageList({ messages, onRetry }: ChatMessageListProps) {
+export function ChatMessageList({ messages, onRetry, isSending = false }: ChatMessageListProps) {
   return (
     <ol className="flex flex-col gap-4">
       {messages.map(({ id, role, paragraphs, status, typewriter }) => (
@@ -30,7 +32,13 @@ export function ChatMessageList({ messages, onRetry }: ChatMessageListProps) {
                   {paragraph}
                 </p>
               ))}
-              <Button type="button" variant="secondary" size="sm" onClick={() => onRetry(id)}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={isSending}
+                onClick={() => onRetry(id)}
+              >
                 다시 보내기
               </Button>
             </ChatBubble>

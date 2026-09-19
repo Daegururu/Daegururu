@@ -37,7 +37,7 @@ export function AssistantPage() {
       {/* 대화 컬럼은 840px로 고정하고 가운데 둡니다. flex-1로 화면 높이를 채워서
           대화가 짧아도 입력창이 맨 아래에 갑니다. */}
       <div className="mx-auto flex w-full max-w-[840px] flex-1 flex-col">
-        <ChatMessageList messages={chat.messages} onRetry={chat.retry} />
+        <ChatMessageList messages={chat.messages} onRetry={chat.retry} isSending={chat.isSending} />
 
         {/* 입력창은 항상 화면 아래에 있습니다. 대화가 짧으면 mt-auto로 내려가고, 길어지면 sticky로
             스크롤을 따라옵니다. main의 아래 여백(p-8)만큼 음수 마진을 줘서 끝까지 내렸을 때 위치가
