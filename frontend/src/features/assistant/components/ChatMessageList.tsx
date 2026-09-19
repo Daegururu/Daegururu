@@ -45,9 +45,7 @@ export function ChatMessageList({ messages, onRetry, isSending = false }: ChatMe
               </Button>
             </ChatBubble>
           ) : typewriter ? (
-            <ChatBubble role={role}>
-              <TypewriterParagraphs paragraphs={paragraphs} />
-            </ChatBubble>
+            <TypewriterBubble role={role} paragraphs={paragraphs} />
           ) : (
             <ChatBubble role={role}>
               {paragraphs.map((paragraph, index) => (
@@ -58,6 +56,20 @@ export function ChatMessageList({ messages, onRetry, isSending = false }: ChatMe
         </li>
       ))}
     </ol>
+  )
+}
+
+/**
+ * 타이핑 중에는 aria-busy를 켜 둡니다. 글자가 하나씩 늘 때마다 스크린 리더가
+ * 중간 상태를 읽지 않고, 다 찍힌 뒤 한 번만 읽도록 하기 위해서입니다.
+ */
+function TypewriterBubble({ role, paragraphs }: Pick<ChatMessage, 'role' | 'paragraphs'>) {
+  const [typing, setTyping] = useState(true)
+
+  return (
+    <ChatBubble role={role} busy={typing}>
+      <TypewriterParagraphs paragraphs={paragraphs} onTypingChange={setTyping} />
+    </ChatBubble>
   )
 }
 
@@ -80,12 +92,22 @@ function TypingDots() {
  * 문단을 한 글자씩 쳐지듯 보여줍니다. 전체 글자 수를 기준으로 앞에서부터 드러내고,
  * 다 드러나면 멈춥니다. 움직임을 줄인 설정에서는 처음부터 전부 보여줍니다.
  */
-function TypewriterParagraphs({ paragraphs }: { paragraphs: string[] }) {
+function TypewriterParagraphs({
+  paragraphs,
+  onTypingChange,
+}: {
+  paragraphs: string[]
+  onTypingChange?: (typing: boolean) => void
+}) {
   const total = paragraphs.reduce((sum, paragraph) => sum + paragraph.length, 0)
   const [shown, setShown] = useState(() =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ? total : 0,
   )
   const typing = shown < total
+
+  useEffect(() => {
+    onTypingChange?.(typing)
+  }, [typing, onTypingChange])
 
   useEffect(() => {
     if (!typing) return

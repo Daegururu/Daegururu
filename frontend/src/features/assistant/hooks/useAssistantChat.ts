@@ -32,7 +32,8 @@ export function useAssistantChat(greeting: string[]) {
         replaceMessage(id, { paragraphs: [EMPTY_REPLY_MESSAGE], status: 'error', question })
         return
       }
-      replaceMessage(id, { paragraphs, status: undefined, question: undefined })
+      // 첫 인사처럼 답변도 한 글자씩 쳐지며 나타납니다.
+      replaceMessage(id, { paragraphs, status: undefined, question: undefined, typewriter: true })
     },
     onError: (error, { id, question }) => {
       replaceMessage(id, { paragraphs: [error.message], status: 'error', question })
