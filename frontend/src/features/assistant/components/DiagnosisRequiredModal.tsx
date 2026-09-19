@@ -18,10 +18,17 @@ export interface DiagnosisRequiredModalProps {
 export function DiagnosisRequiredModal({ open, onStart }: DiagnosisRequiredModalProps) {
   return (
     // onClose는 빈 함수입니다. 오버레이를 눌러도 ESC를 눌러도 닫히지 않습니다.
-    <Modal open={open} onClose={() => {}} padded={false} ariaLabel="진단 시작 안내">
+    <Modal open={open} onClose={() => {}} size="lg" padded={false} ariaLabel="진단 시작 안내">
+      {/* 모달은 화면 가운데 혼자 뜨는 자리라 홈 카드보다 위아래 여백을 넉넉히 둡니다. */}
       <EmptyReportCard
         onStart={onStart}
-        description="AI 도우미는 우리 가게 매출·고정비·정산 데이터를 보고 답해 드려요. 첫 진단을 마치면 바로 물어볼 수 있어요."
+        description={
+          <>
+            AI 도우미는 우리 가게 매출·고정비·정산 데이터를 보고 답해 드려요.
+            <br />첫 진단을 마치면 바로 물어볼 수 있어요.
+          </>
+        }
+        className="gap-6 py-20"
       />
     </Modal>
   )
