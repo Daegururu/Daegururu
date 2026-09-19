@@ -8,7 +8,7 @@ export interface SalesTabPanelProps {
   note: string
 }
 
-/** 매출 추이 탭. 최근 3개월은 다른 색으로 강조합니다. */
+/** 매출 추이 탭. 아직 집계 중인 마지막 달만 다른 색으로 구분합니다. */
 export function SalesTabPanel({ points, note }: SalesTabPanelProps) {
   return (
     <ReportCard title="월별 매출 추이" meta="단위: 만원 · 최근 12개월" note={note}>
@@ -27,7 +27,7 @@ export function SalesTabPanel({ points, note }: SalesTabPanelProps) {
             {/* y축 눈금은 Figma에 없어 숨기고, 막대 높이 계산에만 씁니다. */}
             <YAxis hide />
             <Bar dataKey="amount" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-              {/* 최근 3개월만 연한 파랑으로 구분합니다. 차트는 브랜드색과 무관하게 blue 계열입니다. */}
+              {/* 마지막 달만 연한 파랑으로 구분합니다. 차트는 브랜드색과 무관하게 blue 계열입니다. */}
               {points.map(({ month, highlighted }) => (
                 <Cell
                   key={month}

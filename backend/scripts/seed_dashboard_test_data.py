@@ -96,6 +96,8 @@ def main():
             user_id=user.user_id,
             business_name="영수네 국밥",
             industry_name="한식음식점업",
+            business_type="음식점업",
+            business_category="한식 일반 음식점업",
             business_address="대구광역시 중구 동성로 12",
             open_date=date.today() - timedelta(days=365 * 3 + 60),
         )

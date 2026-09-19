@@ -7,14 +7,17 @@ export type ChatBubbleRole = 'user' | 'ai'
 export interface ChatBubbleProps {
   children: ReactNode
   role?: ChatBubbleRole
+  /** 내용이 아직 채워지는 중이면 true. 스크린 리더가 중간 상태를 읽지 않습니다. */
+  busy?: boolean
   className?: string
 }
 
-export function ChatBubble({ children, role = 'ai', className }: ChatBubbleProps) {
+export function ChatBubble({ children, role = 'ai', busy, className }: ChatBubbleProps) {
   const isAi = role === 'ai'
 
   return (
     <div
+      aria-busy={busy}
       className={cn(
         'w-fit max-w-[520px] rounded-2xl px-[18px] py-3.5 text-body-m leading-6',
         // 부모가 flex가 아니어도 정렬되도록 self-* 대신 margin auto를 사용합니다.
