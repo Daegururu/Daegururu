@@ -7,7 +7,7 @@ import { ChatMessageList } from '@/features/assistant/components/ChatMessageList
 import { DiagnosisRequiredModal } from '@/features/assistant/components/DiagnosisRequiredModal'
 import { SUGGESTED_QUESTIONS, greetingParagraphs } from '@/features/assistant/constants'
 import { useAssistantChat } from '@/features/assistant/hooks/useAssistantChat'
-import { useDashboardSummary } from '@/features/home/hooks/useDashboardSummary'
+import { useDiagnosisGate } from '@/features/assistant/hooks/useDiagnosisGate'
 import { PATHS } from '@/routes/paths'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -21,10 +21,9 @@ export function AssistantPage() {
   const chat = useAssistantChat(greetingParagraphs(user?.representativeName ?? ''))
 
   // 진단 전에는 답변의 근거가 될 데이터가 없어서 고정비 0원짜리 답이 나갑니다.
-  // 그래서 대화를 막고 진단으로 보냅니다. 홈과 같은 조회라 캐시를 같이 씁니다.
-  // 조회 중이거나 실패하면(hasReport를 모르면) 막지 않습니다.
-  const { data: dashboard, isPending: isCheckingReport } = useDashboardSummary()
-  const blocked = dashboard?.hasReport === false
+  // 그래서 대화를 막고 진단으로 보냅니다. 진단 여부를 끝내 확인하지 못했으면 막지 않습니다.
+  const { hasReport, isChecking } = useDiagnosisGate()
+  const blocked = hasReport === false
 
   // 메시지가 붙거나 답변이 채워지면 맨 아래로 내립니다. 입력창이 아래에 붙어 있어서
   // 마지막 말풍선이 아니라 입력창 아래 지점을 기준으로 내려야 말풍선이 가려지지 않습니다.
@@ -47,7 +46,7 @@ export function AssistantPage() {
           <ChatComposer
             suggestions={SUGGESTED_QUESTIONS}
             onSend={chat.send}
-            disabled={chat.isSending || blocked || isCheckingReport}
+            disabled={chat.isSending || blocked || isChecking}
           />
         </div>
         <div ref={bottomRef} aria-hidden />
