@@ -1,0 +1,36 @@
+name: Run Backend Script
+
+# 배포 서버(EC2)의 backend 컨테이너에서 관리용 스크립트를 수동으로 실행한다.
+# 배포는 코드만 교체하므로, 시드·공고 동기화처럼 DB를 채우는 작업은 여기서 따로 돌린다.
+# Actions 탭 > Run Backend Script > Run workflow 에서 실행한다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: 실행할 스크립트
+        required: true
+        type: choice
+        default: sync_bizinfo_programs
+        options:
+          - sync_bizinfo_programs
+          - seed_dashboard_test_data
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run script on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          SCRIPT: ${{ inputs.script }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: SCRIPT
+          command_timeout: 10m
+          script: |
+            set -e
+            cd ~/daegururu
+            docker compose exec -T backend python "scripts/${SCRIPT}.py"
