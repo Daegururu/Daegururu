@@ -30,7 +30,9 @@ from app.models import (
 from app.services.auth import signup_user
 from app.schemas.user import UserSignupRequest
 
-SEED_BUSINESS_REG_NOS = ["000-00-00001", "000-00-00002"]
+# 프론트가 사업자등록번호에서 하이픈을 떼고 보내므로(회원가입·로그인 모두) 하이픈 없이 저장한다.
+# 하이픈을 붙여 넣으면 화면에서 로그인할 때 조회가 맞지 않는다.
+SEED_BUSINESS_REG_NOS = ["0000000001", "0000000002"]
 SEED_PRODUCT_NAMES = ["대구시 골목상권 활력자금", "iM뱅크 소상공인 특별운영자금", "소상공인시장진흥공단 정책자금"]
 SEED_BENCHMARK = ("한식음식점업", "대구광역시 중구")
 
